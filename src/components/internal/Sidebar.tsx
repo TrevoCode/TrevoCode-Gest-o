@@ -14,6 +14,9 @@ import {
   Settings,
   type LucideIcon,
 } from "lucide-react"
+import { TrevoMark } from "@/components/internal/TrevoMark"
+import { Avatar } from "@/components/internal/Avatar"
+import { LogoutButton } from "@/components/internal/LogoutButton"
 
 type NavItem = {
   href: string
@@ -48,13 +51,17 @@ function NavLink({ item, pathname }: { item: NavItem; pathname: string }) {
     <Link
       href={item.href}
       aria-current={active ? "page" : undefined}
-      className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+      className={`group flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
         active
           ? "bg-primary/10 text-primary"
-          : "text-muted-foreground hover:bg-muted hover:text-foreground"
+          : "text-muted-foreground hover:bg-accent hover:text-foreground"
       }`}
     >
-      <item.icon className="size-4.5 shrink-0" />
+      <item.icon
+        className={`size-4.5 shrink-0 transition-colors ${
+          active ? "text-primary" : "text-muted-foreground/70 group-hover:text-foreground"
+        }`}
+      />
       <span className="flex-1">{item.label}</span>
       {item.badge && (
         <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
@@ -65,31 +72,57 @@ function NavLink({ item, pathname }: { item: NavItem; pathname: string }) {
   )
 }
 
-export function Sidebar() {
+export function Sidebar({
+  user,
+  demo,
+}: {
+  user: { name: string; email: string }
+  demo: boolean
+}) {
   const pathname = usePathname()
 
   return (
-    <aside className="hidden w-60 shrink-0 flex-col border-r border-border bg-card md:flex">
+    <aside className="hidden w-60 shrink-0 flex-col border-r border-sidebar-border bg-sidebar md:flex">
       <Link
         href="/app"
-        className="flex items-center gap-2 border-b border-border px-5 py-4 font-semibold"
+        className="flex items-center gap-2.5 border-b border-sidebar-border px-5 py-4"
       >
-        <span className="text-primary">🍀</span>
-        TrevoCode
+        <TrevoMark className="size-6 text-primary" />
+        <span className="flex flex-col leading-none">
+          <span className="text-[15px] font-semibold tracking-tight">TrevoCode</span>
+          <span className="mt-0.5 text-[11px] font-medium text-muted-foreground">
+            Gestão interna
+          </span>
+        </span>
       </Link>
 
-      <nav className="flex flex-1 flex-col gap-1 p-3">
+      <nav className="flex flex-1 flex-col gap-0.5 p-3">
         {PRINCIPAL.map((item) => (
           <NavLink key={item.href} item={item} pathname={pathname} />
         ))}
 
-        <p className="mt-4 px-3 pb-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/70">
+        <p className="mt-5 mb-1 px-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/70">
           Gestão
         </p>
         {GESTAO.map((item) => (
           <NavLink key={item.href} item={item} pathname={pathname} />
         ))}
       </nav>
+
+      <div className="border-t border-sidebar-border p-3">
+        <div className="flex items-center gap-2.5 px-2 py-1">
+          <Avatar name={user.name} />
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-sm font-medium leading-tight">{user.name}</p>
+            <p className="truncate text-xs text-muted-foreground">{user.email}</p>
+          </div>
+        </div>
+        {!demo && (
+          <div className="mt-1 px-1">
+            <LogoutButton />
+          </div>
+        )}
+      </div>
     </aside>
   )
 }
