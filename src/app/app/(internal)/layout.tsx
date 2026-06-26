@@ -5,6 +5,7 @@ import { isAllowed } from "@/lib/auth/allowlist"
 import { isSupabaseConfigured } from "@/lib/supabase/config"
 import { LogoutButton } from "@/components/internal/LogoutButton"
 import { Sidebar } from "@/components/internal/Sidebar"
+import { MobileNav } from "@/components/internal/MobileNav"
 import { ThemeToggle } from "@/components/internal/ThemeToggle"
 import { Avatar } from "@/components/internal/Avatar"
 import { TrevoMark } from "@/components/internal/TrevoMark"
@@ -43,10 +44,13 @@ export default async function InternalLayout({
           </div>
         )}
         <header className="flex items-center justify-between gap-3 border-b border-border px-6 py-2.5">
-          <Link href="/app" className="flex items-center gap-2 md:hidden">
-            <TrevoMark className="size-5 text-primary" />
-            <span className="text-sm font-semibold tracking-tight">TrevoCode</span>
-          </Link>
+          <div className="flex items-center gap-2 md:hidden">
+            <MobileNav />
+            <Link href="/app" className="flex items-center gap-2">
+              <TrevoMark className="size-5 text-primary" />
+              <span className="text-sm font-semibold tracking-tight">TrevoCode</span>
+            </Link>
+          </div>
           <div className="hidden md:block" />
           <div className="flex items-center gap-1.5">
             <ThemeToggle />
