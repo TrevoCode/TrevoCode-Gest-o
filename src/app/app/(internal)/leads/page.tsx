@@ -5,6 +5,7 @@ import {
   Mail,
   Clock,
   Building2,
+  Inbox,
   type LucideIcon,
 } from "lucide-react"
 import { listarLeads } from "@/lib/data"
@@ -35,6 +36,7 @@ export default async function LeadsPage() {
   return (
     <div className="mx-auto max-w-4xl">
       <PageHeader
+        icon={Inbox}
         title="Leads"
         description="Contatos recebidos pelo formulário do site, prontos para virar clientes."
       />

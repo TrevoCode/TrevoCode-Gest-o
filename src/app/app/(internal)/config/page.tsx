@@ -1,7 +1,8 @@
-import { Users, Plug, Database, CalendarDays, Globe, UserPlus } from "lucide-react"
+import { Users, Plug, Database, CalendarDays, Globe, UserPlus, Settings } from "lucide-react"
 import { ALLOWED_EMAILS } from "@/lib/auth/allowlist"
 import { isSupabaseConfigured } from "@/lib/supabase/config"
 import { PageHeader } from "@/components/internal/PageHeader"
+import { Panel } from "@/components/internal/Panel"
 
 export const metadata = { title: "Configurações" }
 
@@ -27,46 +28,61 @@ export default function ConfigPage() {
 
   return (
     <div className="mx-auto max-w-3xl">
-      <PageHeader title="Configurações" description="Equipe, integrações e preferências da plataforma." />
+      <PageHeader
+        icon={Settings}
+        title="Configurações"
+        description="Equipe, integrações e preferências da plataforma."
+      />
 
-      {/* Equipe */}
-      <section className="rounded-xl border border-border bg-card">
-        <header className="flex items-center justify-between border-b border-border px-5 py-3">
-          <h2 className="flex items-center gap-2 text-sm font-semibold">
-            <Users className="size-4 text-primary" /> Equipe
-          </h2>
-          <button className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-medium hover:bg-muted">
+      <Panel
+        icon={Users}
+        title="Equipe"
+        description="Quem tem acesso à plataforma."
+        action={
+          <button className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-medium shadow-xs transition-colors hover:bg-muted">
             <UserPlus className="size-3.5" /> Convidar
           </button>
-        </header>
+        }
+        footer={
+          <p className="border-t border-border px-5 py-2.5 text-xs text-muted-foreground">
+            O acesso é controlado por allowlist de e-mail (variável{" "}
+            <code className="rounded bg-muted px-1 py-0.5 text-[11px]">INTERNAL_ALLOWED_EMAILS</code>).
+          </p>
+        }
+      >
         <ul className="divide-y divide-border">
           {membros.map((email) => (
-            <li key={email} className="flex items-center justify-between gap-3 px-5 py-3">
+            <li
+              key={email}
+              className="flex items-center justify-between gap-3 px-5 py-3 transition-colors hover:bg-muted/40"
+            >
               <div className="flex items-center gap-3">
                 <span className="grid size-8 place-items-center rounded-full bg-primary/10 text-xs font-semibold uppercase text-primary">
                   {email.slice(0, 2)}
                 </span>
                 <span className="text-sm">{email}</span>
               </div>
-              <span className="rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground">Gestor</span>
+              <span className="rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
+                Gestor
+              </span>
             </li>
           ))}
         </ul>
-        <p className="border-t border-border px-5 py-2.5 text-xs text-muted-foreground">
-          O acesso é controlado por allowlist de e-mail (variável <code>INTERNAL_ALLOWED_EMAILS</code>).
-        </p>
-      </section>
+      </Panel>
 
-      {/* Integrações */}
-      <section className="mt-6 rounded-xl border border-border bg-card">
-        <header className="border-b border-border px-5 py-3">
-          <h2 className="flex items-center gap-2 text-sm font-semibold">
-            <Plug className="size-4 text-primary" /> Integrações
-          </h2>
-        </header>
+      <Panel
+        className="mt-6"
+        icon={Plug}
+        iconTone="info"
+        title="Integrações"
+        description="Serviços conectados ao sistema."
+      >
         <ul className="divide-y divide-border">
           {integracoes.map((i) => (
-            <li key={i.nome} className="flex items-center justify-between gap-3 px-5 py-3.5">
+            <li
+              key={i.nome}
+              className="flex items-center justify-between gap-3 px-5 py-3.5 transition-colors hover:bg-muted/40"
+            >
               <div className="flex items-center gap-3">
                 <span className="grid size-9 place-items-center rounded-lg bg-muted text-muted-foreground">
                   <i.icon className="size-4" />
@@ -80,7 +96,7 @@ export default function ConfigPage() {
             </li>
           ))}
         </ul>
-      </section>
+      </Panel>
     </div>
   )
 }

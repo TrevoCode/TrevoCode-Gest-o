@@ -25,7 +25,7 @@ export default function NovoClientePage() {
       >
         <ArrowLeft className="size-4" /> Clientes
       </Link>
-      <h1 className="mt-3 text-xl font-semibold tracking-tight">Novo cliente</h1>
+      <h1 className="mt-3 font-heading text-2xl font-semibold tracking-tight">Novo cliente</h1>
 
       <div className="mt-4 flex items-start gap-2 rounded-lg border border-warning-muted bg-warning-muted px-4 py-3 text-sm text-warning-muted-foreground">
         <Info className="mt-0.5 size-4 shrink-0" />

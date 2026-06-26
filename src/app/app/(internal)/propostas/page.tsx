@@ -16,6 +16,7 @@ export default async function PropostasPage() {
   return (
     <div className="mx-auto max-w-5xl">
       <PageHeader
+        icon={FileText}
         title="Propostas"
         description="Orçamentos enviados aos clientes — do rascunho ao aceite."
         action={

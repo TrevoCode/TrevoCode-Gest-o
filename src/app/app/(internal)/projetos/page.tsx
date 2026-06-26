@@ -21,6 +21,7 @@ export default async function ProjetosPage() {
   return (
     <div className="mx-auto max-w-6xl">
       <PageHeader
+        icon={FolderKanban}
         title="Projetos"
         description="Contratos por cliente: avulsos e recorrentes."
         action={

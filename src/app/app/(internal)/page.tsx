@@ -83,10 +83,17 @@ export default async function DashboardPage() {
 
   return (
     <div className="mx-auto max-w-6xl">
-      <div className="mb-6">
-        <h1 className="text-xl font-semibold tracking-tight">Painel</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Visão geral da operação da TrevoCode.
+      <div className="relative mb-6 overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-primary/12 via-card to-card p-6 shadow-xs">
+        <div className="pointer-events-none absolute -right-6 -top-8 size-40 rounded-full bg-primary/10 blur-2xl" />
+        <p className="font-heading text-xs font-semibold uppercase tracking-widest text-primary">
+          Painel
+        </p>
+        <h1 className="mt-1 font-heading text-2xl font-bold tracking-tight">
+          Visão geral da operação
+        </h1>
+        <p className="mt-1 max-w-xl text-sm text-muted-foreground">
+          Leads, clientes, projetos e caixa da TrevoCode num lugar só — o resumo do
+          que precisa da sua atenção hoje.
         </p>
       </div>
 
@@ -107,7 +114,9 @@ export default async function DashboardPage() {
       <div className="mt-6 grid gap-5 lg:grid-cols-2">
         <Panel
           icon={CalendarDays}
+          iconTone="info"
           title="Próximas reuniões"
+          description="Seus próximos compromissos agendados."
           action={
             <Link
               href="/app/reunioes"
@@ -146,6 +155,7 @@ export default async function DashboardPage() {
         <Panel
           icon={Inbox}
           title="Leads recentes"
+          description="Últimos contatos recebidos pelo site."
           action={
             <Link
               href="/app/leads"

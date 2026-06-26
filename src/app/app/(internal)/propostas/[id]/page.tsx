@@ -1,6 +1,6 @@
 import Link from "next/link"
 import { notFound } from "next/navigation"
-import { ArrowLeft, Send, Check, FileSignature, Download } from "lucide-react"
+import { ArrowLeft, Send, Check, FileSignature, Download, ListChecks } from "lucide-react"
 import { obterProposta } from "@/lib/data"
 import { formatBRL, formatData } from "@/lib/format"
 import { StatusBadge } from "@/components/internal/StatusBadge"
@@ -34,7 +34,7 @@ export default async function PropostaDetalhePage({
       </Link>
 
       <div className="mt-3 flex flex-wrap items-center gap-3">
-        <h1 className="text-xl font-semibold tracking-tight">{p.titulo}</h1>
+        <h1 className="font-heading text-2xl font-semibold tracking-tight">{p.titulo}</h1>
         <StatusBadge status={p.status} />
       </div>
       <p className="mt-1 text-sm text-muted-foreground">
@@ -47,7 +47,9 @@ export default async function PropostaDetalhePage({
 
       <Panel
         className="mt-6"
+        icon={ListChecks}
         title="Itens"
+        description="O que está incluído nesta proposta."
         footer={
           <div className="flex items-center justify-between border-t border-border px-5 py-3">
             <span className="text-sm font-semibold">Total</span>

@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { Plus, TrendingUp, Scale, Trophy, AlertTriangle } from "lucide-react"
+import { Plus, TrendingUp, Scale, Trophy, AlertTriangle, Target, BarChart3 } from "lucide-react"
 import { obterPipeline, obterForecast } from "@/lib/data"
 import type { DealView } from "@/lib/data"
 import { formatBRL } from "@/lib/format"
@@ -59,6 +59,7 @@ export default async function PipelinePage() {
   return (
     <div className="mx-auto max-w-6xl">
       <PageHeader
+        icon={Target}
         title="Pipeline"
         description="Funil comercial — negócios por etapa, do primeiro contato ao fechamento."
         action={
@@ -108,7 +109,13 @@ export default async function PipelinePage() {
         ))}
       </div>
 
-      <Panel className="mt-6" title="Previsão por mês (negócios em aberto)" bodyClassName="p-5">
+      <Panel
+        className="mt-6"
+        icon={BarChart3}
+        title="Previsão por mês (negócios em aberto)"
+        description="Quanto deve entrar por mês, ponderado pela probabilidade de cada negócio."
+        bodyClassName="p-5"
+      >
         <ul className="space-y-3">
           {forecast.length === 0 && (
             <li className="text-sm text-muted-foreground">Sem negócios em aberto.</li>

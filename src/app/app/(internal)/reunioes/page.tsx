@@ -48,6 +48,7 @@ export default async function ReunioesPage() {
   return (
     <div className="mx-auto max-w-4xl">
       <PageHeader
+        icon={CalendarDays}
         title="Reuniões"
         description="Agenda, notas e follow-ups com clientes."
         action={
@@ -57,7 +58,7 @@ export default async function ReunioesPage() {
         }
       />
 
-      <h2 className="mb-2 flex items-center gap-2 text-sm font-semibold">
+      <h2 className="mb-2 flex items-center gap-2 font-heading text-sm font-semibold">
         <CalendarDays className="size-4 text-primary" /> Próximas ({proximas.length})
       </h2>
       <div className="overflow-hidden rounded-xl border border-border bg-card shadow-xs">
@@ -70,7 +71,7 @@ export default async function ReunioesPage() {
         )}
       </div>
 
-      <h2 className="mb-2 mt-8 text-sm font-semibold text-muted-foreground">Anteriores</h2>
+      <h2 className="mb-2 mt-8 font-heading text-sm font-semibold text-muted-foreground">Anteriores</h2>
       <div className="overflow-hidden rounded-xl border border-border bg-card shadow-xs">
         {anteriores.length === 0 ? (
           <p className="px-5 py-8 text-center text-sm text-muted-foreground">Sem histórico.</p>

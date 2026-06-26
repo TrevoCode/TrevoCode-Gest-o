@@ -7,6 +7,7 @@ import {
   AlertCircle,
   LineChart,
   CalendarClock,
+  PieChart,
 } from "lucide-react"
 import { obterFinanceiro, obterFluxoProjetado, listarContasPagar } from "@/lib/data"
 import { formatBRL, formatData } from "@/lib/format"
@@ -40,6 +41,7 @@ export default async function FinanceiroPage() {
   return (
     <div className="mx-auto max-w-6xl">
       <PageHeader
+        icon={Wallet}
         title="Financeiro"
         description="Recebimentos, contas a pagar e projeção de caixa."
         action={
@@ -92,6 +94,7 @@ export default async function FinanceiroPage() {
         className="mt-6"
         icon={LineChart}
         title="Fluxo de caixa projetado — 6 semanas"
+        description="Saldo previsto semana a semana com recebimentos e contas a pagar."
         action={
           <span className="text-xs text-muted-foreground tabular-nums">
             Saldo atual: {formatBRL(saldoInicial)}
@@ -133,7 +136,12 @@ export default async function FinanceiroPage() {
 
       {/* Faturas + Contas a pagar */}
       <div className="mt-6 grid gap-5 lg:grid-cols-2">
-        <Panel icon={TrendingUp} title="Faturas a receber">
+        <Panel
+          icon={TrendingUp}
+          iconTone="success"
+          title="Faturas a receber"
+          description="Cobranças emitidas aguardando pagamento."
+        >
           <ul className="divide-y divide-border">
             {faturas
               .filter((f) => f.status !== "paga")
@@ -157,7 +165,12 @@ export default async function FinanceiroPage() {
           </ul>
         </Panel>
 
-        <Panel icon={TrendingDown} title="Contas a pagar">
+        <Panel
+          icon={TrendingDown}
+          iconTone="danger"
+          title="Contas a pagar"
+          description="Despesas com vencimento próximo."
+        >
           <ul className="divide-y divide-border">
             {contas.map((c) => (
               <li
@@ -182,7 +195,14 @@ export default async function FinanceiroPage() {
       </div>
 
       {/* Despesas por categoria */}
-      <Panel className="mt-6" title="Despesas do mês por categoria" bodyClassName="p-5">
+      <Panel
+        className="mt-6"
+        icon={PieChart}
+        iconTone="warning"
+        title="Despesas do mês por categoria"
+        description="Para onde o dinheiro foi neste mês."
+        bodyClassName="p-5"
+      >
         <ul className="grid gap-3 sm:grid-cols-2">
           {porCategoria.length === 0 && (
             <li className="text-sm text-muted-foreground">Sem despesas no mês.</li>

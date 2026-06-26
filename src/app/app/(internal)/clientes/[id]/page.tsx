@@ -10,6 +10,7 @@ import {
   CalendarDays,
   Repeat,
   Activity,
+  Users,
 } from "lucide-react"
 import { obterCliente, montarTimeline } from "@/lib/data"
 import { formatBRL, formatData, formatDataHora } from "@/lib/format"
@@ -42,7 +43,7 @@ export default async function ClienteDetalhePage({
       </Link>
 
       <div className="mt-3 flex flex-wrap items-center gap-3">
-        <h1 className="text-xl font-semibold tracking-tight">{cliente.nome}</h1>
+        <h1 className="font-heading text-2xl font-semibold tracking-tight">{cliente.nome}</h1>
         <StatusBadge status={cliente.status} />
       </div>
       <p className="mt-1 text-sm text-muted-foreground">
@@ -52,7 +53,12 @@ export default async function ClienteDetalhePage({
       <div className="mt-6 grid gap-6 lg:grid-cols-3">
         {/* Coluna esquerda: dados + contatos */}
         <div className="space-y-6">
-          <Panel icon={Building2} title="Dados" bodyClassName="p-5">
+          <Panel
+            icon={Building2}
+            title="Dados"
+            description="Cadastro e origem do cliente."
+            bodyClassName="p-5"
+          >
             <dl className="space-y-2 text-sm">
               <div className="flex justify-between gap-3">
                 <dt className="text-muted-foreground">CNPJ</dt>
@@ -70,7 +76,12 @@ export default async function ClienteDetalhePage({
             )}
           </Panel>
 
-          <Panel title="Contatos">
+          <Panel
+            icon={Users}
+            iconTone="info"
+            title="Contatos"
+            description="Pessoas de contato na empresa."
+          >
             <ul className="divide-y divide-border">
               {cliente.contatos.length === 0 && (
                 <li className="px-5 py-4 text-sm text-muted-foreground">Nenhum contato.</li>
@@ -102,7 +113,11 @@ export default async function ClienteDetalhePage({
 
         {/* Coluna direita (2x): projetos + reuniões */}
         <div className="space-y-6 lg:col-span-2">
-          <Panel icon={FolderKanban} title="Projetos">
+          <Panel
+            icon={FolderKanban}
+            title="Projetos"
+            description="Contratos avulsos e recorrentes."
+          >
             <ul className="divide-y divide-border">
               {cliente.projetos.length === 0 && (
                 <li className="px-5 py-4 text-sm text-muted-foreground">Nenhum projeto.</li>
@@ -139,7 +154,12 @@ export default async function ClienteDetalhePage({
             </ul>
           </Panel>
 
-          <Panel icon={CalendarDays} title="Reuniões">
+          <Panel
+            icon={CalendarDays}
+            iconTone="info"
+            title="Reuniões"
+            description="Histórico e próximos encontros."
+          >
             <ul className="divide-y divide-border">
               {cliente.reunioes.length === 0 && (
                 <li className="px-5 py-4 text-sm text-muted-foreground">Nenhuma reunião.</li>
@@ -162,7 +182,13 @@ export default async function ClienteDetalhePage({
         </div>
       </div>
 
-      <Panel className="mt-6" icon={Activity} title="Atividade">
+      <Panel
+        className="mt-6"
+        icon={Activity}
+        iconTone="success"
+        title="Atividade"
+        description="Linha do tempo do relacionamento."
+      >
         <ol className="ml-6 border-l border-border py-2">
           {timeline.length === 0 && (
             <li className="px-5 py-3 text-sm text-muted-foreground">Sem atividade.</li>

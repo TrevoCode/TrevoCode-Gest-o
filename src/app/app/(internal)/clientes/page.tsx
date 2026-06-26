@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { Plus, Search, ChevronRight } from "lucide-react"
+import { Plus, Search, ChevronRight, Users } from "lucide-react"
 import { listarClientes } from "@/lib/data"
 import type { Cliente } from "@/lib/db/types"
 import { formatBRL } from "@/lib/format"
@@ -33,6 +33,7 @@ export default async function ClientesPage({
   return (
     <div className="mx-auto max-w-6xl">
       <PageHeader
+        icon={Users}
         title="Clientes"
         description="Pipeline comercial, contatos e contratos."
         action={
