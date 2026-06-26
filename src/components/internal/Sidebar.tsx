@@ -87,10 +87,10 @@ export function Sidebar({
         href="/app"
         className="flex items-center gap-2.5 border-b border-sidebar-border px-5 py-4"
       >
-        <TrevoMark className="size-6 text-primary" />
+        <TrevoMark className="size-7" />
         <span className="flex flex-col leading-none">
-          <span className="text-[15px] font-semibold tracking-tight">TrevoCode</span>
-          <span className="mt-0.5 text-[11px] font-medium text-muted-foreground">
+          <span className="font-heading text-[15px] font-bold tracking-tight">TrevoCode</span>
+          <span className="mt-1 text-[11px] font-medium text-muted-foreground">
             Gestão interna
           </span>
         </span>

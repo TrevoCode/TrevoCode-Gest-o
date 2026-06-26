@@ -1,12 +1,15 @@
 import { type ReactNode } from "react"
 import { type LucideIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { ICON_TONE, type IconTone } from "@/components/internal/tones"
 
-// Cartão de seção padrão: superfície elevada com cabeçalho (ícone + título +
-// ação opcional), corpo e rodapé opcional. Unifica as listas/seções das telas.
+// Cartão de seção: superfície elevada com cabeçalho destacado (chip de ícone
+// colorido + título + descrição do que a seção serve), corpo e rodapé opcional.
 export function Panel({
   icon: Icon,
+  iconTone = "primary",
   title,
+  description,
   action,
   footer,
   children,
@@ -14,7 +17,9 @@ export function Panel({
   bodyClassName,
 }: {
   icon?: LucideIcon
+  iconTone?: IconTone
   title?: ReactNode
+  description?: ReactNode
   action?: ReactNode
   footer?: ReactNode
   children: ReactNode
@@ -29,12 +34,28 @@ export function Panel({
       )}
     >
       {(title || action) && (
-        <header className="flex items-center justify-between gap-3 border-b border-border px-5 py-3">
-          <h2 className="flex items-center gap-2 text-sm font-semibold">
-            {Icon && <Icon className="size-4 text-primary" />}
-            {title}
-          </h2>
-          {action}
+        <header className="flex items-start justify-between gap-3 border-b border-border bg-muted/30 px-5 py-3">
+          <div className="flex min-w-0 items-center gap-2.5">
+            {Icon && (
+              <span
+                className={cn(
+                  "flex size-8 shrink-0 items-center justify-center rounded-lg",
+                  ICON_TONE[iconTone]
+                )}
+              >
+                <Icon className="size-4" />
+              </span>
+            )}
+            <div className="min-w-0">
+              {title && (
+                <h2 className="font-heading text-sm font-semibold leading-tight">{title}</h2>
+              )}
+              {description && (
+                <p className="mt-0.5 text-xs text-muted-foreground">{description}</p>
+              )}
+            </div>
+          </div>
+          {action && <div className="shrink-0">{action}</div>}
         </header>
       )}
       <div className={bodyClassName}>{children}</div>

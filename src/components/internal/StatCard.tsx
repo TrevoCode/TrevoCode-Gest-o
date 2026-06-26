@@ -2,18 +2,11 @@ import { type ReactNode } from "react"
 import Link from "next/link"
 import { ArrowUpRight, ArrowDownRight, type LucideIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { ICON_TONE, type IconTone } from "@/components/internal/tones"
 
 // Cartão de KPI padrão: ícone tingido, valor tabular, rótulo e (opcional)
 // dica de contexto + chip de tendência. Usado no Dashboard, Pipeline e Financeiro.
-type Tone = "primary" | "success" | "warning" | "danger" | "info"
-
-const ICON_TONE: Record<Tone, string> = {
-  primary: "bg-primary/10 text-primary",
-  success: "bg-success-muted text-success-muted-foreground",
-  warning: "bg-warning-muted text-warning-muted-foreground",
-  danger: "bg-danger-muted text-danger-muted-foreground",
-  info: "bg-info-muted text-info-muted-foreground",
-}
+type Tone = IconTone
 
 export function StatCard({
   icon: Icon,
@@ -64,7 +57,12 @@ export function StatCard({
           </span>
         )}
       </div>
-      <p className={cn("mt-4 text-2xl font-semibold tracking-tight tabular-nums", valueClassName)}>
+      <p
+        className={cn(
+          "mt-4 font-heading text-[1.6rem] font-semibold leading-none tracking-tight tabular-nums",
+          valueClassName
+        )}
+      >
         {value}
       </p>
       <p className="mt-0.5 text-sm text-muted-foreground">{label}</p>
