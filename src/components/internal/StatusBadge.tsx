@@ -23,6 +23,14 @@ const MAP: Record<string, Entry> = {
   agendada: { label: "Agendada", cls: "bg-blue-100 text-blue-700" },
   realizada: { label: "Realizada", cls: "bg-green-100 text-green-700" },
   cancelada: { label: "Cancelada", cls: "bg-neutral-100 text-neutral-600" },
+  // faturas
+  rascunho: { label: "Rascunho", cls: "bg-neutral-100 text-neutral-600" },
+  enviada: { label: "Enviada", cls: "bg-blue-100 text-blue-700" },
+  paga: { label: "Paga", cls: "bg-green-100 text-green-700" },
+  atrasada: { label: "Atrasada", cls: "bg-rose-100 text-rose-700" },
+  // contas a pagar
+  a_vencer: { label: "A vencer", cls: "bg-amber-100 text-amber-700" },
+  vencida: { label: "Vencida", cls: "bg-rose-100 text-rose-700" },
 }
 
 export function StatusBadge({ status }: { status: string }) {

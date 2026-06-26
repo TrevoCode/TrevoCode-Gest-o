@@ -4,7 +4,7 @@
 // Supabase, basta reescrever o corpo destas funções; as telas não mudam.
 // As assinaturas já são async de propósito (igual serão as queries reais).
 // ─────────────────────────────────────────────────────────────────────────
-import type { Cliente, Contato, Projeto, Reuniao, Lead, Fatura, Despesa } from "@/lib/db/types"
+import type { Cliente, Contato, Projeto, Reuniao, Lead, Fatura, Despesa, Deal, DealEtapa, ContaPagar } from "@/lib/db/types"
 
 const DIA = 86_400_000
 const agora = Date.now()
@@ -66,6 +66,8 @@ const faturas: Fatura[] = [
   { id: "f5", cliente_id: "c4", projeto_id: "p5", descricao: "Teleconsulta — saldo final", valor: 20000, status: "atrasada", emitida_em: dataSimples(-40), vencimento: dataSimples(-9), pago_em: null, created_at: iso(-40) },
   { id: "f6", cliente_id: "c2", projeto_id: "p3", descricao: "App treino — parcela 2", valor: 12000, status: "rascunho", emitida_em: null, vencimento: dataSimples(20), pago_em: null, created_at: iso(-1) },
   { id: "f7", cliente_id: "c1", projeto_id: "p1", descricao: "App delivery — marco 1", valor: 16000, status: "paga", emitida_em: dataSimples(-55), vencimento: dataSimples(-45), pago_em: dataSimples(-44), created_at: iso(-55) },
+  { id: "f8", cliente_id: "c4", projeto_id: "p6", descricao: "Sustentação — próximo ciclo", valor: 3800, status: "enviada", emitida_em: dataSimples(-1), vencimento: dataSimples(18), pago_em: null, created_at: iso(-1) },
+  { id: "f9", cliente_id: "c1", projeto_id: "p2", descricao: "Manutenção — próximo ciclo", valor: 2500, status: "enviada", emitida_em: dataSimples(-1), vencimento: dataSimples(25), pago_em: null, created_at: iso(-1) },
 ]
 
 const despesas: Despesa[] = [
@@ -76,6 +78,27 @@ const despesas: Despesa[] = [
   { id: "d5", descricao: "DAS — Simples Nacional", categoria: "impostos", valor: 4200, data: dataSimples(-7), recorrente: true, created_at: iso(-7) },
   { id: "d6", descricao: "Figma + GitHub", categoria: "ferramentas", valor: 450, data: dataSimples(-8), recorrente: true, created_at: iso(-8) },
   { id: "d7", descricao: "Notebook (equipe nova)", categoria: "outros", valor: 7800, data: dataSimples(-2), recorrente: false, created_at: iso(-2) },
+]
+
+const deals: Deal[] = [
+  { id: "dl1", cliente_id: "c5", titulo: "Portal do corretor — fase 2", valor: 18000, etapa: "novo", probabilidade: 20, fechamento_esperado: dataSimples(30), responsavel: "Yuri", ultima_atividade: iso(0), created_at: iso(-1) },
+  { id: "dl2", cliente_id: "c3", titulo: "Integração de estoque", valor: 15000, etapa: "qualificacao", probabilidade: 35, fechamento_esperado: dataSimples(21), responsavel: "Fabrício", ultima_atividade: iso(-3), created_at: iso(-6) },
+  { id: "dl3", cliente_id: "c3", titulo: "Catálogo + test-drive", valor: 28000, etapa: "proposta", probabilidade: 50, fechamento_esperado: dataSimples(14), responsavel: "Fabrício", ultima_atividade: iso(-9), created_at: iso(-18) },
+  { id: "dl4", cliente_id: "c5", titulo: "Busca + agendamento de visitas", valor: 32000, etapa: "negociacao", probabilidade: 70, fechamento_esperado: dataSimples(10), responsavel: "Yuri", ultima_atividade: iso(-1), created_at: iso(-9) },
+  { id: "dl5", cliente_id: "c1", titulo: "Módulo de fidelidade", valor: 12000, etapa: "negociacao", probabilidade: 60, fechamento_esperado: dataSimples(7), responsavel: "Yuri", ultima_atividade: iso(-6), created_at: iso(-12) },
+  { id: "dl6", cliente_id: "c2", titulo: "App treino — fase 2", valor: 20000, etapa: "ganho", probabilidade: 100, fechamento_esperado: dataSimples(-2), responsavel: "Fabrício", ultima_atividade: iso(-2), created_at: iso(-15) },
+  { id: "dl7", cliente_id: "c6", titulo: "Reativação da plataforma", valor: 25000, etapa: "perdido", probabilidade: 0, fechamento_esperado: dataSimples(-10), responsavel: "Yuri", ultima_atividade: iso(-10), created_at: iso(-30) },
+]
+
+const contasPagar: ContaPagar[] = [
+  { id: "cp1", descricao: "Folha + PJ da equipe", categoria: "salarios", valor: 38000, vencimento: dataSimples(3), pago_em: null, recorrente: true, created_at: iso(-2) },
+  { id: "cp2", descricao: "Vercel + Supabase + Cloudflare", categoria: "infraestrutura", valor: 1200, vencimento: dataSimples(8), pago_em: null, recorrente: true, created_at: iso(-2) },
+  { id: "cp3", descricao: "DAS — Simples Nacional", categoria: "impostos", valor: 4200, vencimento: dataSimples(5), pago_em: null, recorrente: false, created_at: iso(-2) },
+  { id: "cp4", descricao: "Google Workspace", categoria: "ferramentas", valor: 600, vencimento: dataSimples(-2), pago_em: null, recorrente: true, created_at: iso(-8) },
+  { id: "cp5", descricao: "Anúncios Meta e Google", categoria: "marketing", valor: 2500, vencimento: dataSimples(12), pago_em: null, recorrente: false, created_at: iso(-2) },
+  { id: "cp6", descricao: "Contador", categoria: "outros", valor: 950, vencimento: dataSimples(6), pago_em: null, recorrente: true, created_at: iso(-2) },
+  { id: "cp7", descricao: "Folha + PJ (próximo mês)", categoria: "salarios", valor: 38000, vencimento: dataSimples(33), pago_em: null, recorrente: true, created_at: iso(-1) },
+  { id: "cp8", descricao: "Figma + GitHub", categoria: "ferramentas", valor: 450, vencimento: dataSimples(-6), pago_em: dataSimples(-6), recorrente: true, created_at: iso(-8) },
 ]
 
 // ───────────────────────── tipos de view ─────────────────────────
@@ -218,4 +241,81 @@ export async function obterFinanceiro() {
     despesas: await listarDespesas(),
     porCategoria,
   }
+}
+
+// ───────────────────────── pipeline (comercial) ─────────────────────────
+export type DealView = Deal & { clienteNome: string; diasParado: number }
+
+const ETAPAS_PIPE: { etapa: DealEtapa; label: string }[] = [
+  { etapa: "novo", label: "Novo" },
+  { etapa: "qualificacao", label: "Qualificação" },
+  { etapa: "proposta", label: "Proposta" },
+  { etapa: "negociacao", label: "Negociação" },
+  { etapa: "ganho", label: "Ganho" },
+]
+
+function dealView(d: Deal): DealView {
+  return {
+    ...d,
+    clienteNome: nomeCliente(d.cliente_id) ?? "—",
+    diasParado: Math.floor((agora - new Date(d.ultima_atividade).getTime()) / DIA),
+  }
+}
+
+export async function obterPipeline() {
+  const colunas = ETAPAS_PIPE.map(({ etapa, label }) => {
+    const items = deals.filter((d) => d.etapa === etapa).map(dealView)
+    return { etapa, label, items, total: items.reduce((s, d) => s + d.valor, 0) }
+  })
+  const emAberto = deals.filter((d) => d.etapa !== "ganho" && d.etapa !== "perdido")
+  return {
+    colunas,
+    totalAberto: emAberto.reduce((s, d) => s + d.valor, 0),
+    ponderado: Math.round(emAberto.reduce((s, d) => s + d.valor * (d.probabilidade / 100), 0)),
+    ganhoMes: deals.filter((d) => d.etapa === "ganho").reduce((s, d) => s + d.valor, 0),
+    emAberto: emAberto.length,
+  }
+}
+
+// ───────────────────────── contas a pagar + fluxo ─────────────────────────
+export type ContaPagarView = ContaPagar & { situacao: "a_vencer" | "vencida" | "paga" }
+
+const hojeISO = new Date(agora).toISOString().slice(0, 10)
+function situacaoConta(c: ContaPagar): ContaPagarView["situacao"] {
+  if (c.pago_em) return "paga"
+  return c.vencimento < hojeISO ? "vencida" : "a_vencer"
+}
+
+export async function listarContasPagar(): Promise<ContaPagarView[]> {
+  return [...contasPagar]
+    .sort((a, b) => a.vencimento.localeCompare(b.vencimento))
+    .map((c) => ({ ...c, situacao: situacaoConta(c) }))
+}
+
+export type SemanaFluxo = { label: string; entradas: number; saidas: number; saldo: number }
+
+// Saldo projetado semana a semana: saldo atual + faturas a receber − contas a pagar.
+export async function obterFluxoProjetado(saldoInicial = 28500, semanas = 6) {
+  const baseMs = new Date(new Date(agora).setHours(0, 0, 0, 0)).getTime()
+  const entradas = faturas
+    .filter((f) => f.status === "enviada" || f.status === "atrasada")
+    .map((f) => ({ data: f.vencimento, valor: f.valor }))
+  const saidas = contasPagar
+    .filter((c) => !c.pago_em)
+    .map((c) => ({ data: c.vencimento, valor: c.valor }))
+
+  const soma = (arr: { data: string; valor: number }[], ini: string, fim: string) =>
+    arr.filter((x) => x.data >= ini && x.data < fim).reduce((s, x) => s + x.valor, 0)
+
+  let saldo = saldoInicial
+  const linha: SemanaFluxo[] = []
+  for (let i = 0; i < semanas; i++) {
+    const ini = new Date(baseMs + i * 7 * DIA).toISOString().slice(0, 10)
+    const fim = new Date(baseMs + (i + 1) * 7 * DIA).toISOString().slice(0, 10)
+    const e = soma(entradas, ini, fim)
+    const s = soma(saidas, ini, fim)
+    saldo += e - s
+    linha.push({ label: `Sem ${i + 1}`, entradas: e, saidas: s, saldo })
+  }
+  return { saldoInicial, linha }
 }

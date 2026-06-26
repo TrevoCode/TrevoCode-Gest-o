@@ -104,3 +104,30 @@ export type Despesa = {
   recorrente: boolean
   created_at: string
 }
+
+// Negócio/oportunidade no funil comercial (separado do Cliente).
+export type DealEtapa = "novo" | "qualificacao" | "proposta" | "negociacao" | "ganho" | "perdido"
+export type Deal = {
+  id: string
+  cliente_id: string
+  titulo: string
+  valor: number
+  etapa: DealEtapa
+  probabilidade: number // 0–100
+  fechamento_esperado: string // date
+  responsavel: string
+  ultima_atividade: string // iso — base do "deal parado"
+  created_at: string
+}
+
+// Conta a pagar (status derivado de vencimento × pago_em).
+export type ContaPagar = {
+  id: string
+  descricao: string
+  categoria: DespesaCategoria
+  valor: number
+  vencimento: string // date
+  pago_em: string | null
+  recorrente: boolean
+  created_at: string
+}
