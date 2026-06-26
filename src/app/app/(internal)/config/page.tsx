@@ -8,10 +8,10 @@ export const metadata = { title: "Configurações" }
 function Pill({ ok, label }: { ok: boolean | "soon"; label: string }) {
   const cls =
     ok === "soon"
-      ? "bg-neutral-100 text-neutral-600"
+      ? "bg-muted text-muted-foreground"
       : ok
-        ? "bg-green-100 text-green-700"
-        : "bg-amber-100 text-amber-700"
+        ? "bg-success-muted text-success-muted-foreground"
+        : "bg-warning-muted text-warning-muted-foreground"
   return <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${cls}`}>{label}</span>
 }
 

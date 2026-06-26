@@ -21,9 +21,9 @@ export default function NovoProjetoPage() {
       <Link href="/app/projetos" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
         <ArrowLeft className="size-4" /> Projetos
       </Link>
-      <h1 className="mt-3 text-2xl font-semibold">Novo projeto</h1>
+      <h1 className="mt-3 text-xl font-semibold tracking-tight">Novo projeto</h1>
 
-      <div className="mt-4 flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+      <div className="mt-4 flex items-start gap-2 rounded-lg border border-warning-muted bg-warning-muted px-4 py-3 text-sm text-warning-muted-foreground">
         <Info className="mt-0.5 size-4 shrink-0" />
         Protótipo — o projeto será salvo quando o banco for conectado.
       </div>
