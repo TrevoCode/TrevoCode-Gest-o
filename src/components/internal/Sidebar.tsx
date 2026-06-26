@@ -11,6 +11,7 @@ import {
   CalendarDays,
   FolderKanban,
   Wallet,
+  Banknote,
   BarChart3,
   Settings,
   type LucideIcon,
@@ -38,6 +39,7 @@ const PRINCIPAL: NavItem[] = [
 
 const GESTAO: NavItem[] = [
   { href: "/app/financeiro", label: "Financeiro", icon: Wallet },
+  { href: "/app/cobranca", label: "Cobrança", icon: Banknote },
   { href: "/app/relatorios", label: "Relatórios", icon: BarChart3 },
   { href: "/app/config", label: "Configurações", icon: Settings },
 ]

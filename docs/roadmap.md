@@ -6,54 +6,61 @@ ContaAzul, Omie, Tiny, GestãoClick, Bitrix24, Pipefy) e CRM/PSA (Pipedrive, RD 
 Ploomes, HubSpot, Productive, Scoro, Accelo, HoneyBook, Bonsai).
 
 Princípio: **UI-first com dados mock** (camada única `src/lib/data.ts`). Backend (Supabase)
-entra depois, trocando só essa camada.
+entra depois, trocando só essa camada. Visual: design system **Trevo Clean** (tokens
+semânticos + dark mode), componentes `Panel`/`StatCard`/`PageHeader`/`StatusBadge`.
 
-## Já construído
-Dashboard · Leads (inbox) · Clientes/CRM (lista+detalhe) · Reuniões · Projetos
-(avulso/recorrente) · Financeiro (faturas + despesas por categoria) · Configurações.
+## Telas
+Dashboard · Leads · **Pipeline** · **Propostas** · Clientes (lista/detalhe + timeline) ·
+Reuniões · Projetos (lista/**detalhe + tarefas + margem**) · Financeiro (faturas, contas a
+pagar, **fluxo projetado**) · **Cobrança & conciliação** · **Relatórios (DRE/MRR/funil)** ·
+Configurações.
 
 ## Decisão em aberto — apontamento de horas
-Margem **real** por projeto depende de apontar horas (custo-hora × horas) vs. receita.
-Decisão atual ("só gestores, sem equipe apontando") → margem fica **estimada** (custo
-lançado à mão no projeto). Revisitar se quisermos virar um PSA de verdade (billability,
-capacity). É a bifurcação que mais muda o produto.
+Margem hoje é **estimada** (campo `custo` no projeto). Para margem **real** (billability,
+capacity) seria preciso apontar horas (custo-hora × horas). Revisitar se virarmos um PSA.
 
 ---
 
-## 🔴 ESSENCIAL
+## 🔴 ESSENCIAL — concluído
 
-| # | Item | Área | Status | Referência |
-|---|------|------|--------|------------|
-| E1 | **Pipeline kanban + entidade Deal** (etapas, valor, deal parado) | Comercial | 🟡 em andamento | Pipedrive |
-| E2 | **Propostas/Orçamentos** (template → PDF → aceite) | Comercial | ⬜ | Ploomes, HoneyBook |
-| E3 | **Tarefas + Kanban no projeto** (execução, não só registro) | Projetos | ⬜ | Runrun.it, Bitrix24 |
-| E4 | **Contas a pagar** (vencimento, status a vencer/vencida/paga) | Financeiro | 🟡 em andamento | Nibo, Cora |
-| E5 | **Fluxo de caixa projetado** (receber × pagar × recorrências) | Financeiro | 🟡 em andamento | Nibo, Granatum, Cora |
+| # | Item | Status |
+|---|------|--------|
+| E1 | Pipeline kanban + entidade Deal | ✅ |
+| E2 | Propostas/Orçamentos (itens, status, aceite) | ✅ |
+| E3 | Tarefas + Kanban no projeto | ✅ |
+| E4 | Contas a pagar (vencimento/situação) | ✅ |
+| E5 | Fluxo de caixa projetado | ✅ |
 
-## 🟡 IMPORTANTE
+## 🟡 IMPORTANTE — concluído (alguns visuais até o backend)
 
-| # | Item | Área | Referência |
-|---|------|------|------------|
-| I1 | Margem por projeto (custo vs. receita) — depende da decisão de horas | Projetos | Operand, Runrun.it |
-| I2 | Cobrança automática (boleto/PIX + régua de lembretes) | Financeiro | Cora, Nibo |
-| I3 | Timeline de atividades por cliente/deal | Comercial | Pipedrive |
-| I4 | Automação de follow-up / alerta de deal parado | Comercial | RD Station |
-| I5 | Recorrência de lançamentos + DRE gerencial | Financeiro | ContaAzul, Nibo |
-| I6 | Conciliação bancária (começar por import OFX) | Financeiro | Nibo, Granatum |
-| I7 | Forecast de receita (deals × probabilidade) | Comercial | Pipedrive |
+| # | Item | Status |
+|---|------|--------|
+| I1 | Margem por projeto (custo vs. receita) | ✅ (estimada) |
+| I2 | Cobrança/régua de lembretes | ✅ visual — envio real (boleto/PIX) requer backend + cron |
+| I3 | Timeline de atividades do cliente | ✅ |
+| I4 | Alerta de deal parado | ✅ |
+| I5 | DRE gerencial + recorrência (MRR) | ✅ |
+| I6 | Conciliação bancária | ✅ visual — leitura OFX/Open Finance requer backend |
+| I7 | Forecast de receita | ✅ |
 
 ## 🟢 NICE-TO-HAVE
-Contrato + assinatura eletrônica (Clicksign) · Alocação/capacidade · Gantt/milestones ·
-Relatórios/BI · Orçado × Realizado/metas · Aprovação de despesa (Flash) · Cenários de fluxo.
+
+| Item | Status |
+|------|--------|
+| Contrato + assinatura eletrônica | parcial (botão "gerar contrato" na proposta; e-sign requer Clicksign) |
+| Relatórios (vendas + financeiro) | ✅ |
+| Orçado × Realizado / metas | ⬜ |
+| Alocação / capacidade de equipe | ⬜ (depende de apontamento de horas) |
+| Gantt / milestones / dependências | ⬜ |
+| BI / report builder | ⬜ |
+| Aprovação de despesa (estilo Flash) | ⬜ |
+| Cenários de fluxo (otimista/pessimista) | ⬜ |
 
 ---
 
-## Sequência sugerida
-- **Comercial:** Deal+Kanban (E1) → Timeline (I3) → Propostas (E2) → Forecast (I7) → Follow-up (I4)
-- **Projetos:** Tarefas/Kanban (E3) → [decisão de horas] → Margem (I1)
-- **Financeiro:** Contas a pagar (E4) → Recorrência (I5) → **Fluxo projetado (E5)** → Conciliação OFX (I6) → Cobrança/régua (I2) → DRE (I5)
-
-## Padrões de UX a adotar
-Kanban com soma no topo da coluna · card = fonte única + "parado há X dias" · fluxo de caixa
-linha sólida→tracejada · dashboard de cobrança em blocos · pendências na home · conversão
-1-clique deal→projeto.
+## Pendências para "ligar" de verdade (backend)
+1. **Supabase**: aplicar migrations (`0001`, `0002`) + trocar `src/lib/data.ts` por queries reais.
+2. **Captura de leads do site**: rota `/api/leads` no repositório do site, gravando no mesmo Supabase.
+3. **Cobrança real** (I2): gateway boleto/PIX + cron de régua de lembretes.
+4. **Conciliação real** (I6): parser OFX ou agregador Open Finance (Pluggy/Belvo).
+5. **Margem real** (I1): decisão de apontamento de horas + custo-hora por pessoa.

@@ -479,3 +479,36 @@ export async function obterFunilVendas() {
   const fechados = deals.filter((d) => d.etapa === "ganho" || d.etapa === "perdido").length
   return { porEtapa, ganhos, fechados, taxaGanho: fechados ? Math.round((ganhos / fechados) * 100) : 0 }
 }
+
+// ───────────────────────── tesouraria (cobrança + conciliação) ─────────────────────────
+const addDias = (d: string, n: number) =>
+  new Date(new Date(`${d}T12:00:00`).getTime() + n * DIA).toISOString().slice(0, 10)
+
+export async function obterTesouraria() {
+  const cobrancas = faturas
+    .filter((f) => f.status === "enviada" || f.status === "atrasada")
+    .sort((a, b) => a.vencimento.localeCompare(b.vencimento))
+    .map((f) => ({
+      id: f.id,
+      descricao: f.descricao,
+      clienteNome: nomeCliente(f.cliente_id) ?? "—",
+      valor: f.valor,
+      vencimento: f.vencimento,
+      status: f.status,
+      lembretes: [
+        { label: "3 dias antes", data: addDias(f.vencimento, -3) },
+        { label: "No vencimento", data: f.vencimento },
+        { label: "3 dias após", data: addDias(f.vencimento, 3) },
+        { label: "7 dias após", data: addDias(f.vencimento, 7) },
+      ].map((l) => ({ ...l, enviado: l.data < hojeISO })),
+    }))
+
+  const transacoes = [
+    { id: "tx1", data: dataSimples(-5), descricao: "PIX recebido — Sabor & Cia", valor: 16000, tipo: "entrada" as const, match: "App delivery — marco 2" },
+    { id: "tx2", data: dataSimples(-2), descricao: "PIX recebido — AcademiaFit", valor: 12000, tipo: "entrada" as const, match: "App treino — entrada" },
+    { id: "tx3", data: dataSimples(-6), descricao: "Débito — Google Workspace", valor: 600, tipo: "saida" as const, match: "Google Workspace" },
+    { id: "tx4", data: dataSimples(-3), descricao: "TED — Anúncios Meta e Google", valor: 2500, tipo: "saida" as const, match: null },
+    { id: "tx5", data: dataSimples(-1), descricao: "PIX recebido — não identificado", valor: 3800, tipo: "entrada" as const, match: null },
+  ]
+  return { cobrancas, transacoes }
+}
