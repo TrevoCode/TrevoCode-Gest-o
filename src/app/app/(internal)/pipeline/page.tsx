@@ -45,6 +45,8 @@ function DealCard({ d }: { d: DealView }) {
 
 export default async function PipelinePage() {
   const { colunas, totalAberto, ponderado, ganhoMes, emAberto } = await obterPipeline()
+  const forecast = await obterForecast()
+  const maxForecast = Math.max(...forecast.map((f) => f.valor), 1)
 
   const kpis = [
     { label: "Em aberto", valor: formatBRL(totalAberto), sub: `${emAberto} negócios`, icon: TrendingUp },
@@ -98,6 +100,30 @@ export default async function PipelinePage() {
           </div>
         ))}
       </div>
+
+      <section className="mt-8 rounded-xl border border-border bg-card p-5">
+        <h2 className="text-sm font-semibold">Previsão por mês (negócios em aberto)</h2>
+        <ul className="mt-4 space-y-3">
+          {forecast.length === 0 && (
+            <li className="text-sm text-muted-foreground">Sem negócios em aberto.</li>
+          )}
+          {forecast.map((f) => (
+            <li key={f.mes} className="flex items-center gap-3">
+              <span className="w-16 shrink-0 text-sm capitalize">
+                {new Date(`${f.mes}-01T12:00:00`).toLocaleDateString("pt-BR", { month: "short", year: "2-digit" })}
+              </span>
+              <div className="relative h-6 flex-1 overflow-hidden rounded bg-muted">
+                <div className="absolute inset-y-0 left-0 rounded bg-primary/30" style={{ width: `${(f.valor / maxForecast) * 100}%` }} />
+                <div className="absolute inset-y-0 left-0 rounded bg-primary" style={{ width: `${(f.ponderado / maxForecast) * 100}%` }} />
+              </div>
+              <span className="w-44 shrink-0 text-right text-sm tabular-nums">
+                {formatBRL(f.ponderado)} <span className="text-xs text-muted-foreground">de {formatBRL(f.valor)}</span>
+              </span>
+            </li>
+          ))}
+        </ul>
+        <p className="mt-3 text-xs text-muted-foreground">Barra clara = total · barra cheia = ponderado pela probabilidade.</p>
+      </section>
     </div>
   )
 }
