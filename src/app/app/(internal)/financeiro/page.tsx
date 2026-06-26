@@ -12,6 +12,8 @@ import { obterFinanceiro, obterFluxoProjetado, listarContasPagar } from "@/lib/d
 import { formatBRL, formatData } from "@/lib/format"
 import { StatusBadge } from "@/components/internal/StatusBadge"
 import { PageHeader } from "@/components/internal/PageHeader"
+import { StatCard } from "@/components/internal/StatCard"
+import { Panel } from "@/components/internal/Panel"
 
 export const metadata = { title: "Financeiro" }
 
@@ -41,7 +43,7 @@ export default async function FinanceiroPage() {
         title="Financeiro"
         description="Recebimentos, contas a pagar e projeção de caixa."
         action={
-          <button className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90">
+          <button className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-xs transition-opacity hover:opacity-90">
             <Plus className="size-4" /> Nova fatura
           </button>
         }
@@ -49,108 +51,119 @@ export default async function FinanceiroPage() {
 
       {/* KPIs */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-xl border border-border bg-card p-5">
-          <Clock className="size-5 text-amber-500" />
-          <p className="mt-3 text-2xl font-semibold tabular-nums">{formatBRL(kpis.aReceber)}</p>
-          <p className="text-sm text-muted-foreground">A receber</p>
-          {kpis.atrasado > 0 && (
-            <p className="mt-1 flex items-center gap-1 text-xs text-rose-600">
-              <AlertCircle className="size-3.5" /> {formatBRL(kpis.atrasado)} em atraso
-            </p>
-          )}
-        </div>
-        <div className="rounded-xl border border-border bg-card p-5">
-          <CalendarClock className="size-5 text-rose-500" />
-          <p className="mt-3 text-2xl font-semibold tabular-nums">{formatBRL(aPagar)}</p>
-          <p className="text-sm text-muted-foreground">A pagar (em aberto)</p>
-        </div>
-        <div className="rounded-xl border border-border bg-card p-5">
-          <TrendingUp className="size-5 text-green-600" />
-          <p className="mt-3 text-2xl font-semibold tabular-nums">{formatBRL(kpis.recebidoMes)}</p>
-          <p className="text-sm text-muted-foreground">Recebido no mês</p>
-        </div>
-        <div className="rounded-xl border border-border bg-card p-5">
-          <Wallet className={`size-5 ${positivo ? "text-green-600" : "text-rose-500"}`} />
-          <p className={`mt-3 text-2xl font-semibold tabular-nums ${positivo ? "text-green-700" : "text-rose-600"}`}>
-            {formatBRL(kpis.resultadoMes)}
-          </p>
-          <p className="text-sm text-muted-foreground">Resultado do mês</p>
-        </div>
+        <StatCard
+          icon={Clock}
+          tone="warning"
+          label="A receber"
+          value={formatBRL(kpis.aReceber)}
+          hint={
+            kpis.atrasado > 0 ? (
+              <span className="inline-flex items-center gap-1 text-danger">
+                <AlertCircle className="size-3.5" /> {formatBRL(kpis.atrasado)} em atraso
+              </span>
+            ) : (
+              "tudo no prazo"
+            )
+          }
+        />
+        <StatCard
+          icon={CalendarClock}
+          tone="danger"
+          label="A pagar (em aberto)"
+          value={formatBRL(aPagar)}
+        />
+        <StatCard
+          icon={TrendingUp}
+          tone="success"
+          label="Recebido no mês"
+          value={formatBRL(kpis.recebidoMes)}
+        />
+        <StatCard
+          icon={Wallet}
+          tone={positivo ? "success" : "danger"}
+          label="Resultado do mês"
+          value={formatBRL(kpis.resultadoMes)}
+          valueClassName={positivo ? "text-success" : "text-danger"}
+        />
       </div>
 
       {/* Fluxo de caixa projetado */}
-      <section className="mt-8 rounded-xl border border-border bg-card p-5">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <h2 className="flex items-center gap-2 text-sm font-semibold">
-            <LineChart className="size-4 text-primary" /> Fluxo de caixa projetado — 6 semanas
-          </h2>
-          <span className="text-xs text-muted-foreground">Saldo atual: {formatBRL(saldoInicial)}</span>
-        </div>
-
+      <Panel
+        className="mt-6"
+        icon={LineChart}
+        title="Fluxo de caixa projetado — 6 semanas"
+        action={
+          <span className="text-xs text-muted-foreground tabular-nums">
+            Saldo atual: {formatBRL(saldoInicial)}
+          </span>
+        }
+        bodyClassName="p-5"
+      >
         {piorSaldo < 0 && (
-          <div className="mt-3 flex items-start gap-2 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
+          <div className="mb-4 flex items-start gap-2 rounded-lg border border-danger-muted bg-danger-muted px-3 py-2 text-sm text-danger-muted-foreground">
             <AlertCircle className="mt-0.5 size-4 shrink-0" />
-            O caixa projetado fica negativo (mínimo {formatBRL(piorSaldo)}). Antecipe recebimentos ou renegocie vencimentos.
+            O caixa projetado fica negativo (mínimo {formatBRL(piorSaldo)}). Antecipe
+            recebimentos ou renegocie vencimentos.
           </div>
         )}
 
-        <ul className="mt-4 space-y-2.5">
+        <ul className="space-y-2.5">
           {linha.map((s) => (
             <li key={s.label} className="flex items-center gap-3">
               <span className="w-12 shrink-0 text-xs text-muted-foreground">{s.label}</span>
-              <span className="hidden w-40 shrink-0 text-xs sm:block">
-                <span className="text-green-600">+{formatBRL(s.entradas)}</span>{" "}
-                <span className="text-rose-600">−{formatBRL(s.saidas)}</span>
+              <span className="hidden w-40 shrink-0 text-xs tabular-nums sm:block">
+                <span className="text-success">+{formatBRL(s.entradas)}</span>{" "}
+                <span className="text-danger">−{formatBRL(s.saidas)}</span>
               </span>
               <div className="relative h-5 flex-1 overflow-hidden rounded bg-muted">
                 <div
-                  className={`absolute inset-y-0 left-0 rounded ${s.saldo >= 0 ? "bg-green-500/60" : "bg-rose-500/60"}`}
+                  className={`absolute inset-y-0 left-0 rounded ${s.saldo >= 0 ? "bg-success/55" : "bg-danger/55"}`}
                   style={{ width: `${(Math.abs(s.saldo) / maxAbs) * 100}%` }}
                 />
               </div>
-              <span className={`w-24 shrink-0 text-right text-sm tabular-nums ${s.saldo >= 0 ? "text-foreground" : "font-medium text-rose-600"}`}>
+              <span
+                className={`w-24 shrink-0 text-right text-sm tabular-nums ${s.saldo >= 0 ? "text-foreground" : "font-medium text-danger"}`}
+              >
                 {formatBRL(s.saldo)}
               </span>
             </li>
           ))}
         </ul>
-      </section>
+      </Panel>
 
       {/* Faturas + Contas a pagar */}
-      <div className="mt-8 grid gap-6 lg:grid-cols-2">
-        <section className="rounded-xl border border-border bg-card">
-          <header className="flex items-center justify-between border-b border-border px-5 py-3">
-            <h2 className="flex items-center gap-2 text-sm font-semibold">
-              <TrendingUp className="size-4 text-primary" /> Faturas a receber
-            </h2>
-          </header>
+      <div className="mt-6 grid gap-5 lg:grid-cols-2">
+        <Panel icon={TrendingUp} title="Faturas a receber">
           <ul className="divide-y divide-border">
-            {faturas.filter((f) => f.status !== "paga").map((f) => (
-              <li key={f.id} className="flex items-center justify-between gap-3 px-5 py-3">
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-medium">{f.descricao}</p>
-                  <p className="truncate text-xs text-muted-foreground">
-                    {f.clienteNome} · vence {formatData(f.vencimento)}
-                  </p>
-                </div>
-                <div className="flex shrink-0 items-center gap-3">
-                  <span className="text-sm tabular-nums">{formatBRL(f.valor)}</span>
-                  <StatusBadge status={f.status} />
-                </div>
-              </li>
-            ))}
+            {faturas
+              .filter((f) => f.status !== "paga")
+              .map((f) => (
+                <li
+                  key={f.id}
+                  className="flex items-center justify-between gap-3 px-5 py-3 transition-colors hover:bg-muted/40"
+                >
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-medium">{f.descricao}</p>
+                    <p className="truncate text-xs text-muted-foreground">
+                      {f.clienteNome} · vence {formatData(f.vencimento)}
+                    </p>
+                  </div>
+                  <div className="flex shrink-0 items-center gap-3">
+                    <span className="text-sm tabular-nums">{formatBRL(f.valor)}</span>
+                    <StatusBadge status={f.status} />
+                  </div>
+                </li>
+              ))}
           </ul>
-        </section>
+        </Panel>
 
-        <section className="rounded-xl border border-border bg-card">
-          <header className="flex items-center justify-between border-b border-border px-5 py-3">
-            <h2 className="flex items-center gap-2 text-sm font-semibold">
-              <TrendingDown className="size-4 text-primary" /> Contas a pagar
-            </h2>
-          </header>
+        <Panel icon={TrendingDown} title="Contas a pagar">
           <ul className="divide-y divide-border">
             {contas.map((c) => (
-              <li key={c.id} className="flex items-center justify-between gap-3 px-5 py-3">
+              <li
+                key={c.id}
+                className="flex items-center justify-between gap-3 px-5 py-3 transition-colors hover:bg-muted/40"
+              >
                 <div className="min-w-0">
                   <p className="truncate text-sm font-medium">{c.descricao}</p>
                   <p className="truncate text-xs text-muted-foreground">
@@ -165,13 +178,12 @@ export default async function FinanceiroPage() {
               </li>
             ))}
           </ul>
-        </section>
+        </Panel>
       </div>
 
       {/* Despesas por categoria */}
-      <section className="mt-8 rounded-xl border border-border bg-card p-5">
-        <h2 className="text-sm font-semibold">Despesas do mês por categoria</h2>
-        <ul className="mt-4 grid gap-3 sm:grid-cols-2">
+      <Panel className="mt-6" title="Despesas do mês por categoria" bodyClassName="p-5">
+        <ul className="grid gap-3 sm:grid-cols-2">
           {porCategoria.length === 0 && (
             <li className="text-sm text-muted-foreground">Sem despesas no mês.</li>
           )}
@@ -181,13 +193,16 @@ export default async function FinanceiroPage() {
                 <span>{CAT_LABEL[c.categoria] ?? c.categoria}</span>
                 <span className="tabular-nums text-muted-foreground">{formatBRL(c.total)}</span>
               </div>
-              <div className="mt-1 h-2 overflow-hidden rounded-full bg-muted">
-                <div className="h-full rounded-full bg-primary" style={{ width: `${(c.total / maxCat) * 100}%` }} />
+              <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-muted">
+                <div
+                  className="h-full rounded-full bg-primary"
+                  style={{ width: `${(c.total / maxCat) * 100}%` }}
+                />
               </div>
             </li>
           ))}
         </ul>
-      </section>
+      </Panel>
     </div>
   )
 }

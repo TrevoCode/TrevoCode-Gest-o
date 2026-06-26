@@ -12,6 +12,7 @@ import { tempoRelativo } from "@/lib/format"
 import { StatusBadge } from "@/components/internal/StatusBadge"
 import { PageHeader } from "@/components/internal/PageHeader"
 import { PromoverLeadButton } from "@/components/internal/PromoverLeadButton"
+import { Avatar } from "@/components/internal/Avatar"
 
 export const metadata = { title: "Leads" }
 
@@ -46,20 +47,23 @@ export default async function LeadsPage() {
         {leads.map((l) => {
           const canal = l.melhor_canal ? CANAL[l.melhor_canal] : null
           return (
-            <li key={l.id} className="rounded-xl border border-border bg-card p-5">
+            <li key={l.id} className="rounded-xl border border-border bg-card p-5 shadow-xs transition-colors hover:border-primary/30">
               <div className="flex flex-wrap items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <p className="font-medium">{l.nome}</p>
-                    <StatusBadge status={l.status} />
+                <div className="flex min-w-0 gap-3">
+                  <Avatar name={l.nome} className="mt-0.5" />
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="font-medium">{l.nome}</p>
+                      <StatusBadge status={l.status} />
+                    </div>
+                    {l.empresa && (
+                      <p className="mt-0.5 flex items-center gap-1.5 text-sm text-muted-foreground">
+                        <Building2 className="size-3.5" /> {l.empresa}
+                      </p>
+                    )}
                   </div>
-                  {l.empresa && (
-                    <p className="mt-0.5 flex items-center gap-1.5 text-sm text-muted-foreground">
-                      <Building2 className="size-3.5" /> {l.empresa}
-                    </p>
-                  )}
                 </div>
-                <span className="text-xs text-muted-foreground">{tempoRelativo(l.created_at)}</span>
+                <span className="text-xs text-muted-foreground tabular-nums">{tempoRelativo(l.created_at)}</span>
               </div>
 
               {l.mensagem && (
@@ -77,7 +81,7 @@ export default async function LeadsPage() {
 
               <div className="mt-4 flex items-center justify-between border-t border-border pt-3">
                 {l.prefere_conversar ? (
-                  <span className="text-xs text-amber-600">Prefere conversar antes de detalhar</span>
+                  <span className="text-xs text-warning">Prefere conversar antes de detalhar</span>
                 ) : (
                   <span />
                 )}

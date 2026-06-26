@@ -1,3 +1,4 @@
+import { type ReactNode } from "react"
 import Link from "next/link"
 import { ArrowUpRight, ArrowDownRight, type LucideIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -27,7 +28,7 @@ export function StatCard({
   icon: LucideIcon
   label: string
   value: string
-  hint?: string
+  hint?: ReactNode
   href?: string
   tone?: Tone
   trend?: { dir: "up" | "down"; label: string; good?: boolean }
