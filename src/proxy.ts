@@ -8,15 +8,9 @@ export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
   const isLoginRoute = pathname === "/app/login"
 
-  // Supabase ainda não configurado: fail-closed. Não instancia o client
-  // (evita 500) e manda a área interna para o login, que exibe o aviso.
+  // Supabase ainda não configurado: MODO DEMONSTRAÇÃO — libera o painel com
+  // dados de exemplo (sem login). A auth real entra quando o Supabase existir.
   if (!isSupabaseConfigured()) {
-    if (!isLoginRoute) {
-      const url = request.nextUrl.clone()
-      url.pathname = "/app/login"
-      url.search = ""
-      return NextResponse.redirect(url)
-    }
     return NextResponse.next({ request })
   }
 
