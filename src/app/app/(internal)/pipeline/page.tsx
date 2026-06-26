@@ -1,6 +1,6 @@
 import Link from "next/link"
 import { Plus, TrendingUp, Scale, Trophy, AlertTriangle } from "lucide-react"
-import { obterPipeline } from "@/lib/data"
+import { obterPipeline, obterForecast } from "@/lib/data"
 import type { DealView } from "@/lib/data"
 import { formatBRL } from "@/lib/format"
 import { PageHeader } from "@/components/internal/PageHeader"

@@ -9,8 +9,9 @@ import {
   FolderKanban,
   CalendarDays,
   Repeat,
+  Activity,
 } from "lucide-react"
-import { obterCliente } from "@/lib/data"
+import { obterCliente, montarTimeline } from "@/lib/data"
 import { formatBRL, formatData, formatDataHora } from "@/lib/format"
 import { StatusBadge } from "@/components/internal/StatusBadge"
 
@@ -28,6 +29,7 @@ export default async function ClienteDetalhePage({
   const { id } = await params
   const cliente = await obterCliente(id)
   if (!cliente) notFound()
+  const timeline = await montarTimeline(id)
 
   return (
     <div className="mx-auto max-w-6xl">
@@ -167,6 +169,26 @@ export default async function ClienteDetalhePage({
           </section>
         </div>
       </div>
+
+      <section className="mt-6 rounded-xl border border-border bg-card">
+        <header className="border-b border-border px-5 py-3">
+          <h2 className="flex items-center gap-2 text-sm font-semibold">
+            <Activity className="size-4 text-primary" /> Atividade
+          </h2>
+        </header>
+        <ol className="ml-6 border-l border-border py-2">
+          {timeline.length === 0 && (
+            <li className="px-5 py-3 text-sm text-muted-foreground">Sem atividade.</li>
+          )}
+          {timeline.map((a) => (
+            <li key={a.id} className="relative px-5 py-2.5">
+              <span className="absolute -left-[7px] top-3.5 size-3 rounded-full border-2 border-card bg-primary" />
+              <p className="text-sm">{a.descricao}</p>
+              <p className="text-xs text-muted-foreground">{formatDataHora(a.data)}</p>
+            </li>
+          ))}
+        </ol>
+      </section>
     </div>
   )
 }

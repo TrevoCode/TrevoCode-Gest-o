@@ -4,7 +4,10 @@
 // Supabase, basta reescrever o corpo destas funções; as telas não mudam.
 // As assinaturas já são async de propósito (igual serão as queries reais).
 // ─────────────────────────────────────────────────────────────────────────
-import type { Cliente, Contato, Projeto, Reuniao, Lead, Fatura, Despesa, Deal, DealEtapa, ContaPagar } from "@/lib/db/types"
+import type {
+  Cliente, Contato, Projeto, Reuniao, Lead, Fatura, Despesa, Deal, DealEtapa,
+  ContaPagar, Proposta, Atividade, AtividadeTipo, Tarefa,
+} from "@/lib/db/types"
 
 const DIA = 86_400_000
 const agora = Date.now()
@@ -33,13 +36,13 @@ const contatos: Contato[] = [
 ]
 
 const projetos: Projeto[] = [
-  { id: "p1", cliente_id: "c1", nome: "App de delivery iOS/Android", tipo: "one_off", valor: 48000, status: "ativo", data_inicio: dataSimples(-110), data_fim: dataSimples(20), descricao: "App nativo + painel de pedidos em tempo real.", created_at: iso(-110), updated_at: iso(-5) },
-  { id: "p2", cliente_id: "c1", nome: "Manutenção e evolução", tipo: "recorrente", valor: 2500, status: "ativo", data_inicio: dataSimples(-30), data_fim: null, descricao: "Suporte mensal e novas features.", created_at: iso(-30), updated_at: iso(-5) },
-  { id: "p3", cliente_id: "c2", nome: "App de treino + ranking", tipo: "one_off", valor: 36000, status: "ativo", data_inicio: dataSimples(-80), data_fim: dataSimples(40), descricao: "App de treinos, evolução e ranking de alunos.", created_at: iso(-80), updated_at: iso(-2) },
-  { id: "p4", cliente_id: "c3", nome: "Catálogo + test-drive", tipo: "one_off", valor: 28000, status: "proposta", data_inicio: null, data_fim: null, descricao: "Catálogo de veículos e agendamento de test-drive.", created_at: iso(-18), updated_at: iso(-3) },
-  { id: "p5", cliente_id: "c4", nome: "Plataforma de teleconsulta", tipo: "one_off", valor: 60000, status: "ativo", data_inicio: dataSimples(-180), data_fim: dataSimples(-10), descricao: "Agendamento, vídeo e prontuário eletrônico.", created_at: iso(-180), updated_at: iso(-10) },
-  { id: "p6", cliente_id: "c4", nome: "Sustentação mensal", tipo: "recorrente", valor: 3800, status: "ativo", data_inicio: dataSimples(-10), data_fim: null, descricao: "SLA de suporte e melhorias contínuas.", created_at: iso(-10), updated_at: iso(-10) },
-  { id: "p7", cliente_id: "c6", nome: "Plataforma de cursos", tipo: "one_off", valor: 42000, status: "concluido", data_inicio: dataSimples(-390), data_fim: dataSimples(-70), descricao: "LMS com aulas, certificados e pagamentos.", created_at: iso(-390), updated_at: iso(-70) },
+  { id: "p1", cliente_id: "c1", nome: "App de delivery iOS/Android", tipo: "one_off", valor: 48000, custo: 28000, status: "ativo", data_inicio: dataSimples(-110), data_fim: dataSimples(20), descricao: "App nativo + painel de pedidos em tempo real.", created_at: iso(-110), updated_at: iso(-5) },
+  { id: "p2", cliente_id: "c1", nome: "Manutenção e evolução", tipo: "recorrente", valor: 2500, custo: 1200, status: "ativo", data_inicio: dataSimples(-30), data_fim: null, descricao: "Suporte mensal e novas features.", created_at: iso(-30), updated_at: iso(-5) },
+  { id: "p3", cliente_id: "c2", nome: "App de treino + ranking", tipo: "one_off", valor: 36000, custo: 21000, status: "ativo", data_inicio: dataSimples(-80), data_fim: dataSimples(40), descricao: "App de treinos, evolução e ranking de alunos.", created_at: iso(-80), updated_at: iso(-2) },
+  { id: "p4", cliente_id: "c3", nome: "Catálogo + test-drive", tipo: "one_off", valor: 28000, custo: 17000, status: "proposta", data_inicio: null, data_fim: null, descricao: "Catálogo de veículos e agendamento de test-drive.", created_at: iso(-18), updated_at: iso(-3) },
+  { id: "p5", cliente_id: "c4", nome: "Plataforma de teleconsulta", tipo: "one_off", valor: 60000, custo: 38000, status: "ativo", data_inicio: dataSimples(-180), data_fim: dataSimples(-10), descricao: "Agendamento, vídeo e prontuário eletrônico.", created_at: iso(-180), updated_at: iso(-10) },
+  { id: "p6", cliente_id: "c4", nome: "Sustentação mensal", tipo: "recorrente", valor: 3800, custo: 1800, status: "ativo", data_inicio: dataSimples(-10), data_fim: null, descricao: "SLA de suporte e melhorias contínuas.", created_at: iso(-10), updated_at: iso(-10) },
+  { id: "p7", cliente_id: "c6", nome: "Plataforma de cursos", tipo: "one_off", valor: 42000, custo: 26000, status: "concluido", data_inicio: dataSimples(-390), data_fim: dataSimples(-70), descricao: "LMS com aulas, certificados e pagamentos.", created_at: iso(-390), updated_at: iso(-70) },
 ]
 
 const reunioes: Reuniao[] = [
@@ -99,6 +102,45 @@ const contasPagar: ContaPagar[] = [
   { id: "cp6", descricao: "Contador", categoria: "outros", valor: 950, vencimento: dataSimples(6), pago_em: null, recorrente: true, created_at: iso(-2) },
   { id: "cp7", descricao: "Folha + PJ (próximo mês)", categoria: "salarios", valor: 38000, vencimento: dataSimples(33), pago_em: null, recorrente: true, created_at: iso(-1) },
   { id: "cp8", descricao: "Figma + GitHub", categoria: "ferramentas", valor: 450, vencimento: dataSimples(-6), pago_em: dataSimples(-6), recorrente: true, created_at: iso(-8) },
+]
+
+const propostas: Proposta[] = [
+  { id: "pr1", cliente_id: "c3", deal_id: "dl3", titulo: "Catálogo + test-drive", status: "enviada", enviada_em: dataSimples(-8), validade: dataSimples(7), created_at: iso(-8), itens: [
+    { descricao: "Catálogo de veículos", valor: 16000 }, { descricao: "Agendamento de test-drive", valor: 8000 }, { descricao: "Integração com o site", valor: 4000 },
+  ] },
+  { id: "pr2", cliente_id: "c5", deal_id: "dl4", titulo: "Busca + agendamento de visitas", status: "enviada", enviada_em: dataSimples(-3), validade: dataSimples(12), created_at: iso(-3), itens: [
+    { descricao: "Busca de imóveis", valor: 18000 }, { descricao: "Agendamento de visitas", valor: 10000 }, { descricao: "Painel do corretor", valor: 4000 },
+  ] },
+  { id: "pr3", cliente_id: "c1", deal_id: "dl5", titulo: "Módulo de fidelidade", status: "rascunho", enviada_em: null, validade: null, created_at: iso(-1), itens: [
+    { descricao: "Programa de pontos", valor: 8000 }, { descricao: "Integração com o app", valor: 4000 },
+  ] },
+  { id: "pr4", cliente_id: "c2", deal_id: "dl6", titulo: "App treino — fase 2", status: "aceita", enviada_em: dataSimples(-12), validade: dataSimples(-2), created_at: iso(-14), itens: [
+    { descricao: "Novas telas de evolução", valor: 12000 }, { descricao: "Gamificação", valor: 8000 },
+  ] },
+  { id: "pr5", cliente_id: "c6", deal_id: null, titulo: "Reativação da plataforma", status: "recusada", enviada_em: dataSimples(-25), validade: dataSimples(-10), created_at: iso(-28), itens: [
+    { descricao: "Auditoria técnica", valor: 5000 }, { descricao: "Reescrita do core", valor: 20000 },
+  ] },
+]
+
+const tarefas: Tarefa[] = [
+  { id: "t1", projeto_id: "p1", titulo: "Setup do projeto e CI", status: "done", responsavel: "Yuri" },
+  { id: "t2", projeto_id: "p1", titulo: "Tela de cardápio", status: "done", responsavel: "Fabrício" },
+  { id: "t3", projeto_id: "p1", titulo: "Checkout + pagamento", status: "doing", responsavel: "Yuri" },
+  { id: "t4", projeto_id: "p1", titulo: "Rastreio de pedido", status: "doing", responsavel: "Fabrício" },
+  { id: "t5", projeto_id: "p1", titulo: "Testes e publicação nas lojas", status: "todo", responsavel: "Yuri" },
+  { id: "t6", projeto_id: "p3", titulo: "Cadastro de treinos", status: "done", responsavel: "Fabrício" },
+  { id: "t7", projeto_id: "p3", titulo: "Ranking de alunos", status: "doing", responsavel: "Yuri" },
+  { id: "t8", projeto_id: "p3", titulo: "Notificações push", status: "todo", responsavel: "Fabrício" },
+  { id: "t9", projeto_id: "p5", titulo: "Sala de vídeo", status: "done", responsavel: "Yuri" },
+  { id: "t10", projeto_id: "p5", titulo: "Prontuário eletrônico", status: "done", responsavel: "Fabrício" },
+  { id: "t11", projeto_id: "p5", titulo: "Relatórios clínicos", status: "doing", responsavel: "Yuri" },
+]
+
+const notas: Atividade[] = [
+  { id: "n1", cliente_id: "c1", tipo: "nota", descricao: "Cliente elogiou o app e pediu relatório de pedidos.", data: iso(-6, 17) },
+  { id: "n2", cliente_id: "c5", tipo: "nota", descricao: "Negociação avançando — decisor engajado.", data: iso(-1, 11) },
+  { id: "n3", cliente_id: "c3", tipo: "nota", descricao: "Aguardando retorno da proposta enviada.", data: iso(-7, 9) },
+  { id: "n4", cliente_id: "c4", tipo: "nota", descricao: "Renovou sustentação por mais 12 meses.", data: iso(-10, 15) },
 ]
 
 // ───────────────────────── tipos de view ─────────────────────────
@@ -318,4 +360,52 @@ export async function obterFluxoProjetado(saldoInicial = 28500, semanas = 6) {
     linha.push({ label: `Sem ${i + 1}`, entradas: e, saidas: s, saldo })
   }
   return { saldoInicial, linha }
+}
+
+// ───────────────────────── propostas ─────────────────────────
+export type PropostaView = Proposta & { clienteNome: string; total: number }
+const totalProposta = (p: Proposta) => p.itens.reduce((s, i) => s + i.valor, 0)
+
+export async function listarPropostas(): Promise<PropostaView[]> {
+  return [...propostas]
+    .sort((a, b) => (b.enviada_em ?? b.created_at).localeCompare(a.enviada_em ?? a.created_at))
+    .map((p) => ({ ...p, clienteNome: nomeCliente(p.cliente_id) ?? "—", total: totalProposta(p) }))
+}
+
+export async function obterProposta(id: string): Promise<PropostaView | null> {
+  const p = propostas.find((x) => x.id === id)
+  if (!p) return null
+  return { ...p, clienteNome: nomeCliente(p.cliente_id) ?? "—", total: totalProposta(p) }
+}
+
+// ───────────────────────── timeline do cliente ─────────────────────────
+const aoMeioDia = (d: string) => `${d}T12:00:00.000Z`
+
+export async function montarTimeline(clienteId: string): Promise<Atividade[]> {
+  const itens: Atividade[] = []
+  reunioes.filter((r) => r.cliente_id === clienteId).forEach((r) =>
+    itens.push({ id: `r-${r.id}`, cliente_id: clienteId, tipo: "reuniao", descricao: `${r.status === "realizada" ? "Reunião realizada" : "Reunião agendada"}: ${r.titulo}`, data: r.data_hora }))
+  propostas.filter((p) => p.cliente_id === clienteId && p.enviada_em).forEach((p) =>
+    itens.push({ id: `p-${p.id}`, cliente_id: clienteId, tipo: "proposta", descricao: `Proposta ${p.status}: ${p.titulo}`, data: aoMeioDia(p.enviada_em!) }))
+  faturas.filter((f) => f.cliente_id === clienteId && f.emitida_em).forEach((f) =>
+    itens.push({ id: `f-${f.id}`, cliente_id: clienteId, tipo: "fatura", descricao: `Fatura ${f.status}: ${f.descricao}`, data: aoMeioDia(f.emitida_em!) }))
+  notas.filter((n) => n.cliente_id === clienteId).forEach((n) => itens.push(n))
+  return itens.sort((a, b) => b.data.localeCompare(a.data))
+}
+
+// ───────────────────────── forecast (previsão por mês) ─────────────────────────
+export async function obterForecast() {
+  const emAberto = deals.filter((d) => d.etapa !== "ganho" && d.etapa !== "perdido")
+  const meses = new Map<string, { valor: number; ponderado: number; n: number }>()
+  for (const d of emAberto) {
+    const mes = d.fechamento_esperado.slice(0, 7)
+    const cur = meses.get(mes) ?? { valor: 0, ponderado: 0, n: 0 }
+    cur.valor += d.valor
+    cur.ponderado += d.valor * (d.probabilidade / 100)
+    cur.n += 1
+    meses.set(mes, cur)
+  }
+  return [...meses.entries()]
+    .sort((a, b) => a[0].localeCompare(b[0]))
+    .map(([mes, v]) => ({ mes, valor: v.valor, ponderado: Math.round(v.ponderado), n: v.n }))
 }

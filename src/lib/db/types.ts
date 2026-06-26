@@ -37,6 +37,7 @@ export type Projeto = {
   nome: string
   tipo: ProjetoTipo
   valor: number | null
+  custo: number | null // custo estimado (margem = valor − custo)
   status: ProjetoStatus
   data_inicio: string | null
   data_fim: string | null
@@ -130,4 +131,39 @@ export type ContaPagar = {
   pago_em: string | null
   recorrente: boolean
   created_at: string
+}
+
+// Proposta/orçamento (itens somam o valor).
+export type PropostaStatus = "rascunho" | "enviada" | "aceita" | "recusada"
+export type PropostaItem = { descricao: string; valor: number }
+export type Proposta = {
+  id: string
+  cliente_id: string
+  deal_id: string | null
+  titulo: string
+  itens: PropostaItem[]
+  status: PropostaStatus
+  enviada_em: string | null
+  validade: string | null
+  created_at: string
+}
+
+// Atividade na timeline de um cliente (agrega reuniões, propostas, faturas, notas).
+export type AtividadeTipo = "reuniao" | "nota" | "proposta" | "fatura" | "etapa"
+export type Atividade = {
+  id: string
+  cliente_id: string
+  tipo: AtividadeTipo
+  descricao: string
+  data: string // iso
+}
+
+// Tarefa dentro de um projeto (board de execução).
+export type TarefaStatus = "todo" | "doing" | "done"
+export type Tarefa = {
+  id: string
+  projeto_id: string
+  titulo: string
+  status: TarefaStatus
+  responsavel: string | null
 }
