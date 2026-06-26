@@ -6,7 +6,10 @@ import { isSupabaseConfigured } from "@/lib/supabase/config"
 import { LogoutButton } from "@/components/internal/LogoutButton"
 import { Sidebar } from "@/components/internal/Sidebar"
 import { MobileNav } from "@/components/internal/MobileNav"
+import { GlobalSearch } from "@/components/internal/GlobalSearch"
+import { Notifications } from "@/components/internal/Notifications"
 import { ThemeToggle } from "@/components/internal/ThemeToggle"
+import { obterIndiceBusca, obterNotificacoes } from "@/lib/data"
 import { Avatar } from "@/components/internal/Avatar"
 import { TrevoMark } from "@/components/internal/TrevoMark"
 
@@ -33,6 +36,7 @@ export default async function InternalLayout({
 
   const name = demo ? "Demonstração" : (email?.split("@")[0] ?? "Usuário")
   const emailLine = demo ? "Dados de exemplo" : (email ?? "")
+  const [indice, notificacoes] = await Promise.all([obterIndiceBusca(), obterNotificacoes()])
 
   return (
     <div className="flex min-h-svh bg-background">
@@ -51,8 +55,9 @@ export default async function InternalLayout({
               <span className="text-sm font-semibold tracking-tight">TrevoCode</span>
             </Link>
           </div>
-          <div className="hidden md:block" />
+          <GlobalSearch index={indice} />
           <div className="flex items-center gap-1.5">
+            <Notifications items={notificacoes} />
             <ThemeToggle />
             <div className="flex items-center gap-2 md:hidden">
               <Avatar name={name} />

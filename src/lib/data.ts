@@ -601,3 +601,42 @@ export async function listarContratos(): Promise<ContratoView[]> {
     .sort((a, b) => (b.assinado_em ?? "0").localeCompare(a.assinado_em ?? "0"))
     .map((k) => ({ ...k, clienteNome: nomeCliente(k.cliente_id) ?? "—" }))
 }
+
+// ───────────────────────── busca global ─────────────────────────
+export type ItemBusca = { tipo: string; label: string; sub: string; href: string }
+
+export async function obterIndiceBusca(): Promise<ItemBusca[]> {
+  const idx: ItemBusca[] = []
+  clientes.forEach((c) => idx.push({ tipo: "Cliente", label: c.nome, sub: c.segmento ?? "—", href: `/app/clientes/${c.id}` }))
+  projetos.forEach((p) => idx.push({ tipo: "Projeto", label: p.nome, sub: nomeCliente(p.cliente_id) ?? "—", href: `/app/projetos/${p.id}` }))
+  propostas.forEach((p) => idx.push({ tipo: "Proposta", label: p.titulo, sub: nomeCliente(p.cliente_id) ?? "—", href: `/app/propostas/${p.id}` }))
+  leads.forEach((l) => idx.push({ tipo: "Lead", label: l.nome, sub: l.empresa ?? "—", href: "/app/leads" }))
+  return idx
+}
+
+// ───────────────────────── notificações ─────────────────────────
+export type Notificacao = {
+  id: string
+  texto: string
+  sub: string
+  href: string
+  tom: "danger" | "warning" | "info"
+}
+
+export async function obterNotificacoes(): Promise<Notificacao[]> {
+  const ns: Notificacao[] = []
+  faturas
+    .filter((f) => f.status === "atrasada")
+    .forEach((f) => ns.push({ id: `f-${f.id}`, texto: `Fatura em atraso — ${nomeCliente(f.cliente_id)}`, sub: f.descricao, href: "/app/financeiro", tom: "danger" }))
+  contasPagar
+    .filter((c) => !c.pago_em && c.vencimento < hojeISO)
+    .forEach((c) => ns.push({ id: `cp-${c.id}`, texto: `Conta vencida — ${c.descricao}`, sub: `R$ ${c.valor.toLocaleString("pt-BR")}`, href: "/app/financeiro", tom: "danger" }))
+  deals
+    .filter((d) => d.etapa !== "ganho" && d.etapa !== "perdido")
+    .map(dealView)
+    .filter((d) => d.diasParado > 7)
+    .forEach((d) => ns.push({ id: `d-${d.id}`, texto: `Negócio parado há ${d.diasParado} dias`, sub: `${d.titulo} · ${d.clienteNome}`, href: "/app/pipeline", tom: "warning" }))
+  const novos = leads.filter((l) => l.status === "novo").length
+  if (novos > 0) ns.push({ id: "leads", texto: `${novos} leads novos do site`, sub: "aguardando primeiro contato", href: "/app/leads", tom: "info" })
+  return ns
+}
