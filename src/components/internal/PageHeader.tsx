@@ -25,7 +25,7 @@ export function PageHeader({
           <span
             className={cn(
               "flex size-10 shrink-0 items-center justify-center rounded-xl",
-              ICON_TONE[iconTone]
+              iconTone === "primary" ? "bg-brand-gradient text-white" : ICON_TONE[iconTone]
             )}
           >
             <Icon className="size-5" />

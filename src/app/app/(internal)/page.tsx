@@ -12,6 +12,7 @@ import { obterDashboard, listarLeads, listarClientes, listarProjetos } from "@/l
 import { formatBRL, formatDataHora, tempoRelativo } from "@/lib/format"
 import { StatusBadge } from "@/components/internal/StatusBadge"
 import { StatCard } from "@/components/internal/StatCard"
+import { HeroStat } from "@/components/internal/HeroStat"
 import { Panel } from "@/components/internal/Panel"
 import { Avatar } from "@/components/internal/Avatar"
 
@@ -71,14 +72,6 @@ export default async function DashboardPage() {
       tone: "primary",
       hint: `${recorrentesAtivos} recorrentes`,
     },
-    {
-      label: "Receita recorrente",
-      valor: formatBRL(kpis.recorrenteMensal),
-      icon: Repeat,
-      href: "/app/financeiro",
-      tone: "success",
-      hint: "por mês · MRR",
-    },
   ]
 
   return (
@@ -109,6 +102,13 @@ export default async function DashboardPage() {
             hint={c.hint}
           />
         ))}
+        <HeroStat
+          icon={Repeat}
+          label="Receita recorrente"
+          value={formatBRL(kpis.recorrenteMensal)}
+          hint="por mês · MRR"
+          href="/app/financeiro"
+        />
       </div>
 
       <div className="mt-6 grid gap-5 lg:grid-cols-2">

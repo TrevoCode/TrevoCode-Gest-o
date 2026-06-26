@@ -5,6 +5,7 @@ import type { DealView } from "@/lib/data"
 import { formatBRL } from "@/lib/format"
 import { PageHeader } from "@/components/internal/PageHeader"
 import { StatCard } from "@/components/internal/StatCard"
+import { HeroStat } from "@/components/internal/HeroStat"
 import { Panel } from "@/components/internal/Panel"
 
 export const metadata = { title: "Pipeline" }
@@ -51,7 +52,6 @@ export default async function PipelinePage() {
   const maxForecast = Math.max(...forecast.map((f) => f.valor), 1)
 
   const kpis = [
-    { label: "Em aberto", valor: formatBRL(totalAberto), sub: `${emAberto} negócios`, icon: TrendingUp },
     { label: "Previsão ponderada", valor: formatBRL(ponderado), sub: "por probabilidade", icon: Scale },
     { label: "Ganho (período)", valor: formatBRL(ganhoMes), sub: "fechado", icon: Trophy },
   ] as const
@@ -70,6 +70,12 @@ export default async function PipelinePage() {
       />
 
       <div className="mb-6 grid gap-4 sm:grid-cols-3">
+        <HeroStat
+          icon={TrendingUp}
+          label="Em aberto"
+          value={formatBRL(totalAberto)}
+          hint={`${emAberto} negócios`}
+        />
         {kpis.map((k) => (
           <StatCard
             key={k.label}

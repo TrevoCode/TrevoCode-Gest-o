@@ -14,6 +14,7 @@ import { formatBRL, formatData } from "@/lib/format"
 import { StatusBadge } from "@/components/internal/StatusBadge"
 import { PageHeader } from "@/components/internal/PageHeader"
 import { StatCard } from "@/components/internal/StatCard"
+import { HeroStat } from "@/components/internal/HeroStat"
 import { Panel } from "@/components/internal/Panel"
 
 export const metadata = { title: "Financeiro" }
@@ -53,14 +54,13 @@ export default async function FinanceiroPage() {
 
       {/* KPIs */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard
+        <HeroStat
           icon={Clock}
-          tone="warning"
           label="A receber"
           value={formatBRL(kpis.aReceber)}
           hint={
             kpis.atrasado > 0 ? (
-              <span className="inline-flex items-center gap-1 text-danger">
+              <span className="inline-flex items-center gap-1">
                 <AlertCircle className="size-3.5" /> {formatBRL(kpis.atrasado)} em atraso
               </span>
             ) : (

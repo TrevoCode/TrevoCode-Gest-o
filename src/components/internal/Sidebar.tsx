@@ -72,19 +72,21 @@ function NavLink({
       href={item.href}
       aria-current={active ? "page" : undefined}
       title={collapsed ? item.label : undefined}
-      className={`group flex items-center rounded-lg py-2 text-sm font-medium transition-colors ${
-        collapsed ? "justify-center px-0" : "gap-3 px-3"
+      className={`group flex items-center rounded-lg py-1.5 text-sm font-medium transition-colors ${
+        collapsed ? "justify-center px-1.5" : "gap-2.5 px-2"
       } ${
-        active
-          ? "bg-primary/10 text-primary"
-          : "text-muted-foreground hover:bg-accent hover:text-foreground"
+        active ? "text-foreground" : "text-muted-foreground hover:bg-accent hover:text-foreground"
       }`}
     >
-      <item.icon
-        className={`size-4.5 shrink-0 transition-colors ${
-          active ? "text-primary" : "text-muted-foreground/70 group-hover:text-foreground"
+      <span
+        className={`grid size-7 shrink-0 place-items-center rounded-md transition-colors ${
+          active
+            ? "bg-brand-gradient text-white shadow-xs"
+            : "text-muted-foreground/70 group-hover:text-foreground"
         }`}
-      />
+      >
+        <item.icon className="size-4.5" />
+      </span>
       {!collapsed && <span className="flex-1">{item.label}</span>}
       {!collapsed && item.badge && (
         <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
