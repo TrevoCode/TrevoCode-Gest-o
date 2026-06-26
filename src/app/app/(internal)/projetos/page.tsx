@@ -61,7 +61,7 @@ export default async function ProjetosPage() {
               className="grid grid-cols-1 gap-1 px-5 py-3.5 transition-colors hover:bg-muted/40 sm:grid-cols-[2fr_1.2fr_1fr_1fr_auto] sm:items-center sm:gap-4"
             >
               <div className="min-w-0">
-                <Link href={`/app/clientes/${p.cliente_id}`} className="truncate font-medium hover:text-primary">
+                <Link href={`/app/projetos/${p.id}`} className="truncate font-medium hover:text-primary">
                   {p.nome}
                 </Link>
                 {p.data_inicio && (

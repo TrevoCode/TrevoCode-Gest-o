@@ -409,3 +409,25 @@ export async function obterForecast() {
     .sort((a, b) => a[0].localeCompare(b[0]))
     .map(([mes, v]) => ({ mes, valor: v.valor, ponderado: Math.round(v.ponderado), n: v.n }))
 }
+
+// ───────────────────────── projeto (detalhe) ─────────────────────────
+export type ProjetoDetalhe = Projeto & {
+  clienteNome: string
+  tarefas: Tarefa[]
+  margem: number | null
+  margemPct: number | null
+}
+
+export async function obterProjeto(id: string): Promise<ProjetoDetalhe | null> {
+  const p = projetos.find((x) => x.id === id)
+  if (!p) return null
+  const margem = p.valor != null && p.custo != null ? p.valor - p.custo : null
+  const margemPct = margem != null && p.valor ? Math.round((margem / p.valor) * 100) : null
+  return {
+    ...p,
+    clienteNome: nomeCliente(p.cliente_id) ?? "—",
+    tarefas: tarefas.filter((t) => t.projeto_id === id),
+    margem,
+    margemPct,
+  }
+}
