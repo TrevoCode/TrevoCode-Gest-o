@@ -11,12 +11,9 @@ import {
   Users,
   CalendarDays,
   FolderKanban,
-  Wallet,
-  Banknote,
-  BarChart3,
-  Goal,
   UsersRound,
-  FileSignature,
+  Wallet,
+  BarChart3,
   Settings,
   PanelLeftClose,
   type LucideIcon,
@@ -25,36 +22,51 @@ import { TrevoMark } from "@/components/internal/TrevoMark"
 import { Avatar } from "@/components/internal/Avatar"
 import { LogoutButton } from "@/components/internal/LogoutButton"
 
-type NavItem = {
-  href: string
-  label: string
-  icon: LucideIcon
-  badge?: string
+type NavItem = { href: string; label: string; icon: LucideIcon; badge?: string }
+type Grupo = { titulo: string | null; itens: NavItem[] }
+
+const GRUPOS: Grupo[] = [
+  { titulo: null, itens: [{ href: "/app", label: "Dashboard", icon: LayoutDashboard }] },
+  {
+    titulo: "Comercial",
+    itens: [
+      { href: "/app/leads", label: "Leads", icon: Inbox },
+      { href: "/app/pipeline", label: "Pipeline", icon: Target },
+      { href: "/app/propostas", label: "Propostas", icon: FileText },
+      { href: "/app/clientes", label: "Clientes", icon: Users },
+    ],
+  },
+  {
+    titulo: "Entrega",
+    itens: [
+      { href: "/app/reunioes", label: "Reuniões", icon: CalendarDays },
+      { href: "/app/projetos", label: "Projetos", icon: FolderKanban },
+      { href: "/app/equipe", label: "Equipe", icon: UsersRound },
+    ],
+  },
+  {
+    titulo: "Financeiro",
+    itens: [
+      { href: "/app/financeiro", label: "Financeiro", icon: Wallet },
+      { href: "/app/relatorios", label: "Relatórios", icon: BarChart3 },
+    ],
+  },
+]
+
+const CONFIG: NavItem = { href: "/app/config", label: "Configurações", icon: Settings }
+
+// As sub-abas mapeiam para o item-pai (mantém o menu destacado na sub-tela).
+const SUB_PARA_PAI: Record<string, string> = {
+  "/app/contratos": "/app/propostas",
+  "/app/cobranca": "/app/financeiro",
+  "/app/planejamento": "/app/relatorios",
 }
-
-const PRINCIPAL: NavItem[] = [
-  { href: "/app", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/app/leads", label: "Leads", icon: Inbox },
-  { href: "/app/pipeline", label: "Pipeline", icon: Target },
-  { href: "/app/propostas", label: "Propostas", icon: FileText },
-  { href: "/app/contratos", label: "Contratos", icon: FileSignature },
-  { href: "/app/clientes", label: "Clientes", icon: Users },
-  { href: "/app/reunioes", label: "Reuniões", icon: CalendarDays },
-  { href: "/app/projetos", label: "Projetos", icon: FolderKanban },
-  { href: "/app/equipe", label: "Equipe", icon: UsersRound },
-]
-
-const GESTAO: NavItem[] = [
-  { href: "/app/financeiro", label: "Financeiro", icon: Wallet },
-  { href: "/app/cobranca", label: "Cobrança", icon: Banknote },
-  { href: "/app/planejamento", label: "Planejamento", icon: Goal },
-  { href: "/app/relatorios", label: "Relatórios", icon: BarChart3 },
-  { href: "/app/config", label: "Configurações", icon: Settings },
-]
 
 function isActive(pathname: string, href: string) {
   if (href === "/app") return pathname === "/app"
-  return pathname === href || pathname.startsWith(href + "/")
+  const base = "/" + (pathname.split("/")[1] ?? "") + "/" + (pathname.split("/")[2] ?? "")
+  const p = SUB_PARA_PAI[base] ?? pathname
+  return p === href || p.startsWith(href + "/")
 }
 
 function NavLink({
@@ -74,9 +86,7 @@ function NavLink({
       title={collapsed ? item.label : undefined}
       className={`group flex items-center rounded-lg py-1.5 text-sm font-medium transition-colors ${
         collapsed ? "justify-center px-1.5" : "gap-2.5 px-2"
-      } ${
-        active ? "text-foreground" : "text-muted-foreground hover:bg-accent hover:text-foreground"
-      }`}
+      } ${active ? "text-foreground" : "text-muted-foreground hover:bg-accent hover:text-foreground"}`}
     >
       <span
         className={`grid size-7 shrink-0 place-items-center rounded-md transition-colors ${
@@ -105,7 +115,6 @@ export function Sidebar({
   demo: boolean
 }) {
   const pathname = usePathname()
-  // Recolhida por padrão; lembra a preferência do usuário.
   const [collapsed, setCollapsed] = useState(true)
 
   useEffect(() => {
@@ -158,34 +167,34 @@ export function Sidebar({
         </div>
       )}
 
-      {/* Navegação */}
-      <nav className="flex flex-1 flex-col gap-0.5 p-3">
-        {PRINCIPAL.map((item) => (
-          <NavLink key={item.href} item={item} pathname={pathname} collapsed={collapsed} />
-        ))}
-
-        {collapsed ? (
-          <div className="mx-2 my-2 border-t border-sidebar-border" />
-        ) : (
-          <p className="mt-5 mb-1 px-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/70">
-            Gestão
-          </p>
-        )}
-        {GESTAO.map((item) => (
-          <NavLink key={item.href} item={item} pathname={pathname} collapsed={collapsed} />
+      {/* Navegação por grupos */}
+      <nav className="flex flex-1 flex-col overflow-y-auto p-3">
+        {GRUPOS.map((g, gi) => (
+          <div key={gi} className={gi > 0 ? "mt-3" : ""}>
+            {g.titulo &&
+              (collapsed ? (
+                <div className="mx-2 mb-2 border-t border-sidebar-border" />
+              ) : (
+                <p className="mb-1 px-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/70">
+                  {g.titulo}
+                </p>
+              ))}
+            <div className="flex flex-col gap-0.5">
+              {g.itens.map((item) => (
+                <NavLink key={item.href} item={item} pathname={pathname} collapsed={collapsed} />
+              ))}
+            </div>
+          </div>
         ))}
       </nav>
 
-      {/* Perfil / essenciais */}
-      <div className="border-t border-sidebar-border p-3">
+      {/* Config + perfil */}
+      <div className="space-y-1 border-t border-sidebar-border p-3">
+        <NavLink item={CONFIG} pathname={pathname} collapsed={collapsed} />
         {collapsed ? (
-          <Link
-            href="/app/config"
-            title={`${user.name} · Configurações`}
-            className="flex justify-center rounded-lg py-1 transition-colors hover:bg-accent"
-          >
+          <div className="flex justify-center pt-1" title={user.name}>
             <Avatar name={user.name} />
-          </Link>
+          </div>
         ) : (
           <>
             <div className="flex items-center gap-2.5 px-2 py-1">
@@ -196,7 +205,7 @@ export function Sidebar({
               </div>
             </div>
             {!demo && (
-              <div className="mt-1 px-1">
+              <div className="px-1">
                 <LogoutButton />
               </div>
             )}

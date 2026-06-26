@@ -10,6 +10,7 @@ import {
 import { obterDRE, obterRecorrencias, obterFunilVendas } from "@/lib/data"
 import { formatBRL } from "@/lib/format"
 import { PageHeader } from "@/components/internal/PageHeader"
+import { SectionTabs, TABS_ANALISE } from "@/components/internal/SectionTabs"
 import { Panel } from "@/components/internal/Panel"
 import { StatCard } from "@/components/internal/StatCard"
 
@@ -39,6 +40,8 @@ export default async function RelatoriosPage() {
         title="Relatórios"
         description="DRE gerencial, receita recorrente e funil de vendas."
       />
+
+      <SectionTabs tabs={TABS_ANALISE} />
 
       {/* DRE */}
       <Panel icon={FileSpreadsheet} title="DRE gerencial — mês" description="Receita recebida menos custos e despesas.">

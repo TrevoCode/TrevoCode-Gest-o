@@ -13,6 +13,7 @@ import { obterFinanceiro, obterFluxoProjetado, listarContasPagar } from "@/lib/d
 import { formatBRL, formatData } from "@/lib/format"
 import { StatusBadge } from "@/components/internal/StatusBadge"
 import { PageHeader } from "@/components/internal/PageHeader"
+import { SectionTabs, TABS_FINANCEIRO } from "@/components/internal/SectionTabs"
 import { StatCard } from "@/components/internal/StatCard"
 import { HeroStat } from "@/components/internal/HeroStat"
 import { Panel } from "@/components/internal/Panel"
@@ -51,6 +52,8 @@ export default async function FinanceiroPage() {
           </button>
         }
       />
+
+      <SectionTabs tabs={TABS_FINANCEIRO} />
 
       {/* KPIs */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

@@ -4,6 +4,7 @@ import { listarPropostas } from "@/lib/data"
 import { formatBRL, formatData } from "@/lib/format"
 import { StatusBadge } from "@/components/internal/StatusBadge"
 import { PageHeader } from "@/components/internal/PageHeader"
+import { SectionTabs, TABS_DOCUMENTOS } from "@/components/internal/SectionTabs"
 import { StatCard } from "@/components/internal/StatCard"
 
 export const metadata = { title: "Propostas" }
@@ -25,6 +26,8 @@ export default async function PropostasPage() {
           </button>
         }
       />
+
+      <SectionTabs tabs={TABS_DOCUMENTOS} />
 
       <div className="mb-6 grid gap-4 sm:grid-cols-2">
         <StatCard

@@ -12,6 +12,7 @@ import { obterTesouraria } from "@/lib/data"
 import { formatBRL, formatData } from "@/lib/format"
 import { StatusBadge } from "@/components/internal/StatusBadge"
 import { PageHeader } from "@/components/internal/PageHeader"
+import { SectionTabs, TABS_FINANCEIRO } from "@/components/internal/SectionTabs"
 import { Panel } from "@/components/internal/Panel"
 
 export const metadata = { title: "Cobrança" }
@@ -27,6 +28,8 @@ export default async function CobrancaPage() {
         title="Cobrança e conciliação"
         description="Régua de lembretes das faturas e conferência do extrato bancário."
       />
+
+      <SectionTabs tabs={TABS_FINANCEIRO} />
 
       {/* Régua de cobrança */}
       <Panel

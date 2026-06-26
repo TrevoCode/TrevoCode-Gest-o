@@ -14,6 +14,7 @@ import { obterPlanejamento, obterCenarios, listarSolicitacoes } from "@/lib/data
 import { formatBRL, formatData } from "@/lib/format"
 import { StatusBadge } from "@/components/internal/StatusBadge"
 import { PageHeader } from "@/components/internal/PageHeader"
+import { SectionTabs, TABS_ANALISE } from "@/components/internal/SectionTabs"
 import { Panel } from "@/components/internal/Panel"
 import { StatCard } from "@/components/internal/StatCard"
 
@@ -63,6 +64,8 @@ export default async function PlanejamentoPage() {
         title="Planejamento"
         description="Metas do mês, cenários de caixa e aprovações de despesa."
       />
+
+      <SectionTabs tabs={TABS_ANALISE} />
 
       {/* Orçado × Realizado */}
       <Panel icon={Goal} title="Metas do mês — orçado × realizado" description="Acompanhe o realizado contra a meta.">

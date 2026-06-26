@@ -10,46 +10,61 @@ import {
   Inbox,
   Target,
   FileText,
-  FileSignature,
   Users,
   CalendarDays,
   FolderKanban,
   UsersRound,
   Wallet,
-  Banknote,
-  Goal,
   BarChart3,
   Settings,
   type LucideIcon,
 } from "lucide-react"
 import { TrevoMark } from "@/components/internal/TrevoMark"
 
-// Navegação mobile (drawer). Espelha a Sidebar — manter os itens em sincronia.
+// Navegação mobile (drawer). Espelha a Sidebar — manter os grupos em sincronia.
 type Item = { href: string; label: string; icon: LucideIcon }
+type Grupo = { titulo: string | null; itens: Item[] }
 
-const PRINCIPAL: Item[] = [
-  { href: "/app", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/app/leads", label: "Leads", icon: Inbox },
-  { href: "/app/pipeline", label: "Pipeline", icon: Target },
-  { href: "/app/propostas", label: "Propostas", icon: FileText },
-  { href: "/app/contratos", label: "Contratos", icon: FileSignature },
-  { href: "/app/clientes", label: "Clientes", icon: Users },
-  { href: "/app/reunioes", label: "Reuniões", icon: CalendarDays },
-  { href: "/app/projetos", label: "Projetos", icon: FolderKanban },
-  { href: "/app/equipe", label: "Equipe", icon: UsersRound },
+const GRUPOS: Grupo[] = [
+  { titulo: null, itens: [{ href: "/app", label: "Dashboard", icon: LayoutDashboard }] },
+  {
+    titulo: "Comercial",
+    itens: [
+      { href: "/app/leads", label: "Leads", icon: Inbox },
+      { href: "/app/pipeline", label: "Pipeline", icon: Target },
+      { href: "/app/propostas", label: "Propostas", icon: FileText },
+      { href: "/app/clientes", label: "Clientes", icon: Users },
+    ],
+  },
+  {
+    titulo: "Entrega",
+    itens: [
+      { href: "/app/reunioes", label: "Reuniões", icon: CalendarDays },
+      { href: "/app/projetos", label: "Projetos", icon: FolderKanban },
+      { href: "/app/equipe", label: "Equipe", icon: UsersRound },
+    ],
+  },
+  {
+    titulo: "Financeiro",
+    itens: [
+      { href: "/app/financeiro", label: "Financeiro", icon: Wallet },
+      { href: "/app/relatorios", label: "Relatórios", icon: BarChart3 },
+    ],
+  },
+  { titulo: "Sistema", itens: [{ href: "/app/config", label: "Configurações", icon: Settings }] },
 ]
 
-const GESTAO: Item[] = [
-  { href: "/app/financeiro", label: "Financeiro", icon: Wallet },
-  { href: "/app/cobranca", label: "Cobrança", icon: Banknote },
-  { href: "/app/planejamento", label: "Planejamento", icon: Goal },
-  { href: "/app/relatorios", label: "Relatórios", icon: BarChart3 },
-  { href: "/app/config", label: "Configurações", icon: Settings },
-]
+const SUB_PARA_PAI: Record<string, string> = {
+  "/app/contratos": "/app/propostas",
+  "/app/cobranca": "/app/financeiro",
+  "/app/planejamento": "/app/relatorios",
+}
 
 function isActive(pathname: string, href: string) {
   if (href === "/app") return pathname === "/app"
-  return pathname === href || pathname.startsWith(href + "/")
+  const base = "/" + (pathname.split("/")[1] ?? "") + "/" + (pathname.split("/")[2] ?? "")
+  const p = SUB_PARA_PAI[base] ?? pathname
+  return p === href || p.startsWith(href + "/")
 }
 
 export function MobileNav() {
@@ -86,11 +101,7 @@ export function MobileNav() {
 
       {open && (
         <div className="fixed inset-0 z-50 md:hidden">
-          <div
-            className="absolute inset-0 bg-foreground/40"
-            onClick={() => setOpen(false)}
-            aria-hidden
-          />
+          <div className="absolute inset-0 bg-foreground/40" onClick={() => setOpen(false)} aria-hidden />
           <aside className="absolute inset-y-0 left-0 flex w-64 flex-col border-r border-sidebar-border bg-sidebar">
             <div className="flex items-center justify-between border-b border-sidebar-border px-4 py-4">
               <span className="flex items-center gap-2">
@@ -107,14 +118,17 @@ export function MobileNav() {
               </button>
             </div>
             <nav className="flex flex-1 flex-col gap-0.5 overflow-y-auto p-3">
-              {PRINCIPAL.map((item) => (
-                <NavLink key={item.href} item={item} />
-              ))}
-              <p className="mt-4 mb-1 px-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/70">
-                Gestão
-              </p>
-              {GESTAO.map((item) => (
-                <NavLink key={item.href} item={item} />
+              {GRUPOS.map((g, gi) => (
+                <div key={gi} className={gi > 0 ? "mt-3" : ""}>
+                  {g.titulo && (
+                    <p className="mb-1 px-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/70">
+                      {g.titulo}
+                    </p>
+                  )}
+                  {g.itens.map((item) => (
+                    <NavLink key={item.href} item={item} />
+                  ))}
+                </div>
               ))}
             </nav>
           </aside>

@@ -4,6 +4,7 @@ import { listarContratos } from "@/lib/data"
 import { formatBRL, formatData } from "@/lib/format"
 import { StatusBadge } from "@/components/internal/StatusBadge"
 import { PageHeader } from "@/components/internal/PageHeader"
+import { SectionTabs, TABS_DOCUMENTOS } from "@/components/internal/SectionTabs"
 import { StatCard } from "@/components/internal/StatCard"
 
 export const metadata = { title: "Contratos" }
@@ -21,6 +22,8 @@ export default async function ContratosPage() {
         title="Contratos"
         description="Contratos gerados a partir das propostas e status de assinatura."
       />
+
+      <SectionTabs tabs={TABS_DOCUMENTOS} />
 
       <div className="mb-6 grid gap-4 sm:grid-cols-3">
         <StatCard icon={CheckCircle2} tone="success" label="Sob contrato (assinados)" value={formatBRL(sobContrato)} />
