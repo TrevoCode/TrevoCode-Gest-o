@@ -1,51 +1,71 @@
-// Badge de status reutilizável. Mapa estático (classes completas) para o
-// Tailwind detectar as cores. Cobre status de cliente, projeto, lead e reunião.
+// Badge de status reutilizável, agora dirigido por tokens semânticos —
+// funciona em claro e escuro. Cada status mapeia para um tom; o tom resolve
+// as classes (strings completas p/ o Tailwind detectar).
 
-type Entry = { label: string; cls: string }
+type Tone = "neutral" | "info" | "success" | "warning" | "danger" | "purple"
 
-const MAP: Record<string, Entry> = {
-  // cliente
-  lead: { label: "Lead", cls: "bg-slate-100 text-slate-700" },
-  qualificado: { label: "Qualificado", cls: "bg-blue-100 text-blue-700" },
-  proposta: { label: "Proposta", cls: "bg-amber-100 text-amber-700" },
-  ativo: { label: "Ativo", cls: "bg-green-100 text-green-700" },
-  inativo: { label: "Inativo", cls: "bg-neutral-100 text-neutral-600" },
-  // projeto
-  pausado: { label: "Pausado", cls: "bg-orange-100 text-orange-700" },
-  concluido: { label: "Concluído", cls: "bg-indigo-100 text-indigo-700" },
-  cancelado: { label: "Cancelado", cls: "bg-rose-100 text-rose-700" },
-  // lead (inbox)
-  novo: { label: "Novo", cls: "bg-emerald-100 text-emerald-700" },
-  em_contato: { label: "Em contato", cls: "bg-sky-100 text-sky-700" },
-  descartado: { label: "Descartado", cls: "bg-neutral-100 text-neutral-600" },
-  convertido: { label: "Convertido", cls: "bg-green-100 text-green-700" },
-  // reunião
-  agendada: { label: "Agendada", cls: "bg-blue-100 text-blue-700" },
-  realizada: { label: "Realizada", cls: "bg-green-100 text-green-700" },
-  cancelada: { label: "Cancelada", cls: "bg-neutral-100 text-neutral-600" },
-  // faturas
-  rascunho: { label: "Rascunho", cls: "bg-neutral-100 text-neutral-600" },
-  enviada: { label: "Enviada", cls: "bg-blue-100 text-blue-700" },
-  paga: { label: "Paga", cls: "bg-green-100 text-green-700" },
-  atrasada: { label: "Atrasada", cls: "bg-rose-100 text-rose-700" },
-  // contas a pagar
-  a_vencer: { label: "A vencer", cls: "bg-amber-100 text-amber-700" },
-  vencida: { label: "Vencida", cls: "bg-rose-100 text-rose-700" },
-  // propostas
-  aceita: { label: "Aceita", cls: "bg-green-100 text-green-700" },
-  recusada: { label: "Recusada", cls: "bg-rose-100 text-rose-700" },
-  // tarefas
-  todo: { label: "A fazer", cls: "bg-slate-100 text-slate-700" },
-  doing: { label: "Em andamento", cls: "bg-blue-100 text-blue-700" },
-  done: { label: "Concluída", cls: "bg-green-100 text-green-700" },
+const TONE: Record<Tone, string> = {
+  neutral: "bg-muted text-muted-foreground",
+  info: "bg-info-muted text-info-muted-foreground",
+  success: "bg-success-muted text-success-muted-foreground",
+  warning: "bg-warning-muted text-warning-muted-foreground",
+  danger: "bg-danger-muted text-danger-muted-foreground",
+  purple: "bg-purple-muted text-purple-muted-foreground",
 }
 
-export function StatusBadge({ status }: { status: string }) {
-  const e = MAP[status] ?? { label: status, cls: "bg-neutral-100 text-neutral-600" }
+const DOT: Record<Tone, string> = {
+  neutral: "bg-muted-foreground/60",
+  info: "bg-info",
+  success: "bg-success",
+  warning: "bg-warning",
+  danger: "bg-danger",
+  purple: "bg-purple-muted-foreground",
+}
+
+const MAP: Record<string, { label: string; tone: Tone }> = {
+  // cliente
+  lead: { label: "Lead", tone: "neutral" },
+  qualificado: { label: "Qualificado", tone: "info" },
+  proposta: { label: "Proposta", tone: "warning" },
+  ativo: { label: "Ativo", tone: "success" },
+  inativo: { label: "Inativo", tone: "neutral" },
+  // projeto
+  pausado: { label: "Pausado", tone: "warning" },
+  concluido: { label: "Concluído", tone: "purple" },
+  cancelado: { label: "Cancelado", tone: "danger" },
+  // lead (inbox)
+  novo: { label: "Novo", tone: "success" },
+  em_contato: { label: "Em contato", tone: "info" },
+  descartado: { label: "Descartado", tone: "neutral" },
+  convertido: { label: "Convertido", tone: "success" },
+  // reunião
+  agendada: { label: "Agendada", tone: "info" },
+  realizada: { label: "Realizada", tone: "success" },
+  cancelada: { label: "Cancelada", tone: "neutral" },
+  // faturas
+  rascunho: { label: "Rascunho", tone: "neutral" },
+  enviada: { label: "Enviada", tone: "info" },
+  paga: { label: "Paga", tone: "success" },
+  atrasada: { label: "Atrasada", tone: "danger" },
+  // contas a pagar
+  a_vencer: { label: "A vencer", tone: "warning" },
+  vencida: { label: "Vencida", tone: "danger" },
+  // propostas
+  aceita: { label: "Aceita", tone: "success" },
+  recusada: { label: "Recusada", tone: "danger" },
+  // tarefas
+  todo: { label: "A fazer", tone: "neutral" },
+  doing: { label: "Em andamento", tone: "info" },
+  done: { label: "Concluída", tone: "success" },
+}
+
+export function StatusBadge({ status, dot = true }: { status: string; dot?: boolean }) {
+  const e = MAP[status] ?? { label: status, tone: "neutral" as Tone }
   return (
     <span
-      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${e.cls}`}
+      className={`inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs font-medium ${TONE[e.tone]}`}
     >
+      {dot && <span className={`size-1.5 rounded-full ${DOT[e.tone]}`} />}
       {e.label}
     </span>
   )
