@@ -7,6 +7,7 @@
 import type {
   Cliente, Contato, Projeto, Reuniao, Lead, Fatura, Despesa, Deal, DealEtapa,
   ContaPagar, Proposta, Atividade, AtividadeTipo, Tarefa,
+  Membro, Meta, Marco, SolicitacaoDespesa, Contrato,
 } from "@/lib/db/types"
 
 const DIA = 86_400_000
@@ -134,6 +135,9 @@ const tarefas: Tarefa[] = [
   { id: "t9", projeto_id: "p5", titulo: "Sala de vídeo", status: "done", responsavel: "Yuri" },
   { id: "t10", projeto_id: "p5", titulo: "Prontuário eletrônico", status: "done", responsavel: "Fabrício" },
   { id: "t11", projeto_id: "p5", titulo: "Relatórios clínicos", status: "doing", responsavel: "Yuri" },
+  { id: "t12", projeto_id: "p1", titulo: "Design das telas do app", status: "doing", responsavel: "Marina" },
+  { id: "t13", projeto_id: "p3", titulo: "Build Android + publicação", status: "todo", responsavel: "Lucas" },
+  { id: "t14", projeto_id: "p5", titulo: "Ajustes de UX do prontuário", status: "doing", responsavel: "Marina" },
 ]
 
 const notas: Atividade[] = [
@@ -141,6 +145,40 @@ const notas: Atividade[] = [
   { id: "n2", cliente_id: "c5", tipo: "nota", descricao: "Negociação avançando — decisor engajado.", data: iso(-1, 11) },
   { id: "n3", cliente_id: "c3", tipo: "nota", descricao: "Aguardando retorno da proposta enviada.", data: iso(-7, 9) },
   { id: "n4", cliente_id: "c4", tipo: "nota", descricao: "Renovou sustentação por mais 12 meses.", data: iso(-10, 15) },
+]
+
+const membros: Membro[] = [
+  { id: "m1", nome: "Yuri", papel: "Sócio · Full-stack", capacidadeSemanal: 40, custoHora: 120 },
+  { id: "m2", nome: "Fabrício", papel: "Sócio · Full-stack", capacidadeSemanal: 40, custoHora: 120 },
+  { id: "m3", nome: "Marina", papel: "Design de produto", capacidadeSemanal: 40, custoHora: 80 },
+  { id: "m4", nome: "Lucas", papel: "Dev mobile", capacidadeSemanal: 40, custoHora: 70 },
+]
+
+const meta: Meta = { receitaMeta: 45000, despesaMeta: 50000, mrrMeta: 10000 }
+
+const marcos: Marco[] = [
+  { id: "ms1", projeto_id: "p1", titulo: "Kickoff e setup", data: dataSimples(-110), concluido: true },
+  { id: "ms2", projeto_id: "p1", titulo: "MVP navegável", data: dataSimples(-40), concluido: true },
+  { id: "ms3", projeto_id: "p1", titulo: "Beta com pagamento", data: dataSimples(5), concluido: false },
+  { id: "ms4", projeto_id: "p1", titulo: "Publicação nas lojas", data: dataSimples(20), concluido: false },
+  { id: "ms5", projeto_id: "p3", titulo: "Treinos e ranking", data: dataSimples(-20), concluido: true },
+  { id: "ms6", projeto_id: "p3", titulo: "Entrega final", data: dataSimples(40), concluido: false },
+  { id: "ms7", projeto_id: "p5", titulo: "Go-live da teleconsulta", data: dataSimples(-10), concluido: true },
+]
+
+const solicitacoes: SolicitacaoDespesa[] = [
+  { id: "sd1", descricao: "Reembolso — domínio e SSL", categoria: "infraestrutura", valor: 320, solicitante: "Marina", data: dataSimples(-1), status: "pendente" },
+  { id: "sd2", descricao: "Curso de React Native", categoria: "outros", valor: 890, solicitante: "Lucas", data: dataSimples(-2), status: "pendente" },
+  { id: "sd3", descricao: "Plugin de design (Figma)", categoria: "ferramentas", valor: 180, solicitante: "Marina", data: dataSimples(-5), status: "aprovada" },
+  { id: "sd4", descricao: "Almoço com cliente", categoria: "marketing", valor: 240, solicitante: "Yuri", data: dataSimples(-8), status: "aprovada" },
+]
+
+const contratos: Contrato[] = [
+  { id: "k1", cliente_id: "c2", titulo: "App treino — fase 2", valor: 20000, tipo: "projeto", status: "assinado", vigencia_inicio: dataSimples(-10), vigencia_fim: dataSimples(80), assinado_em: dataSimples(-9) },
+  { id: "k2", cliente_id: "c4", titulo: "Sustentação mensal", valor: 3800, tipo: "recorrente", status: "assinado", vigencia_inicio: dataSimples(-10), vigencia_fim: dataSimples(355), assinado_em: dataSimples(-10) },
+  { id: "k3", cliente_id: "c1", titulo: "Manutenção e evolução", valor: 2500, tipo: "recorrente", status: "assinado", vigencia_inicio: dataSimples(-30), vigencia_fim: dataSimples(335), assinado_em: dataSimples(-29) },
+  { id: "k4", cliente_id: "c3", titulo: "Catálogo + test-drive", valor: 28000, tipo: "projeto", status: "enviado", vigencia_inicio: null, vigencia_fim: null, assinado_em: null },
+  { id: "k5", cliente_id: "c5", titulo: "Busca + agendamento de visitas", valor: 32000, tipo: "projeto", status: "rascunho", vigencia_inicio: null, vigencia_fim: null, assinado_em: null },
 ]
 
 // ───────────────────────── tipos de view ─────────────────────────
@@ -511,4 +549,55 @@ export async function obterTesouraria() {
     { id: "tx5", data: dataSimples(-1), descricao: "PIX recebido — não identificado", valor: 3800, tipo: "entrada" as const, match: null },
   ]
   return { cobrancas, transacoes }
+}
+
+// ───────────────────────── equipe & capacidade ─────────────────────────
+export async function obterEquipe() {
+  return membros.map((m) => {
+    const doing = tarefas.filter((t) => t.responsavel === m.nome && t.status === "doing").length
+    const todo = tarefas.filter((t) => t.responsavel === m.nome && t.status === "todo").length
+    const dealsAbertos = deals.filter((d) => d.responsavel === m.nome && d.etapa !== "ganho" && d.etapa !== "perdido").length
+    const projetos = new Set(tarefas.filter((t) => t.responsavel === m.nome).map((t) => t.projeto_id)).size
+    return { ...m, doing, todo, dealsAbertos, projetos, ocupacao: Math.min(100, doing * 32 + todo * 12) }
+  })
+}
+
+// ───────────────────────── planejamento (metas + cenários) ─────────────────────────
+export async function obterPlanejamento() {
+  const receitaReal = faturas.filter((f) => f.status === "paga" && noMes(f.pago_em)).reduce((s, f) => s + f.valor, 0)
+  const despesaReal = despesas.filter((d) => noMes(d.data)).reduce((s, d) => s + d.valor, 0)
+  const mrrReal = projetos.filter((p) => p.tipo === "recorrente" && p.status === "ativo").reduce((s, p) => s + (p.valor ?? 0), 0)
+  return {
+    receita: { meta: meta.receitaMeta, real: receitaReal },
+    despesa: { meta: meta.despesaMeta, real: despesaReal },
+    mrr: { meta: meta.mrrMeta, real: mrrReal },
+  }
+}
+
+// Saldo projetado final em 3 cenários (ajuste de recebimentos).
+export async function obterCenarios() {
+  const base = await obterFluxoProjetado()
+  const saldoFinal = base.linha[base.linha.length - 1]?.saldo ?? base.saldoInicial
+  const totalEntradas = base.linha.reduce((s, l) => s + l.entradas, 0)
+  return {
+    pessimista: saldoFinal - Math.round(totalEntradas * 0.3),
+    realista: saldoFinal,
+    otimista: saldoFinal + Math.round(totalEntradas * 0.15),
+  }
+}
+
+export async function listarSolicitacoes(): Promise<SolicitacaoDespesa[]> {
+  return [...solicitacoes].sort((a, b) => b.data.localeCompare(a.data))
+}
+
+// ───────────────────────── marcos & contratos ─────────────────────────
+export async function listarMarcos(projetoId: string): Promise<Marco[]> {
+  return marcos.filter((m) => m.projeto_id === projetoId).sort((a, b) => a.data.localeCompare(b.data))
+}
+
+export type ContratoView = Contrato & { clienteNome: string }
+export async function listarContratos(): Promise<ContratoView[]> {
+  return [...contratos]
+    .sort((a, b) => (b.assinado_em ?? "0").localeCompare(a.assinado_em ?? "0"))
+    .map((k) => ({ ...k, clienteNome: nomeCliente(k.cliente_id) ?? "—" }))
 }

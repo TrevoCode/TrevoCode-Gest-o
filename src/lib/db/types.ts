@@ -167,3 +167,54 @@ export type Tarefa = {
   status: TarefaStatus
   responsavel: string | null
 }
+
+// Membro da equipe (capacidade e custo-hora).
+export type Membro = {
+  id: string
+  nome: string
+  papel: string
+  capacidadeSemanal: number // horas/semana
+  custoHora: number
+}
+
+// Meta mensal (orçado).
+export type Meta = {
+  receitaMeta: number
+  despesaMeta: number
+  mrrMeta: number
+}
+
+// Marco/milestone de um projeto.
+export type Marco = {
+  id: string
+  projeto_id: string
+  titulo: string
+  data: string // date
+  concluido: boolean
+}
+
+// Solicitação de despesa/reembolso a aprovar.
+export type SolicitacaoStatus = "pendente" | "aprovada" | "rejeitada"
+export type SolicitacaoDespesa = {
+  id: string
+  descricao: string
+  categoria: DespesaCategoria
+  valor: number
+  solicitante: string
+  data: string
+  status: SolicitacaoStatus
+}
+
+// Contrato (gerado de proposta aceita ou de recorrência).
+export type ContratoStatus = "rascunho" | "enviado" | "assinado"
+export type Contrato = {
+  id: string
+  cliente_id: string
+  titulo: string
+  valor: number
+  tipo: "projeto" | "recorrente"
+  status: ContratoStatus
+  vigencia_inicio: string | null
+  vigencia_fim: string | null
+  assinado_em: string | null
+}

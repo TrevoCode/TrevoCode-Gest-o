@@ -43,18 +43,18 @@ capacity) seria preciso apontar horas (custo-hora × horas). Revisitar se virarm
 | I6 | Conciliação bancária | ✅ visual — leitura OFX/Open Finance requer backend |
 | I7 | Forecast de receita | ✅ |
 
-## 🟢 NICE-TO-HAVE
+## 🟢 NICE-TO-HAVE — concluído
 
 | Item | Status |
 |------|--------|
-| Contrato + assinatura eletrônica | parcial (botão "gerar contrato" na proposta; e-sign requer Clicksign) |
+| Contrato + assinatura eletrônica | ✅ tela de Contratos (e-sign real requer Clicksign/DocuSign) |
 | Relatórios (vendas + financeiro) | ✅ |
-| Orçado × Realizado / metas | ⬜ |
-| Alocação / capacidade de equipe | ⬜ (depende de apontamento de horas) |
-| Gantt / milestones / dependências | ⬜ |
-| BI / report builder | ⬜ |
-| Aprovação de despesa (estilo Flash) | ⬜ |
-| Cenários de fluxo (otimista/pessimista) | ⬜ |
+| Orçado × Realizado / metas | ✅ (Planejamento) |
+| Alocação / capacidade de equipe | ✅ (Equipe) — refinável com apontamento de horas |
+| Marcos / milestones | ✅ (detalhe do projeto) |
+| Aprovação de despesa (estilo Flash) | ✅ (Planejamento) |
+| Cenários de fluxo (otimista/realista/pessimista) | ✅ (Planejamento) |
+| Gantt com dependências · BI/report builder | ⬜ (refinamentos futuros) |
 
 ---
 

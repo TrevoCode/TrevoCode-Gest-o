@@ -8,8 +8,10 @@ import {
   ListChecks,
   Repeat,
   CalendarDays,
+  Flag,
+  Check,
 } from "lucide-react"
-import { obterProjeto } from "@/lib/data"
+import { obterProjeto, listarMarcos } from "@/lib/data"
 import { formatBRL, formatData } from "@/lib/format"
 import { StatusBadge } from "@/components/internal/StatusBadge"
 import { StatCard } from "@/components/internal/StatCard"
@@ -36,6 +38,7 @@ export default async function ProjetoDetalhePage({
   const { id } = await params
   const p = await obterProjeto(id)
   if (!p) notFound()
+  const marcos = await listarMarcos(id)
 
   const margemPos = (p.margem ?? 0) >= 0
 
@@ -118,6 +121,24 @@ export default async function ProjetoDetalhePage({
             )
           })}
         </div>
+      </Panel>
+
+      <Panel className="mt-6" icon={Flag} title="Marcos" description="Entregas-chave do cronograma.">
+        <ol className="ml-6 border-l border-border py-2">
+          {marcos.length === 0 && (
+            <li className="px-5 py-3 text-sm text-muted-foreground">Sem marcos.</li>
+          )}
+          {marcos.map((ms) => (
+            <li key={ms.id} className="relative px-5 py-2.5">
+              <span className={`absolute -left-[7px] top-3.5 size-3 rounded-full border-2 border-card ${ms.concluido ? "bg-success" : "bg-muted-foreground/40"}`} />
+              <div className="flex items-center gap-2">
+                <p className={`text-sm ${ms.concluido ? "" : "text-muted-foreground"}`}>{ms.titulo}</p>
+                {ms.concluido && <Check className="size-3.5 text-success" />}
+              </div>
+              <p className="text-xs text-muted-foreground">{formatData(ms.data)}</p>
+            </li>
+          ))}
+        </ol>
       </Panel>
 
       {p.descricao && (

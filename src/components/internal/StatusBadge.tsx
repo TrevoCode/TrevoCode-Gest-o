@@ -57,6 +57,12 @@ const MAP: Record<string, { label: string; tone: Tone }> = {
   todo: { label: "A fazer", tone: "neutral" },
   doing: { label: "Em andamento", tone: "info" },
   done: { label: "Concluída", tone: "success" },
+  // contratos / aprovações
+  enviado: { label: "Enviado", tone: "info" },
+  assinado: { label: "Assinado", tone: "success" },
+  pendente: { label: "Pendente", tone: "warning" },
+  aprovada: { label: "Aprovada", tone: "success" },
+  rejeitada: { label: "Rejeitada", tone: "danger" },
 }
 
 export function StatusBadge({ status, dot = true }: { status: string; dot?: boolean }) {

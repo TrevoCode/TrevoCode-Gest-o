@@ -13,6 +13,9 @@ import {
   Wallet,
   Banknote,
   BarChart3,
+  Goal,
+  UsersRound,
+  FileSignature,
   Settings,
   type LucideIcon,
 } from "lucide-react"
@@ -32,14 +35,17 @@ const PRINCIPAL: NavItem[] = [
   { href: "/app/leads", label: "Leads", icon: Inbox },
   { href: "/app/pipeline", label: "Pipeline", icon: Target },
   { href: "/app/propostas", label: "Propostas", icon: FileText },
+  { href: "/app/contratos", label: "Contratos", icon: FileSignature },
   { href: "/app/clientes", label: "Clientes", icon: Users },
   { href: "/app/reunioes", label: "Reuniões", icon: CalendarDays },
   { href: "/app/projetos", label: "Projetos", icon: FolderKanban },
+  { href: "/app/equipe", label: "Equipe", icon: UsersRound },
 ]
 
 const GESTAO: NavItem[] = [
   { href: "/app/financeiro", label: "Financeiro", icon: Wallet },
   { href: "/app/cobranca", label: "Cobrança", icon: Banknote },
+  { href: "/app/planejamento", label: "Planejamento", icon: Goal },
   { href: "/app/relatorios", label: "Relatórios", icon: BarChart3 },
   { href: "/app/config", label: "Configurações", icon: Settings },
 ]
