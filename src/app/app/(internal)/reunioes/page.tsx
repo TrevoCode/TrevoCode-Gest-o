@@ -17,7 +17,7 @@ const TIPO: Record<string, { label: string; icon: LucideIcon }> = {
 function Linha({ r }: { r: ReuniaoComCliente }) {
   const t = TIPO[r.tipo] ?? TIPO.meet
   return (
-    <li className="flex items-center justify-between gap-3 px-5 py-3.5">
+    <li className="flex items-center justify-between gap-3 px-5 py-3.5 transition-colors hover:bg-muted/40">
       <div className="flex min-w-0 items-center gap-3">
         <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-muted text-muted-foreground">
           <t.icon className="size-4" />
@@ -51,7 +51,7 @@ export default async function ReunioesPage() {
         title="Reuniões"
         description="Agenda, notas e follow-ups com clientes."
         action={
-          <Link href="/app/reunioes/novo" className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90">
+          <Link href="/app/reunioes/novo" className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-xs transition-opacity hover:opacity-90">
             <Plus className="size-4" /> Agendar
           </Link>
         }
@@ -60,7 +60,7 @@ export default async function ReunioesPage() {
       <h2 className="mb-2 flex items-center gap-2 text-sm font-semibold">
         <CalendarDays className="size-4 text-primary" /> Próximas ({proximas.length})
       </h2>
-      <div className="overflow-hidden rounded-xl border border-border bg-card">
+      <div className="overflow-hidden rounded-xl border border-border bg-card shadow-xs">
         {proximas.length === 0 ? (
           <p className="px-5 py-8 text-center text-sm text-muted-foreground">Nada agendado.</p>
         ) : (
@@ -71,7 +71,7 @@ export default async function ReunioesPage() {
       </div>
 
       <h2 className="mb-2 mt-8 text-sm font-semibold text-muted-foreground">Anteriores</h2>
-      <div className="overflow-hidden rounded-xl border border-border bg-card">
+      <div className="overflow-hidden rounded-xl border border-border bg-card shadow-xs">
         {anteriores.length === 0 ? (
           <p className="px-5 py-8 text-center text-sm text-muted-foreground">Sem histórico.</p>
         ) : (

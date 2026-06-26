@@ -4,6 +4,7 @@ import { listarProjetos } from "@/lib/data"
 import { formatBRL, formatData } from "@/lib/format"
 import { StatusBadge } from "@/components/internal/StatusBadge"
 import { PageHeader } from "@/components/internal/PageHeader"
+import { StatCard } from "@/components/internal/StatCard"
 
 export const metadata = { title: "Projetos" }
 
@@ -23,32 +24,29 @@ export default async function ProjetosPage() {
         title="Projetos"
         description="Contratos por cliente: avulsos e recorrentes."
         action={
-          <Link href="/app/projetos/novo" className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90">
+          <Link href="/app/projetos/novo" className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-xs transition-opacity hover:opacity-90">
             <Plus className="size-4" /> Novo projeto
           </Link>
         }
       />
 
       <div className="mb-6 grid gap-4 sm:grid-cols-3">
-        <div className="rounded-xl border border-border bg-card p-5">
-          <FolderKanban className="size-5 text-primary" />
-          <p className="mt-3 text-2xl font-semibold tabular-nums">{ativos.length}</p>
-          <p className="text-sm text-muted-foreground">Projetos ativos</p>
-        </div>
-        <div className="rounded-xl border border-border bg-card p-5">
-          <Repeat className="size-5 text-primary" />
-          <p className="mt-3 text-2xl font-semibold tabular-nums">{formatBRL(recorrenteMes)}</p>
-          <p className="text-sm text-muted-foreground">Recorrente / mês</p>
-        </div>
-        <div className="rounded-xl border border-border bg-card p-5">
-          <FolderKanban className="size-5 text-primary" />
-          <p className="mt-3 text-2xl font-semibold tabular-nums">{formatBRL(carteiraAvulsa)}</p>
-          <p className="text-sm text-muted-foreground">Em contratos avulsos ativos</p>
-        </div>
+        <StatCard icon={FolderKanban} label="Projetos ativos" value={String(ativos.length)} />
+        <StatCard
+          icon={Repeat}
+          tone="success"
+          label="Recorrente / mês"
+          value={formatBRL(recorrenteMes)}
+        />
+        <StatCard
+          icon={FolderKanban}
+          label="Em contratos avulsos ativos"
+          value={formatBRL(carteiraAvulsa)}
+        />
       </div>
 
-      <div className="overflow-hidden rounded-xl border border-border bg-card">
-        <div className="hidden grid-cols-[2fr_1.2fr_1fr_1fr_auto] gap-4 border-b border-border px-5 py-2.5 text-xs font-medium uppercase tracking-wider text-muted-foreground sm:grid">
+      <div className="overflow-hidden rounded-xl border border-border bg-card shadow-xs">
+        <div className="hidden grid-cols-[2fr_1.2fr_1fr_1fr_auto] gap-4 border-b border-border bg-muted/40 px-5 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground sm:grid">
           <span>Projeto</span>
           <span>Cliente</span>
           <span>Tipo</span>
@@ -59,7 +57,7 @@ export default async function ProjetosPage() {
           {projetos.map((p) => (
             <li
               key={p.id}
-              className="grid grid-cols-1 gap-1 px-5 py-3.5 sm:grid-cols-[2fr_1.2fr_1fr_1fr_auto] sm:items-center sm:gap-4"
+              className="grid grid-cols-1 gap-1 px-5 py-3.5 transition-colors hover:bg-muted/40 sm:grid-cols-[2fr_1.2fr_1fr_1fr_auto] sm:items-center sm:gap-4"
             >
               <div className="min-w-0">
                 <Link href={`/app/clientes/${p.cliente_id}`} className="truncate font-medium hover:text-primary">

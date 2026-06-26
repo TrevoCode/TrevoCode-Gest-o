@@ -1,9 +1,10 @@
 import Link from "next/link"
-import { Plus, FileText, ChevronRight } from "lucide-react"
+import { Plus, FileText, CheckCircle2, ChevronRight } from "lucide-react"
 import { listarPropostas } from "@/lib/data"
 import { formatBRL, formatData } from "@/lib/format"
 import { StatusBadge } from "@/components/internal/StatusBadge"
 import { PageHeader } from "@/components/internal/PageHeader"
+import { StatCard } from "@/components/internal/StatCard"
 
 export const metadata = { title: "Propostas" }
 
@@ -18,26 +19,28 @@ export default async function PropostasPage() {
         title="Propostas"
         description="Orçamentos enviados aos clientes — do rascunho ao aceite."
         action={
-          <button className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90">
+          <button className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-xs transition-opacity hover:opacity-90">
             <Plus className="size-4" /> Nova proposta
           </button>
         }
       />
 
       <div className="mb-6 grid gap-4 sm:grid-cols-2">
-        <div className="rounded-xl border border-border bg-card p-5">
-          <FileText className="size-5 text-primary" />
-          <p className="mt-3 text-2xl font-semibold tabular-nums">{formatBRL(emAberto)}</p>
-          <p className="text-sm text-muted-foreground">Em aberto (enviadas)</p>
-        </div>
-        <div className="rounded-xl border border-border bg-card p-5">
-          <FileText className="size-5 text-green-600" />
-          <p className="mt-3 text-2xl font-semibold tabular-nums">{formatBRL(aceitas)}</p>
-          <p className="text-sm text-muted-foreground">Aceitas</p>
-        </div>
+        <StatCard
+          icon={FileText}
+          tone="info"
+          label="Em aberto (enviadas)"
+          value={formatBRL(emAberto)}
+        />
+        <StatCard
+          icon={CheckCircle2}
+          tone="success"
+          label="Aceitas"
+          value={formatBRL(aceitas)}
+        />
       </div>
 
-      <div className="overflow-hidden rounded-xl border border-border bg-card">
+      <div className="overflow-hidden rounded-xl border border-border bg-card shadow-xs">
         <ul className="divide-y divide-border">
           {propostas.map((p) => (
             <li key={p.id}>
