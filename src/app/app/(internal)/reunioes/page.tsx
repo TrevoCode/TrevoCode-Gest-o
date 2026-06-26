@@ -1,3 +1,4 @@
+import Link from "next/link"
 import { CalendarDays, Video, Phone, MapPin, Plus, type LucideIcon } from "lucide-react"
 import { listarReunioes } from "@/lib/data"
 import type { ReuniaoComCliente } from "@/lib/data"
@@ -50,9 +51,9 @@ export default async function ReunioesPage() {
         title="Reuniões"
         description="Agenda, notas e follow-ups com clientes."
         action={
-          <button className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90">
+          <Link href="/app/reunioes/novo" className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90">
             <Plus className="size-4" /> Agendar
-          </button>
+          </Link>
         }
       />
 

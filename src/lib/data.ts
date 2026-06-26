@@ -4,7 +4,7 @@
 // Supabase, basta reescrever o corpo destas funções; as telas não mudam.
 // As assinaturas já são async de propósito (igual serão as queries reais).
 // ─────────────────────────────────────────────────────────────────────────
-import type { Cliente, Contato, Projeto, Reuniao, Lead } from "@/lib/db/types"
+import type { Cliente, Contato, Projeto, Reuniao, Lead, Fatura, Despesa } from "@/lib/db/types"
 
 const DIA = 86_400_000
 const agora = Date.now()
@@ -56,6 +56,26 @@ const leads: Lead[] = [
   { id: "l2", nome: "Eduardo Nunes", email: "eduardo@construtoranun.com", telefone: "(31) 99876-5432", empresa: "Construtora Nunes", mensagem: "Sistema de gestão de obras e medições.", prefere_conversar: true, melhor_horario: "manha", melhor_canal: "meet", origem: "site", status: "novo", cliente_id: null, created_at: iso(-1, 16) },
   { id: "l3", nome: "Tatiane Rocha", email: "tati@modaviva.com", telefone: "(48) 98765-1234", empresa: "Moda Viva", mensagem: "E-commerce próprio com programa de fidelidade.", prefere_conversar: false, melhor_horario: "final", melhor_canal: "email", origem: "site", status: "em_contato", cliente_id: null, created_at: iso(-2, 11) },
   { id: "l4", nome: "Sérgio Bastos", email: "sergio@logfast.com", telefone: "(11) 97777-8888", empresa: "LogFast Transportes", mensagem: "App de rastreio de entregas para motoristas.", prefere_conversar: false, melhor_horario: "tarde", melhor_canal: "ligacao", origem: "site", status: "novo", cliente_id: null, created_at: iso(-4, 14) },
+]
+
+const faturas: Fatura[] = [
+  { id: "f1", cliente_id: "c1", projeto_id: "p1", descricao: "App delivery — marco 2", valor: 16000, status: "paga", emitida_em: dataSimples(-22), vencimento: dataSimples(-12), pago_em: dataSimples(-5), created_at: iso(-22) },
+  { id: "f2", cliente_id: "c2", projeto_id: "p3", descricao: "App treino — entrada", valor: 12000, status: "paga", emitida_em: dataSimples(-18), vencimento: dataSimples(-8), pago_em: dataSimples(-2), created_at: iso(-18) },
+  { id: "f3", cliente_id: "c4", projeto_id: "p6", descricao: "Sustentação mensal", valor: 3800, status: "enviada", emitida_em: dataSimples(-5), vencimento: dataSimples(5), pago_em: null, created_at: iso(-5) },
+  { id: "f4", cliente_id: "c1", projeto_id: "p2", descricao: "Manutenção mensal", valor: 2500, status: "enviada", emitida_em: dataSimples(-3), vencimento: dataSimples(7), pago_em: null, created_at: iso(-3) },
+  { id: "f5", cliente_id: "c4", projeto_id: "p5", descricao: "Teleconsulta — saldo final", valor: 20000, status: "atrasada", emitida_em: dataSimples(-40), vencimento: dataSimples(-9), pago_em: null, created_at: iso(-40) },
+  { id: "f6", cliente_id: "c2", projeto_id: "p3", descricao: "App treino — parcela 2", valor: 12000, status: "rascunho", emitida_em: null, vencimento: dataSimples(20), pago_em: null, created_at: iso(-1) },
+  { id: "f7", cliente_id: "c1", projeto_id: "p1", descricao: "App delivery — marco 1", valor: 16000, status: "paga", emitida_em: dataSimples(-55), vencimento: dataSimples(-45), pago_em: dataSimples(-44), created_at: iso(-55) },
+]
+
+const despesas: Despesa[] = [
+  { id: "d1", descricao: "Salários da equipe", categoria: "salarios", valor: 38000, data: dataSimples(-5), recorrente: true, created_at: iso(-5) },
+  { id: "d2", descricao: "Vercel + Supabase", categoria: "infraestrutura", valor: 1200, data: dataSimples(-4), recorrente: true, created_at: iso(-4) },
+  { id: "d3", descricao: "Google Workspace", categoria: "ferramentas", valor: 600, data: dataSimples(-6), recorrente: true, created_at: iso(-6) },
+  { id: "d4", descricao: "Anúncios Meta e Google", categoria: "marketing", valor: 2500, data: dataSimples(-3), recorrente: false, created_at: iso(-3) },
+  { id: "d5", descricao: "DAS — Simples Nacional", categoria: "impostos", valor: 4200, data: dataSimples(-7), recorrente: true, created_at: iso(-7) },
+  { id: "d6", descricao: "Figma + GitHub", categoria: "ferramentas", valor: 450, data: dataSimples(-8), recorrente: true, created_at: iso(-8) },
+  { id: "d7", descricao: "Notebook (equipe nova)", categoria: "outros", valor: 7800, data: dataSimples(-2), recorrente: false, created_at: iso(-2) },
 ]
 
 // ───────────────────────── tipos de view ─────────────────────────
@@ -152,5 +172,50 @@ export async function obterDashboard() {
     leadsRecentes: [...leads]
       .sort((a, b) => b.created_at.localeCompare(a.created_at))
       .slice(0, 4),
+  }
+}
+
+// ───────────────────────── financeiro ─────────────────────────
+export type FaturaComCliente = Fatura & { clienteNome: string }
+
+const mesAtual = new Date(agora).toISOString().slice(0, 7) // "YYYY-MM"
+const noMes = (d: string | null) => !!d && d.slice(0, 7) === mesAtual
+
+export async function listarFaturas(): Promise<FaturaComCliente[]> {
+  return [...faturas]
+    .sort((a, b) => (b.emitida_em ?? b.created_at).localeCompare(a.emitida_em ?? a.created_at))
+    .map((f) => ({ ...f, clienteNome: nomeCliente(f.cliente_id) ?? "—" }))
+}
+
+export async function listarDespesas(): Promise<Despesa[]> {
+  return [...despesas].sort((a, b) => b.data.localeCompare(a.data))
+}
+
+export async function obterFinanceiro() {
+  const aReceber = faturas
+    .filter((f) => f.status === "enviada" || f.status === "atrasada")
+    .reduce((s, f) => s + f.valor, 0)
+  const atrasado = faturas
+    .filter((f) => f.status === "atrasada")
+    .reduce((s, f) => s + f.valor, 0)
+  const recebidoMes = faturas
+    .filter((f) => f.status === "paga" && noMes(f.pago_em))
+    .reduce((s, f) => s + f.valor, 0)
+  const despesasMes = despesas.filter((d) => noMes(d.data)).reduce((s, d) => s + d.valor, 0)
+
+  const categorias = ["ferramentas", "infraestrutura", "salarios", "marketing", "impostos", "outros"] as const
+  const porCategoria = categorias
+    .map((cat) => ({
+      categoria: cat,
+      total: despesas.filter((d) => noMes(d.data) && d.categoria === cat).reduce((s, d) => s + d.valor, 0),
+    }))
+    .filter((c) => c.total > 0)
+    .sort((a, b) => b.total - a.total)
+
+  return {
+    kpis: { aReceber, atrasado, recebidoMes, despesasMes, resultadoMes: recebidoMes - despesasMes },
+    faturas: await listarFaturas(),
+    despesas: await listarDespesas(),
+    porCategoria,
   }
 }

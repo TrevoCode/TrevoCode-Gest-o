@@ -73,3 +73,34 @@ export type Lead = {
   cliente_id: string | null
   created_at: string
 }
+
+export type FaturaStatus = "rascunho" | "enviada" | "paga" | "atrasada" | "cancelada"
+export type Fatura = {
+  id: string
+  cliente_id: string
+  projeto_id: string | null
+  descricao: string
+  valor: number
+  status: FaturaStatus
+  emitida_em: string | null
+  vencimento: string
+  pago_em: string | null
+  created_at: string
+}
+
+export type DespesaCategoria =
+  | "ferramentas"
+  | "infraestrutura"
+  | "salarios"
+  | "marketing"
+  | "impostos"
+  | "outros"
+export type Despesa = {
+  id: string
+  descricao: string
+  categoria: DespesaCategoria
+  valor: number
+  data: string
+  recorrente: boolean
+  created_at: string
+}

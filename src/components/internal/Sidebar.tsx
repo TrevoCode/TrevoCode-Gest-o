@@ -4,6 +4,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import {
   LayoutDashboard,
+  Inbox,
   Users,
   CalendarDays,
   FolderKanban,
@@ -21,13 +22,14 @@ type NavItem = {
 
 const PRINCIPAL: NavItem[] = [
   { href: "/app", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/app/leads", label: "Leads", icon: Inbox },
   { href: "/app/clientes", label: "Clientes", icon: Users },
   { href: "/app/reunioes", label: "Reuniões", icon: CalendarDays },
   { href: "/app/projetos", label: "Projetos", icon: FolderKanban },
 ]
 
 const GESTAO: NavItem[] = [
-  { href: "/app/financeiro", label: "Financeiro", icon: Wallet, badge: "em breve" },
+  { href: "/app/financeiro", label: "Financeiro", icon: Wallet },
   { href: "/app/config", label: "Configurações", icon: Settings },
 ]
 

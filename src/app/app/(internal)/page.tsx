@@ -18,7 +18,7 @@ export default async function DashboardPage() {
   const { kpis, proximasReunioes, leadsRecentes } = await obterDashboard()
 
   const cards: { label: string; valor: string; icon: LucideIcon; href: string }[] = [
-    { label: "Leads novos", valor: String(kpis.leadsNovos), icon: Inbox, href: "/app/clientes" },
+    { label: "Leads novos", valor: String(kpis.leadsNovos), icon: Inbox, href: "/app/leads" },
     { label: "Clientes ativos", valor: String(kpis.clientesAtivos), icon: Users, href: "/app/clientes" },
     { label: "Projetos ativos", valor: String(kpis.projetosAtivos), icon: FolderKanban, href: "/app/projetos" },
     { label: "Receita recorrente/mês", valor: formatBRL(kpis.recorrenteMensal), icon: Repeat, href: "/app/projetos" },
@@ -78,7 +78,7 @@ export default async function DashboardPage() {
             <h2 className="flex items-center gap-2 font-medium">
               <Inbox className="size-4 text-primary" /> Leads recentes
             </h2>
-            <Link href="/app/clientes" className="text-xs text-muted-foreground hover:text-foreground">
+            <Link href="/app/leads" className="text-xs text-muted-foreground hover:text-foreground">
               ver todos
             </Link>
           </header>
