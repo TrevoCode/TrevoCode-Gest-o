@@ -431,3 +431,51 @@ export async function obterProjeto(id: string): Promise<ProjetoDetalhe | null> {
     margemPct,
   }
 }
+
+// ───────────────────────── relatórios ─────────────────────────
+const CATS_DESPESA = ["salarios", "infraestrutura", "ferramentas", "marketing", "impostos", "outros"] as const
+
+// DRE gerencial do mês (regime de caixa simplificado).
+export async function obterDRE() {
+  const receita = faturas
+    .filter((f) => f.status === "paga" && noMes(f.pago_em))
+    .reduce((s, f) => s + f.valor, 0)
+  const custos = CATS_DESPESA
+    .map((cat) => ({ categoria: cat, total: despesas.filter((d) => noMes(d.data) && d.categoria === cat).reduce((s, d) => s + d.valor, 0) }))
+    .filter((c) => c.total > 0)
+  const totalCustos = custos.reduce((s, c) => s + c.total, 0)
+  const resultado = receita - totalCustos
+  return { receita, custos, totalCustos, resultado, margem: receita ? Math.round((resultado / receita) * 100) : 0 }
+}
+
+// Receita recorrente (MRR) vs custo fixo mensal.
+export async function obterRecorrencias() {
+  const receitas = projetos
+    .filter((p) => p.tipo === "recorrente" && p.status === "ativo")
+    .map((p) => ({ nome: p.nome, cliente: nomeCliente(p.cliente_id) ?? "—", valor: p.valor ?? 0 }))
+  const custos = despesas
+    .filter((d) => d.recorrente)
+    .map((d) => ({ nome: d.descricao, categoria: d.categoria, valor: d.valor }))
+  const mrr = receitas.reduce((s, r) => s + r.valor, 0)
+  const custoFixo = custos.reduce((s, c) => s + c.valor, 0)
+  return { mrr, custoFixo, resultadoRecorrente: mrr - custoFixo, receitas, custos }
+}
+
+// Funil de vendas: distribuição por etapa + taxa de ganho.
+export async function obterFunilVendas() {
+  const etapas: { etapa: DealEtapa; label: string }[] = [
+    { etapa: "novo", label: "Novo" },
+    { etapa: "qualificacao", label: "Qualificação" },
+    { etapa: "proposta", label: "Proposta" },
+    { etapa: "negociacao", label: "Negociação" },
+    { etapa: "ganho", label: "Ganho" },
+    { etapa: "perdido", label: "Perdido" },
+  ]
+  const porEtapa = etapas.map((e) => {
+    const ds = deals.filter((d) => d.etapa === e.etapa)
+    return { ...e, n: ds.length, valor: ds.reduce((s, d) => s + d.valor, 0) }
+  })
+  const ganhos = deals.filter((d) => d.etapa === "ganho").length
+  const fechados = deals.filter((d) => d.etapa === "ganho" || d.etapa === "perdido").length
+  return { porEtapa, ganhos, fechados, taxaGanho: fechados ? Math.round((ganhos / fechados) * 100) : 0 }
+}

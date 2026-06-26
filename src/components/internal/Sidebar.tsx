@@ -11,6 +11,7 @@ import {
   CalendarDays,
   FolderKanban,
   Wallet,
+  BarChart3,
   Settings,
   type LucideIcon,
 } from "lucide-react"
@@ -37,6 +38,7 @@ const PRINCIPAL: NavItem[] = [
 
 const GESTAO: NavItem[] = [
   { href: "/app/financeiro", label: "Financeiro", icon: Wallet },
+  { href: "/app/relatorios", label: "Relatórios", icon: BarChart3 },
   { href: "/app/config", label: "Configurações", icon: Settings },
 ]
 
