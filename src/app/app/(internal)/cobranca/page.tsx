@@ -100,6 +100,9 @@ export default async function CobrancaPage() {
           </div>
         </div>
 
+        <p className="border-t border-border bg-warning-muted/40 px-5 py-2 text-xs text-warning-muted-foreground">
+          As transações abaixo são <strong>exemplos</strong> para ilustrar a conciliação — ainda não vêm do seu banco.
+        </p>
         <ul className="divide-y divide-border border-t border-border">
           {transacoes.map((t) => (
             <li key={t.id} className="flex items-center justify-between gap-3 px-5 py-3">

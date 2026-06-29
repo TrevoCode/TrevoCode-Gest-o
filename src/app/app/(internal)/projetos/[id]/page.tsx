@@ -9,13 +9,18 @@ import {
   Repeat,
   CalendarDays,
   Flag,
-  Check,
+  Pencil,
+  Plus,
 } from "lucide-react"
 import { obterProjeto, listarMarcos } from "@/lib/data"
+import { criarTarefa, criarMarco } from "@/lib/actions"
 import { formatBRL, formatData } from "@/lib/format"
 import { StatusBadge } from "@/components/internal/StatusBadge"
 import { StatCard } from "@/components/internal/StatCard"
 import { Panel } from "@/components/internal/Panel"
+import { SubmitButton } from "@/components/internal/SubmitButton"
+import { MoverTarefaSelect } from "@/components/internal/MoverTarefaSelect"
+import { ToggleMarco } from "@/components/internal/ToggleMarco"
 import type { TarefaStatus } from "@/lib/db/types"
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
@@ -29,6 +34,9 @@ const COLS: { status: TarefaStatus; label: string }[] = [
   { status: "doing", label: "Em andamento" },
   { status: "done", label: "Concluída" },
 ]
+
+const fieldSm =
+  "h-9 rounded-lg border border-border bg-background px-3 text-sm outline-none focus-visible:border-ring"
 
 export default async function ProjetoDetalhePage({
   params,
@@ -54,6 +62,12 @@ export default async function ProjetoDetalhePage({
       <div className="mt-3 flex flex-wrap items-center gap-3">
         <h1 className="font-heading text-2xl font-semibold tracking-tight">{p.nome}</h1>
         <StatusBadge status={p.status} />
+        <Link
+          href={`/app/projetos/${id}/editar`}
+          className="ml-auto inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-sm font-medium hover:bg-muted"
+        >
+          <Pencil className="size-3.5" /> Editar
+        </Link>
       </div>
       <p className="mt-1 flex flex-wrap items-center gap-1.5 text-sm text-muted-foreground">
         <Link href={`/app/clientes/${p.cliente_id}`} className="hover:text-foreground">{p.clienteNome}</Link>
@@ -92,7 +106,7 @@ export default async function ProjetoDetalhePage({
         className="mt-8"
         icon={ListChecks}
         title="Tarefas"
-        description="Execução do projeto por etapa."
+        description="Execução do projeto por etapa. Mude o status pelo seletor de cada cartão."
       >
         <div className="grid gap-4 p-5 sm:grid-cols-3">
           {COLS.map((col) => {
@@ -113,6 +127,7 @@ export default async function ProjetoDetalhePage({
                         {t.responsavel && (
                           <p className="mt-1.5 text-xs text-muted-foreground">{t.responsavel}</p>
                         )}
+                        <MoverTarefaSelect tarefaId={t.id} projetoId={id} status={t.status} />
                       </div>
                     ))
                   )}
@@ -121,24 +136,40 @@ export default async function ProjetoDetalhePage({
             )
           })}
         </div>
+        <form action={criarTarefa} className="flex flex-wrap items-center gap-2 border-t border-border px-5 py-3">
+          <input type="hidden" name="projeto_id" value={id} />
+          <input name="titulo" required placeholder="Nova tarefa…" className={`${fieldSm} min-w-0 flex-1`} />
+          <input name="responsavel" placeholder="Responsável" className={`${fieldSm} w-36`} />
+          <SubmitButton className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-60">
+            <Plus className="size-4" /> Adicionar
+          </SubmitButton>
+        </form>
       </Panel>
 
-      <Panel className="mt-6" icon={Flag} title="Marcos" description="Entregas-chave do cronograma.">
-        <ol className="ml-6 border-l border-border py-2">
+      {/* Marcos */}
+      <Panel className="mt-6" icon={Flag} title="Marcos" description="Entregas-chave do cronograma. Clique no círculo para concluir.">
+        <ol className="py-2">
           {marcos.length === 0 && (
             <li className="px-5 py-3 text-sm text-muted-foreground">Sem marcos.</li>
           )}
           {marcos.map((ms) => (
-            <li key={ms.id} className="relative px-5 py-2.5">
-              <span className={`absolute -left-[7px] top-3.5 size-3 rounded-full border-2 border-card ${ms.concluido ? "bg-success" : "bg-muted-foreground/40"}`} />
-              <div className="flex items-center gap-2">
+            <li key={ms.id} className="flex items-center gap-3 px-5 py-2">
+              <ToggleMarco marcoId={ms.id} projetoId={id} concluido={ms.concluido} />
+              <div className="min-w-0 flex-1">
                 <p className={`text-sm ${ms.concluido ? "" : "text-muted-foreground"}`}>{ms.titulo}</p>
-                {ms.concluido && <Check className="size-3.5 text-success" />}
+                <p className="text-xs text-muted-foreground">{formatData(ms.data)}</p>
               </div>
-              <p className="text-xs text-muted-foreground">{formatData(ms.data)}</p>
             </li>
           ))}
         </ol>
+        <form action={criarMarco} className="flex flex-wrap items-center gap-2 border-t border-border px-5 py-3">
+          <input type="hidden" name="projeto_id" value={id} />
+          <input name="titulo" required placeholder="Novo marco…" className={`${fieldSm} min-w-0 flex-1`} />
+          <input name="data" type="date" required className={`${fieldSm} w-40`} />
+          <SubmitButton className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-60">
+            <Plus className="size-4" /> Adicionar
+          </SubmitButton>
+        </form>
       </Panel>
 
       {p.descricao && (

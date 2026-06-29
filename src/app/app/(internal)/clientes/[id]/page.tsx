@@ -11,6 +11,7 @@ import {
   Repeat,
   Activity,
   Users,
+  Pencil,
 } from "lucide-react"
 import { obterCliente, montarTimeline } from "@/lib/data"
 import { formatBRL, formatData, formatDataHora } from "@/lib/format"
@@ -45,6 +46,12 @@ export default async function ClienteDetalhePage({
       <div className="mt-3 flex flex-wrap items-center gap-3">
         <h1 className="font-heading text-2xl font-semibold tracking-tight">{cliente.nome}</h1>
         <StatusBadge status={cliente.status} />
+        <Link
+          href={`/app/clientes/${cliente.id}/editar`}
+          className="ml-auto inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-sm font-medium hover:bg-muted"
+        >
+          <Pencil className="size-3.5" /> Editar
+        </Link>
       </div>
       <p className="mt-1 text-sm text-muted-foreground">
         {cliente.segmento ?? "Sem segmento"} · cliente desde {formatData(cliente.created_at)}

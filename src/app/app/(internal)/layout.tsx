@@ -2,7 +2,7 @@ import Link from "next/link"
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import { isAllowed } from "@/lib/auth/allowlist"
-import { isSupabaseConfigured } from "@/lib/supabase/config"
+import { isDemoMode } from "@/lib/supabase/config"
 import { LogoutButton } from "@/components/internal/LogoutButton"
 import { Sidebar } from "@/components/internal/Sidebar"
 import { MobileNav } from "@/components/internal/MobileNav"
@@ -20,7 +20,7 @@ export default async function InternalLayout({
 }: {
   children: React.ReactNode
 }) {
-  const demo = !isSupabaseConfigured()
+  const demo = isDemoMode()
   let email: string | undefined
 
   if (!demo) {

@@ -9,7 +9,10 @@ import {
   CalendarClock,
   PieChart,
 } from "lucide-react"
+import Link from "next/link"
 import { obterFinanceiro, obterFluxoProjetado, listarContasPagar } from "@/lib/data"
+import { marcarFatura, pagarConta } from "@/lib/actions"
+import { SubmitButton } from "@/components/internal/SubmitButton"
 import { formatBRL, formatData } from "@/lib/format"
 import { StatusBadge } from "@/components/internal/StatusBadge"
 import { PageHeader } from "@/components/internal/PageHeader"
@@ -47,9 +50,14 @@ export default async function FinanceiroPage() {
         title="Financeiro"
         description="Recebimentos, contas a pagar e projeção de caixa."
         action={
-          <button className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-xs transition-opacity hover:opacity-90">
-            <Plus className="size-4" /> Nova fatura
-          </button>
+          <div className="flex gap-2">
+            <Link href="/app/financeiro/nova-despesa" className="inline-flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm font-medium hover:bg-muted">
+              <Plus className="size-4" /> Despesa
+            </Link>
+            <Link href="/app/financeiro/nova-fatura" className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-xs transition-opacity hover:opacity-90">
+              <Plus className="size-4" /> Nova fatura
+            </Link>
+          </div>
         }
       />
 
@@ -159,9 +167,25 @@ export default async function FinanceiroPage() {
                       {f.clienteNome} · vence {formatData(f.vencimento)}
                     </p>
                   </div>
-                  <div className="flex shrink-0 items-center gap-3">
+                  <div className="flex shrink-0 items-center gap-2">
                     <span className="text-sm tabular-nums">{formatBRL(f.valor)}</span>
                     <StatusBadge status={f.status} />
+                    {f.status === "rascunho" && (
+                      <form action={marcarFatura}>
+                        <input type="hidden" name="fatura_id" value={f.id} />
+                        <input type="hidden" name="status" value="enviada" />
+                        <SubmitButton className="rounded-lg border border-border px-2.5 py-1 text-xs font-medium hover:bg-muted disabled:opacity-60">
+                          Enviar
+                        </SubmitButton>
+                      </form>
+                    )}
+                    <form action={marcarFatura}>
+                      <input type="hidden" name="fatura_id" value={f.id} />
+                      <input type="hidden" name="status" value="paga" />
+                      <SubmitButton className="rounded-lg bg-success-muted px-2.5 py-1 text-xs font-medium text-success-muted-foreground hover:opacity-90 disabled:opacity-60">
+                        Paga
+                      </SubmitButton>
+                    </form>
                   </div>
                 </li>
               ))}
@@ -187,9 +211,17 @@ export default async function FinanceiroPage() {
                     {c.recorrente && " · recorrente"}
                   </p>
                 </div>
-                <div className="flex shrink-0 items-center gap-3">
+                <div className="flex shrink-0 items-center gap-2">
                   <span className="text-sm tabular-nums">{formatBRL(c.valor)}</span>
                   <StatusBadge status={c.situacao} />
+                  {c.situacao !== "paga" && (
+                    <form action={pagarConta}>
+                      <input type="hidden" name="conta_id" value={c.id} />
+                      <SubmitButton className="rounded-lg bg-success-muted px-2.5 py-1 text-xs font-medium text-success-muted-foreground hover:opacity-90 disabled:opacity-60">
+                        Pagar
+                      </SubmitButton>
+                    </form>
+                  )}
                 </div>
               </li>
             ))}

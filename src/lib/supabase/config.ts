@@ -7,3 +7,10 @@ export function isSupabaseConfigured(): boolean {
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
   )
 }
+
+// Modo demonstração (libera /app sem login) só é permitido FORA de produção.
+// Em produção, Supabase ausente = fail-CLOSED: nunca abrir a área interna sem
+// autenticação — evita que um deploy com env faltando vaze tudo publicamente.
+export function isDemoMode(): boolean {
+  return !isSupabaseConfigured() && process.env.NODE_ENV !== "production"
+}

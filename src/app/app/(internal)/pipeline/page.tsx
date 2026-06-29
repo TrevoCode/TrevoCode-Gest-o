@@ -7,6 +7,7 @@ import { PageHeader } from "@/components/internal/PageHeader"
 import { StatCard } from "@/components/internal/StatCard"
 import { HeroStat } from "@/components/internal/HeroStat"
 import { Panel } from "@/components/internal/Panel"
+import { MoverDealSelect } from "@/components/internal/MoverDealSelect"
 
 export const metadata = { title: "Pipeline" }
 
@@ -22,12 +23,11 @@ const COR_ETAPA: Record<string, string> = {
 function DealCard({ d }: { d: DealView }) {
   const parado = d.diasParado > 7 && d.etapa !== "ganho"
   return (
-    <Link
-      href={`/app/clientes/${d.cliente_id}`}
-      className="block rounded-lg border border-border bg-card p-3 shadow-xs transition-all hover:-translate-y-px hover:border-primary/40 hover:shadow-sm"
-    >
-      <p className="text-sm font-medium leading-snug">{d.titulo}</p>
-      <p className="mt-0.5 text-xs text-muted-foreground">{d.clienteNome}</p>
+    <div className="rounded-lg border border-border bg-card p-3 shadow-xs transition-all hover:border-primary/40 hover:shadow-sm">
+      <Link href={`/app/clientes/${d.cliente_id}`} className="block hover:underline">
+        <p className="text-sm font-medium leading-snug">{d.titulo}</p>
+        <p className="mt-0.5 text-xs text-muted-foreground">{d.clienteNome}</p>
+      </Link>
       <div className="mt-2 flex items-center justify-between">
         <span className="text-sm font-semibold tabular-nums">{formatBRL(d.valor)}</span>
         <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground tabular-nums">
@@ -35,14 +35,17 @@ function DealCard({ d }: { d: DealView }) {
         </span>
       </div>
       <div className="mt-2 flex items-center justify-between text-[11px] text-muted-foreground">
-        <span>{d.responsavel}</span>
+        <span className="truncate">{d.responsavel}</span>
         {parado && (
-          <span className="flex items-center gap-1 text-warning">
+          <span className="flex shrink-0 items-center gap-1 text-warning">
             <AlertTriangle className="size-3" /> parado há {d.diasParado}d
           </span>
         )}
       </div>
-    </Link>
+      <div className="mt-2 border-t border-border pt-2">
+        <MoverDealSelect dealId={d.id} etapa={d.etapa} />
+      </div>
+    </div>
   )
 }
 
@@ -63,9 +66,9 @@ export default async function PipelinePage() {
         title="Pipeline"
         description="Funil comercial — negócios por etapa, do primeiro contato ao fechamento."
         action={
-          <button className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-xs transition-opacity hover:opacity-90">
+          <Link href="/app/pipeline/novo" className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-xs transition-opacity hover:opacity-90">
             <Plus className="size-4" /> Novo negócio
-          </button>
+          </Link>
         }
       />
 
