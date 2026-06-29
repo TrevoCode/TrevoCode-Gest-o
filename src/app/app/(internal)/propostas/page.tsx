@@ -21,9 +21,9 @@ export default async function PropostasPage() {
         title="Propostas"
         description="Orçamentos enviados aos clientes — do rascunho ao aceite."
         action={
-          <button className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-xs transition-opacity hover:opacity-90">
+          <Link href="/app/propostas/nova" className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-xs transition-opacity hover:opacity-90">
             <Plus className="size-4" /> Nova proposta
-          </button>
+          </Link>
         }
       />
 
@@ -46,6 +46,11 @@ export default async function PropostasPage() {
 
       <div className="overflow-hidden rounded-xl border border-border bg-card shadow-xs">
         <ul className="divide-y divide-border">
+          {propostas.length === 0 && (
+            <li className="px-5 py-10 text-center text-sm text-muted-foreground">
+              Nenhuma proposta ainda. Crie a primeira em “Nova proposta”.
+            </li>
+          )}
           {propostas.map((p) => (
             <li key={p.id}>
               <Link

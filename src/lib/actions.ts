@@ -217,3 +217,113 @@ export async function editarProjeto(fd: FormData) {
   revalidatePath(`/app/projetos/${id}`)
   redirect(`/app/projetos/${id}`)
 }
+
+// ---------- Propostas ----------
+// Itens: uma linha por item, formato "descrição | valor".
+function parseItens(raw: string | null): { descricao: string; valor: number }[] {
+  if (!raw) return []
+  return raw
+    .split("\n")
+    .map((l) => l.trim())
+    .filter(Boolean)
+    .map((l) => {
+      const [desc, val] = l.split("|")
+      return {
+        descricao: (desc ?? l).trim(),
+        valor: Number((val ?? "").replace(/[^\d.,]/g, "").replace(/\./g, "").replace(",", ".")) || 0,
+      }
+    })
+}
+
+export async function criarProposta(fd: FormData) {
+  const supabase = await createClient()
+  const titulo = s(fd, "titulo")
+  const cliente_id = s(fd, "cliente_id")
+  if (!titulo || !cliente_id) return
+  const { data } = await supabase
+    .from("propostas")
+    .insert({ titulo, cliente_id, itens: parseItens(s(fd, "itens")), status: "rascunho", validade: s(fd, "validade") })
+    .select("id")
+    .single()
+  revalidatePath("/app/propostas")
+  redirect(data ? `/app/propostas/${data.id}` : "/app/propostas")
+}
+
+export async function mudarStatusProposta(fd: FormData) {
+  const supabase = await createClient()
+  const id = s(fd, "proposta_id")
+  const status = s(fd, "status")
+  if (!id || !status) return
+  const patch: Record<string, unknown> = { status }
+  if (status === "enviada") patch.enviada_em = hoje()
+  await supabase.from("propostas").update(patch).eq("id", id)
+  revalidatePath("/app/propostas")
+  revalidatePath(`/app/propostas/${id}`)
+}
+
+export async function gerarContrato(fd: FormData) {
+  const supabase = await createClient()
+  const id = s(fd, "proposta_id")
+  if (!id) return
+  const { data: prop } = await supabase.from("propostas").select("*").eq("id", id).maybeSingle()
+  if (!prop) return
+  const itens = (Array.isArray(prop.itens) ? prop.itens : []) as { valor?: number }[]
+  const total = itens.reduce((sum, it) => sum + (Number(it?.valor) || 0), 0)
+  const { data: c } = await supabase
+    .from("contratos")
+    .insert({ cliente_id: prop.cliente_id, titulo: prop.titulo, valor: total, tipo: "projeto", status: "rascunho" })
+    .select("id")
+    .single()
+  revalidatePath("/app/contratos")
+  redirect(c ? "/app/contratos" : `/app/propostas/${id}`)
+}
+
+// ---------- Contratos ----------
+export async function mudarStatusContrato(fd: FormData) {
+  const supabase = await createClient()
+  const id = s(fd, "contrato_id")
+  const status = s(fd, "status")
+  if (!id || !status) return
+  const patch: Record<string, unknown> = { status }
+  if (status === "assinado") patch.assinado_em = hoje()
+  await supabase.from("contratos").update(patch).eq("id", id)
+  revalidatePath("/app/contratos")
+}
+
+// ---------- Configurações ----------
+export async function salvarEmpresa(fd: FormData) {
+  const supabase = await createClient()
+  await supabase.from("config_empresa").upsert({
+    id: 1,
+    razao_social: s(fd, "razao_social"),
+    nome_fantasia: s(fd, "nome_fantasia"),
+    cnpj: s(fd, "cnpj"),
+    regime: s(fd, "regime"),
+    email: s(fd, "email"),
+    endereco: s(fd, "endereco"),
+  })
+  revalidatePath("/app/config")
+}
+
+export async function alterarSenha(fd: FormData) {
+  const supabase = await createClient()
+  const senha = s(fd, "senha")
+  if (!senha || senha.length < 8) return
+  await supabase.auth.updateUser({ password: senha })
+  revalidatePath("/app/config")
+}
+
+// ---------- Equipe ----------
+export async function criarMembro(fd: FormData) {
+  const supabase = await createClient()
+  const nome = s(fd, "nome")
+  if (!nome) return
+  await supabase.from("membros").insert({
+    nome,
+    papel: s(fd, "papel"),
+    capacidade_semanal: Number(s(fd, "capacidade_semanal") ?? "40") || 40,
+    custo_hora: num(fd, "custo_hora") ?? 0,
+  })
+  revalidatePath("/app/equipe")
+  redirect("/app/equipe")
+}

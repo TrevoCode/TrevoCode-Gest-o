@@ -1,10 +1,13 @@
 import Link from "next/link"
 import { notFound } from "next/navigation"
-import { ArrowLeft, Send, Check, FileSignature, Download, ListChecks } from "lucide-react"
+import { ArrowLeft, Send, Check, X, FileSignature, ListChecks } from "lucide-react"
 import { obterProposta } from "@/lib/data"
+import { mudarStatusProposta, gerarContrato } from "@/lib/actions"
 import { formatBRL, formatData } from "@/lib/format"
 import { StatusBadge } from "@/components/internal/StatusBadge"
 import { Panel } from "@/components/internal/Panel"
+import { SubmitButton } from "@/components/internal/SubmitButton"
+import { ImprimirButton } from "@/components/internal/ImprimirButton"
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -13,7 +16,9 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 }
 
 const acaoCls =
-  "inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-xs transition-opacity hover:opacity-90"
+  "inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-xs transition-opacity hover:opacity-90 disabled:opacity-60"
+const acaoOutline =
+  "inline-flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm font-medium shadow-xs transition-colors hover:bg-muted disabled:opacity-60"
 
 export default async function PropostaDetalhePage({
   params,
@@ -28,7 +33,7 @@ export default async function PropostaDetalhePage({
     <div className="mx-auto max-w-3xl">
       <Link
         href="/app/propostas"
-        className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
+        className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground print:hidden"
       >
         <ArrowLeft className="size-4" /> Propostas
       </Link>
@@ -60,6 +65,9 @@ export default async function PropostaDetalhePage({
         }
       >
         <ul className="divide-y divide-border">
+          {p.itens.length === 0 && (
+            <li className="px-5 py-6 text-sm text-muted-foreground">Sem itens nesta proposta.</li>
+          )}
           {p.itens.map((item, i) => (
             <li key={i} className="flex items-center justify-between gap-3 px-5 py-3">
               <span className="text-sm">{item.descricao}</span>
@@ -69,29 +77,44 @@ export default async function PropostaDetalhePage({
         </ul>
       </Panel>
 
-      <div className="mt-6 flex flex-wrap gap-2">
+      <div className="mt-6 flex flex-wrap gap-2 print:hidden">
         {p.status === "rascunho" && (
-          <button className={acaoCls}>
-            <Send className="size-4" /> Enviar ao cliente
-          </button>
+          <form action={mudarStatusProposta}>
+            <input type="hidden" name="proposta_id" value={p.id} />
+            <input type="hidden" name="status" value="enviada" />
+            <SubmitButton className={acaoCls}>
+              <Send className="size-4" /> Enviar ao cliente
+            </SubmitButton>
+          </form>
         )}
         {p.status === "enviada" && (
-          <button className={acaoCls}>
-            <Check className="size-4" /> Marcar como aceita
-          </button>
+          <>
+            <form action={mudarStatusProposta}>
+              <input type="hidden" name="proposta_id" value={p.id} />
+              <input type="hidden" name="status" value="aceita" />
+              <SubmitButton className={acaoCls}>
+                <Check className="size-4" /> Marcar como aceita
+              </SubmitButton>
+            </form>
+            <form action={mudarStatusProposta}>
+              <input type="hidden" name="proposta_id" value={p.id} />
+              <input type="hidden" name="status" value="recusada" />
+              <SubmitButton className={acaoOutline}>
+                <X className="size-4" /> Recusada
+              </SubmitButton>
+            </form>
+          </>
         )}
         {p.status === "aceita" && (
-          <button className={acaoCls}>
-            <FileSignature className="size-4" /> Gerar contrato
-          </button>
+          <form action={gerarContrato}>
+            <input type="hidden" name="proposta_id" value={p.id} />
+            <SubmitButton className={acaoCls}>
+              <FileSignature className="size-4" /> Gerar contrato
+            </SubmitButton>
+          </form>
         )}
-        <button className="inline-flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm font-medium shadow-xs transition-colors hover:bg-muted">
-          <Download className="size-4" /> Baixar PDF
-        </button>
+        <ImprimirButton className={acaoOutline} />
       </div>
-      <p className="mt-3 text-xs text-muted-foreground">
-        Protótipo — envio, aceite, contrato e PDF entram quando o backend for conectado.
-      </p>
     </div>
   )
 }

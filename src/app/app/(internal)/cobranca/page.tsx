@@ -100,10 +100,12 @@ export default async function CobrancaPage() {
           </div>
         </div>
 
-        <p className="border-t border-border bg-warning-muted/40 px-5 py-2 text-xs text-warning-muted-foreground">
-          As transações abaixo são <strong>exemplos</strong> para ilustrar a conciliação — ainda não vêm do seu banco.
-        </p>
         <ul className="divide-y divide-border border-t border-border">
+          {transacoes.length === 0 && (
+            <li className="px-5 py-8 text-center text-sm text-muted-foreground">
+              Sem transações importadas. A leitura de extrato (OFX/Open Finance) entra em breve.
+            </li>
+          )}
           {transacoes.map((t) => (
             <li key={t.id} className="flex items-center justify-between gap-3 px-5 py-3">
               <div className="flex min-w-0 items-center gap-3">
@@ -141,7 +143,7 @@ export default async function CobrancaPage() {
       </Panel>
 
       <p className="mt-3 text-xs text-muted-foreground">
-        Protótipo — envio de lembretes (boleto/PIX) e leitura de OFX/Open Finance entram com o backend.
+        A régua mostra os vencimentos e quando cada lembrete cai. Envio automático (boleto/PIX) e conciliação OFX/Open Finance são próximos passos.
       </p>
     </div>
   )

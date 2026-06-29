@@ -1,4 +1,5 @@
-import { UsersRound, Clock, Gauge, FolderKanban, ListChecks, Target } from "lucide-react"
+import Link from "next/link"
+import { UsersRound, Clock, Gauge, FolderKanban, ListChecks, Target, UserPlus } from "lucide-react"
 import { obterEquipe } from "@/lib/data"
 import { PageHeader } from "@/components/internal/PageHeader"
 import { StatCard } from "@/components/internal/StatCard"
@@ -25,6 +26,11 @@ export default async function EquipePage() {
         icon={UsersRound}
         title="Equipe"
         description="Capacidade, ocupação e alocação do time."
+        action={
+          <Link href="/app/equipe/novo" className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow-xs transition-opacity hover:opacity-90">
+            <UserPlus className="size-4" /> Adicionar membro
+          </Link>
+        }
       />
 
       <div className="mb-6 grid gap-4 sm:grid-cols-3">
@@ -39,6 +45,11 @@ export default async function EquipePage() {
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
+        {equipe.length === 0 && (
+          <div className="rounded-xl border border-dashed border-border bg-card px-5 py-12 text-center text-sm text-muted-foreground sm:col-span-2">
+            Nenhum membro ainda. Clique em “Adicionar membro”.
+          </div>
+        )}
         {equipe.map((m) => (
           <div key={m.id} className="rounded-xl border border-border bg-card p-5 shadow-xs">
             <div className="flex items-center gap-3">

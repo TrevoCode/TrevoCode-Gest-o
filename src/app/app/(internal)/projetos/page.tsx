@@ -55,6 +55,11 @@ export default async function ProjetosPage() {
           <span>Status</span>
         </div>
         <ul className="divide-y divide-border">
+          {projetos.length === 0 && (
+            <li className="px-5 py-10 text-center text-sm text-muted-foreground">
+              Nenhum projeto ainda. Crie o primeiro em “Novo projeto”.
+            </li>
+          )}
           {projetos.map((p) => (
             <li
               key={p.id}

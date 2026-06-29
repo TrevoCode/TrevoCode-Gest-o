@@ -46,6 +46,11 @@ export default async function LeadsPage() {
       </div>
 
       <ul className="space-y-3">
+        {leads.length === 0 && (
+          <li className="rounded-xl border border-dashed border-border bg-card px-5 py-12 text-center text-sm text-muted-foreground">
+            Nenhum lead ainda. Os contatos enviados pelo formulário do site aparecem aqui.
+          </li>
+        )}
         {leads.map((l) => {
           const canal = l.melhor_canal ? CANAL[l.melhor_canal] : null
           return (

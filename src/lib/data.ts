@@ -20,6 +20,21 @@ async function mapaClientes(): Promise<Map<string, string>> {
 }
 const nome = (m: Map<string, string>, id: string | null) => (id ? m.get(id) ?? null : null)
 
+export type Empresa = {
+  id: number
+  razao_social: string | null
+  nome_fantasia: string | null
+  cnpj: string | null
+  regime: string | null
+  email: string | null
+  endereco: string | null
+}
+export async function obterEmpresa(): Promise<Empresa | null> {
+  const supabase = await db()
+  const { data } = await supabase.from("config_empresa").select("*").eq("id", 1).maybeSingle()
+  return (data ?? null) as Empresa | null
+}
+
 // ───────────────────────── tipos de view ─────────────────────────
 export type ClienteResumo = Cliente & { projetosAtivos: number; receitaRecorrente: number }
 export type ClienteDetalhe = Cliente & { contatos: Contato[]; projetos: Projeto[]; reunioes: Reuniao[] }
@@ -324,14 +339,15 @@ export async function obterTesouraria() {
         { label: "3 dias após", data: addDias(f.vencimento, 3) }, { label: "7 dias após", data: addDias(f.vencimento, 7) },
       ].map((l) => ({ ...l, enviado: l.data < hojeISO() })),
     }))
-  const ds = (o: number) => new Date(Date.now() + o * DIA).toISOString().slice(0, 10)
-  const transacoes = [
-    { id: "tx1", data: ds(-5), descricao: "PIX recebido — Sabor & Cia", valor: 16000, tipo: "entrada" as const, match: "App delivery — marco 2" },
-    { id: "tx2", data: ds(-2), descricao: "PIX recebido — AcademiaFit", valor: 12000, tipo: "entrada" as const, match: "App treino — entrada" },
-    { id: "tx3", data: ds(-6), descricao: "Débito — Google Workspace", valor: 600, tipo: "saida" as const, match: "Google Workspace" },
-    { id: "tx4", data: ds(-3), descricao: "TED — Anúncios Meta e Google", valor: 2500, tipo: "saida" as const, match: null },
-    { id: "tx5", data: ds(-1), descricao: "PIX recebido — não identificado", valor: 3800, tipo: "entrada" as const, match: null },
-  ]
+  // Conciliação real (Open Finance/OFX) é um próximo passo — sem dados de exemplo.
+  const transacoes: {
+    id: string
+    data: string
+    descricao: string
+    valor: number
+    tipo: "entrada" | "saida"
+    match: string | null
+  }[] = []
   return { cobrancas, transacoes }
 }
 
