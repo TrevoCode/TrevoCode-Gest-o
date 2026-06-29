@@ -87,7 +87,7 @@ export default async function LeadsPage() {
                 ) : (
                   <span />
                 )}
-                <PromoverLeadButton nome={l.nome} />
+                <PromoverLeadButton leadId={l.id} />
               </div>
             </li>
           )

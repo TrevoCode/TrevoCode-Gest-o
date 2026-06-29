@@ -15,6 +15,8 @@ import { formatBRL, formatData } from "@/lib/format"
 import { StatusBadge } from "@/components/internal/StatusBadge"
 import { PageHeader } from "@/components/internal/PageHeader"
 import { SectionTabs, TABS_ANALISE } from "@/components/internal/SectionTabs"
+import { SubmitButton } from "@/components/internal/SubmitButton"
+import { decidirSolicitacao } from "@/lib/actions"
 import { Panel } from "@/components/internal/Panel"
 import { StatCard } from "@/components/internal/StatCard"
 
@@ -110,12 +112,20 @@ export default async function PlanejamentoPage() {
               </div>
               {s.status === "pendente" ? (
                 <div className="flex shrink-0 gap-1.5">
-                  <button className="inline-flex items-center gap-1 rounded-lg bg-success-muted px-3 py-1 text-xs font-medium text-success-muted-foreground hover:opacity-90">
-                    <Check className="size-3.5" /> Aprovar
-                  </button>
-                  <button className="inline-flex items-center gap-1 rounded-lg border border-border px-3 py-1 text-xs font-medium hover:bg-muted">
-                    <X className="size-3.5" /> Recusar
-                  </button>
+                  <form action={decidirSolicitacao}>
+                    <input type="hidden" name="solicitacao_id" value={s.id} />
+                    <input type="hidden" name="status" value="aprovada" />
+                    <SubmitButton className="inline-flex items-center gap-1 rounded-lg bg-success-muted px-3 py-1 text-xs font-medium text-success-muted-foreground hover:opacity-90 disabled:opacity-60">
+                      <Check className="size-3.5" /> Aprovar
+                    </SubmitButton>
+                  </form>
+                  <form action={decidirSolicitacao}>
+                    <input type="hidden" name="solicitacao_id" value={s.id} />
+                    <input type="hidden" name="status" value="rejeitada" />
+                    <SubmitButton className="inline-flex items-center gap-1 rounded-lg border border-border px-3 py-1 text-xs font-medium hover:bg-muted disabled:opacity-60">
+                      <X className="size-3.5" /> Recusar
+                    </SubmitButton>
+                  </form>
                 </div>
               ) : (
                 <StatusBadge status={s.status} />
@@ -125,7 +135,7 @@ export default async function PlanejamentoPage() {
         </ul>
       </Panel>
 
-      <p className="mt-3 text-xs text-muted-foreground">Protótipo — aprovações e metas serão persistidas com o backend.</p>
+      <p className="mt-3 text-xs text-muted-foreground">Aprovações já salvam de verdade. Metas e cenários ainda são leitura.</p>
     </div>
   )
 }
