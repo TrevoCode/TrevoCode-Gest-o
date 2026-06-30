@@ -1,9 +1,15 @@
 import { createServerClient } from "@supabase/ssr"
 import { cookies } from "next/headers"
+import { isDemoMode } from "./config"
+import { createDemoClient } from "./demo-client"
 
 // Cliente Supabase para Server Components / Route Handlers.
 // Lê e grava a sessão via cookies do Next.
 export async function createClient() {
+  // Modo demo (sem env, fora de prod): stub que degrada pra vazio em vez de
+  // estourar "Your project's URL and Key are required".
+  if (isDemoMode()) return createDemoClient()
+
   const cookieStore = await cookies()
 
   return createServerClient(
