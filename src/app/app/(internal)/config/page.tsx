@@ -90,6 +90,11 @@ export default async function ConfigPage() {
               <span className={labelCls}>Endereço</span>
               <input name="endereco" defaultValue={empresa?.endereco ?? ""} placeholder="Cidade, UF" className={inputCls} />
             </label>
+            <label className="sm:col-span-2">
+              <span className={labelCls}>Saldo de caixa atual (R$)</span>
+              <input name="saldo_caixa" type="number" step="0.01" defaultValue={empresa?.saldo_caixa ?? ""} placeholder="0,00" className={inputCls} />
+              <span className="mt-1 block text-[11px] text-muted-foreground">Ponto de partida do fluxo de caixa projetado no Financeiro.</span>
+            </label>
           </div>
           <div className="flex justify-end border-t border-border px-5 py-3">
             <SubmitButton className={salvarCls}><Save className="size-4" /> Salvar</SubmitButton>
@@ -108,6 +113,10 @@ export default async function ConfigPage() {
         </div>
         <form action={alterarSenha} className="border-t border-border px-5 py-4">
           <label className="block max-w-sm">
+            <span className={labelCls}>Senha atual</span>
+            <input name="senha_atual" type="password" required placeholder="••••••••" className={inputCls} />
+          </label>
+          <label className="mt-3 block max-w-sm">
             <span className={labelCls}>Nova senha (mín. 8 caracteres)</span>
             <input name="senha" type="password" minLength={8} required placeholder="••••••••" className={inputCls} />
           </label>

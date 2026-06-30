@@ -28,11 +28,18 @@ export type Empresa = {
   regime: string | null
   email: string | null
   endereco: string | null
+  saldo_caixa: number
 }
 export async function obterEmpresa(): Promise<Empresa | null> {
   const supabase = await db()
   const { data } = await supabase.from("config_empresa").select("*").eq("id", 1).maybeSingle()
   return (data ?? null) as Empresa | null
+}
+
+export async function obterReuniao(id: string): Promise<Reuniao | null> {
+  const supabase = await db()
+  const { data } = await supabase.from("reunioes").select("*").eq("id", id).maybeSingle()
+  return (data ?? null) as Reuniao | null
 }
 
 // ───────────────────────── tipos de view ─────────────────────────
@@ -46,7 +53,11 @@ export async function listarClientes(opts?: { status?: Cliente["status"]; busca?
   const supabase = await db()
   let query = supabase.from("clientes").select("*").order("nome")
   if (opts?.status) query = query.eq("status", opts.status)
-  if (opts?.busca) query = query.or(`nome.ilike.%${opts.busca}%,segmento.ilike.%${opts.busca}%`)
+  if (opts?.busca) {
+    // Remove caracteres de sintaxe do PostgREST antes de interpolar no .or().
+    const b = opts.busca.replace(/[,()*:%\\]/g, " ").trim()
+    if (b) query = query.or(`nome.ilike.%${b}%,segmento.ilike.%${b}%`)
+  }
   const [{ data: clientes }, { data: projetos }] = await Promise.all([
     query,
     supabase.from("projetos").select("cliente_id, tipo, status, valor"),
@@ -205,12 +216,14 @@ export async function listarContasPagar(): Promise<ContaPagarView[]> {
 }
 
 export type SemanaFluxo = { label: string; entradas: number; saidas: number; saldo: number }
-export async function obterFluxoProjetado(saldoInicial = 28500, semanas = 6) {
+export async function obterFluxoProjetado(saldoInicialParam?: number, semanas = 6) {
   const supabase = await db()
-  const [{ data: faturas }, { data: contas }] = await Promise.all([
+  const [{ data: faturas }, { data: contas }, { data: cfg }] = await Promise.all([
     supabase.from("faturas").select("status, vencimento, valor"),
     supabase.from("contas_a_pagar").select("vencimento, valor, pago_em"),
+    supabase.from("config_empresa").select("saldo_caixa").eq("id", 1).maybeSingle(),
   ])
+  const saldoInicial = saldoInicialParam ?? Number(cfg?.saldo_caixa ?? 0)
   const entradas = (faturas ?? []).filter((f) => f.status === "enviada" || f.status === "atrasada").map((f) => ({ data: f.vencimento, valor: f.valor }))
   const saidas = (contas ?? []).filter((c) => !c.pago_em).map((c) => ({ data: c.vencimento, valor: c.valor }))
   const soma = (arr: { data: string; valor: number }[], ini: string, fim: string) => arr.filter((x) => x.data >= ini && x.data < fim).reduce((s, x) => s + x.valor, 0)

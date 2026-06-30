@@ -154,6 +154,9 @@ export default async function FinanceiroPage() {
           description="Cobranças emitidas aguardando pagamento."
         >
           <ul className="divide-y divide-border">
+            {faturas.filter((f) => f.status !== "paga").length === 0 && (
+              <li className="px-5 py-8 text-center text-sm text-muted-foreground">Nenhuma fatura a receber.</li>
+            )}
             {faturas
               .filter((f) => f.status !== "paga")
               .map((f) => (
@@ -199,6 +202,9 @@ export default async function FinanceiroPage() {
           description="Despesas com vencimento próximo."
         >
           <ul className="divide-y divide-border">
+            {contas.length === 0 && (
+              <li className="px-5 py-8 text-center text-sm text-muted-foreground">Nenhuma conta a pagar.</li>
+            )}
             {contas.map((c) => (
               <li
                 key={c.id}

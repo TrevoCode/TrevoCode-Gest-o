@@ -16,7 +16,7 @@ import { StatusBadge } from "@/components/internal/StatusBadge"
 import { PageHeader } from "@/components/internal/PageHeader"
 import { SectionTabs, TABS_ANALISE } from "@/components/internal/SectionTabs"
 import { SubmitButton } from "@/components/internal/SubmitButton"
-import { decidirSolicitacao } from "@/lib/actions"
+import { decidirSolicitacao, salvarMeta } from "@/lib/actions"
 import { Panel } from "@/components/internal/Panel"
 import { StatCard } from "@/components/internal/StatCard"
 
@@ -78,6 +78,24 @@ export default async function PlanejamentoPage() {
         </div>
       </Panel>
 
+      <form action={salvarMeta} className="mt-3 grid gap-3 rounded-xl border border-border bg-card p-4 shadow-xs sm:grid-cols-[1fr_1fr_1fr_auto] sm:items-end">
+        <label className="space-y-1">
+          <span className="text-xs font-medium text-muted-foreground">Meta de receita (R$)</span>
+          <input name="receita_meta" type="number" min="0" step="100" defaultValue={plan.receita.meta || ""} className="h-9 w-full rounded-lg border border-border bg-background px-3 text-sm outline-none focus-visible:border-ring" />
+        </label>
+        <label className="space-y-1">
+          <span className="text-xs font-medium text-muted-foreground">Teto de despesa (R$)</span>
+          <input name="despesa_meta" type="number" min="0" step="100" defaultValue={plan.despesa.meta || ""} className="h-9 w-full rounded-lg border border-border bg-background px-3 text-sm outline-none focus-visible:border-ring" />
+        </label>
+        <label className="space-y-1">
+          <span className="text-xs font-medium text-muted-foreground">Meta de MRR (R$)</span>
+          <input name="mrr_meta" type="number" min="0" step="100" defaultValue={plan.mrr.meta || ""} className="h-9 w-full rounded-lg border border-border bg-background px-3 text-sm outline-none focus-visible:border-ring" />
+        </label>
+        <SubmitButton className="h-9 rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-60">
+          Salvar metas
+        </SubmitButton>
+      </form>
+
       {/* Cenários de fluxo */}
       <h2 className="mb-3 mt-8 font-heading text-sm font-semibold">Cenários de caixa (saldo projetado em 6 semanas)</h2>
       <div className="grid gap-4 sm:grid-cols-3">
@@ -135,7 +153,7 @@ export default async function PlanejamentoPage() {
         </ul>
       </Panel>
 
-      <p className="mt-3 text-xs text-muted-foreground">Aprovações já salvam de verdade. Metas e cenários ainda são leitura.</p>
+      <p className="mt-3 text-xs text-muted-foreground">Aprovações e metas já salvam. Os cenários de caixa são calculados automaticamente.</p>
     </div>
   )
 }

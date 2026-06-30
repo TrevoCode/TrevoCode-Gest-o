@@ -93,9 +93,9 @@ export default async function CobrancaPage() {
         <div className="px-5 py-4">
           <div className="flex flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-border bg-muted/30 py-8 text-center">
             <Upload className="size-6 text-muted-foreground/50" />
-            <p className="text-sm font-medium">Importar extrato (.OFX)</p>
+            <p className="text-sm font-medium text-muted-foreground">Conciliação automática em breve</p>
             <p className="text-xs text-muted-foreground">
-              Arraste o arquivo ou conecte o banco via Open Finance — protótipo.
+              Importação de extrato (OFX) e Open Finance entram numa próxima fase.
             </p>
           </div>
         </div>

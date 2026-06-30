@@ -1,5 +1,6 @@
 import Link from "next/link"
 import { notFound } from "next/navigation"
+import { DeleteButton } from "@/components/internal/DeleteButton"
 import {
   ArrowLeft,
   Building2,
@@ -52,6 +53,7 @@ export default async function ClienteDetalhePage({
         >
           <Pencil className="size-3.5" /> Editar
         </Link>
+        <DeleteButton tabela="clientes" id={cliente.id} from="/app/clientes" />
       </div>
       <p className="mt-1 text-sm text-muted-foreground">
         {cliente.segmento ?? "Sem segmento"} · cliente desde {formatData(cliente.created_at)}
@@ -135,7 +137,9 @@ export default async function ClienteDetalhePage({
                   className="flex items-center justify-between gap-3 px-5 py-3.5 transition-colors hover:bg-muted/40"
                 >
                   <div className="min-w-0">
-                    <p className="truncate text-sm font-medium">{p.nome}</p>
+                    <Link href={`/app/projetos/${p.id}`} className="block truncate text-sm font-medium hover:text-primary">
+                      {p.nome}
+                    </Link>
                     <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
                       {p.tipo === "recorrente" ? (
                         <>

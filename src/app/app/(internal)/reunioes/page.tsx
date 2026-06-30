@@ -1,10 +1,13 @@
 import Link from "next/link"
-import { CalendarDays, Video, Phone, MapPin, Plus, type LucideIcon } from "lucide-react"
+import { CalendarDays, Video, Phone, MapPin, Plus, Pencil, Check, X, type LucideIcon } from "lucide-react"
 import { listarReunioes } from "@/lib/data"
 import type { ReuniaoComCliente } from "@/lib/data"
+import { atualizarReuniao } from "@/lib/actions"
 import { formatDataHora, tempoRelativo } from "@/lib/format"
 import { StatusBadge } from "@/components/internal/StatusBadge"
 import { PageHeader } from "@/components/internal/PageHeader"
+import { SubmitButton } from "@/components/internal/SubmitButton"
+import { DeleteButton } from "@/components/internal/DeleteButton"
 
 export const metadata = { title: "Reuniões" }
 
@@ -17,7 +20,7 @@ const TIPO: Record<string, { label: string; icon: LucideIcon }> = {
 function Linha({ r }: { r: ReuniaoComCliente }) {
   const t = TIPO[r.tipo] ?? TIPO.meet
   return (
-    <li className="flex items-center justify-between gap-3 px-5 py-3.5 transition-colors hover:bg-muted/40">
+    <li className="flex flex-wrap items-center justify-between gap-3 px-5 py-3.5 transition-colors hover:bg-muted/40">
       <div className="flex min-w-0 items-center gap-3">
         <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-muted text-muted-foreground">
           <t.icon className="size-4" />
@@ -25,13 +28,38 @@ function Linha({ r }: { r: ReuniaoComCliente }) {
         <div className="min-w-0">
           <p className="truncate text-sm font-medium">{r.titulo}</p>
           <p className="truncate text-xs text-muted-foreground">
-            {r.clienteNome ?? "Sem cliente"} · {formatDataHora(r.data_hora)}
+            {r.clienteNome ?? "Sem cliente"} · {formatDataHora(r.data_hora)} · {tempoRelativo(r.data_hora)}
           </p>
         </div>
       </div>
-      <div className="flex shrink-0 items-center gap-3">
-        <span className="hidden text-xs text-muted-foreground sm:block">{tempoRelativo(r.data_hora)}</span>
+      <div className="flex shrink-0 flex-wrap items-center gap-2">
         <StatusBadge status={r.status} />
+        {r.status === "agendada" && (
+          <>
+            <form action={atualizarReuniao}>
+              <input type="hidden" name="id" value={r.id} />
+              <input type="hidden" name="status" value="realizada" />
+              <SubmitButton className="inline-flex items-center gap-1 rounded-lg bg-success-muted px-2.5 py-1 text-xs font-medium text-success-muted-foreground hover:opacity-90 disabled:opacity-60">
+                <Check className="size-3.5" /> Realizada
+              </SubmitButton>
+            </form>
+            <form action={atualizarReuniao}>
+              <input type="hidden" name="id" value={r.id} />
+              <input type="hidden" name="status" value="cancelada" />
+              <SubmitButton className="inline-flex items-center gap-1 rounded-lg border border-border px-2.5 py-1 text-xs font-medium hover:bg-muted disabled:opacity-60">
+                <X className="size-3.5" /> Cancelar
+              </SubmitButton>
+            </form>
+          </>
+        )}
+        <Link
+          href={`/app/reunioes/${r.id}/editar`}
+          aria-label="Editar reunião"
+          className="grid size-8 place-items-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+        >
+          <Pencil className="size-4" />
+        </Link>
+        <DeleteButton tabela="reunioes" id={r.id} from="/app/reunioes" iconOnly />
       </div>
     </li>
   )

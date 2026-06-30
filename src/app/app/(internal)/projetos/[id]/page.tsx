@@ -1,5 +1,6 @@
 import Link from "next/link"
 import { notFound } from "next/navigation"
+import { DeleteButton } from "@/components/internal/DeleteButton"
 import {
   ArrowLeft,
   TrendingUp,
@@ -68,6 +69,7 @@ export default async function ProjetoDetalhePage({
         >
           <Pencil className="size-3.5" /> Editar
         </Link>
+        <DeleteButton tabela="projetos" id={id} from="/app/projetos" />
       </div>
       <p className="mt-1 flex flex-wrap items-center gap-1.5 text-sm text-muted-foreground">
         <Link href={`/app/clientes/${p.cliente_id}`} className="hover:text-foreground">{p.clienteNome}</Link>

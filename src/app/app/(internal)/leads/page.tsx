@@ -13,6 +13,9 @@ import { tempoRelativo } from "@/lib/format"
 import { StatusBadge } from "@/components/internal/StatusBadge"
 import { PageHeader } from "@/components/internal/PageHeader"
 import { PromoverLeadButton } from "@/components/internal/PromoverLeadButton"
+import { DeleteButton } from "@/components/internal/DeleteButton"
+import { SubmitButton } from "@/components/internal/SubmitButton"
+import { mudarStatusLead } from "@/lib/actions"
 import { Avatar } from "@/components/internal/Avatar"
 
 export const metadata = { title: "Leads" }
@@ -92,7 +95,19 @@ export default async function LeadsPage() {
                 ) : (
                   <span />
                 )}
-                <PromoverLeadButton leadId={l.id} />
+                <div className="flex items-center gap-2">
+                  {l.status !== "descartado" && l.status !== "convertido" && (
+                    <form action={mudarStatusLead}>
+                      <input type="hidden" name="lead_id" value={l.id} />
+                      <input type="hidden" name="status" value="descartado" />
+                      <SubmitButton className="rounded-lg border border-border px-3 py-1.5 text-xs font-medium hover:bg-muted disabled:opacity-60">
+                        Descartar
+                      </SubmitButton>
+                    </form>
+                  )}
+                  <DeleteButton tabela="leads" id={l.id} from="/app/leads" iconOnly />
+                  <PromoverLeadButton leadId={l.id} />
+                </div>
               </div>
             </li>
           )

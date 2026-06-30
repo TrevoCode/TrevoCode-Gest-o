@@ -1,6 +1,6 @@
 "use server"
 
-import { createClient } from "@/lib/supabase/server"
+import { requireMembro } from "@/lib/auth/guard"
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 
@@ -16,7 +16,7 @@ const num = (fd: FormData, k: string) => {
 }
 
 export async function criarCliente(fd: FormData) {
-  const supabase = await createClient()
+  const supabase = await requireMembro()
   const nome = s(fd, "nome")
   if (!nome) return
   const { data, error } = await supabase
@@ -32,7 +32,7 @@ export async function criarCliente(fd: FormData) {
 }
 
 export async function criarProjeto(fd: FormData) {
-  const supabase = await createClient()
+  const supabase = await requireMembro()
   const nome = s(fd, "nome")
   const cliente_id = s(fd, "cliente_id")
   if (!nome || !cliente_id) return
@@ -47,7 +47,7 @@ export async function criarProjeto(fd: FormData) {
 }
 
 export async function criarReuniao(fd: FormData) {
-  const supabase = await createClient()
+  const supabase = await requireMembro()
   const titulo = s(fd, "titulo")
   const data_hora = s(fd, "data_hora")
   if (!titulo || !data_hora) return
@@ -61,7 +61,7 @@ export async function criarReuniao(fd: FormData) {
 
 // Converte um lead em cliente (+ contato) e marca o lead como convertido.
 export async function promoverLead(fd: FormData) {
-  const supabase = await createClient()
+  const supabase = await requireMembro()
   const leadId = s(fd, "lead_id")
   if (!leadId) return
   const { data: lead } = await supabase.from("leads").select("*").eq("id", leadId).maybeSingle()
@@ -80,7 +80,7 @@ export async function promoverLead(fd: FormData) {
 }
 
 export async function decidirSolicitacao(fd: FormData) {
-  const supabase = await createClient()
+  const supabase = await requireMembro()
   const id = s(fd, "solicitacao_id")
   const status = s(fd, "status")
   if (!id || !status) return
@@ -93,7 +93,7 @@ const agora = () => new Date().toISOString()
 
 // ---------- Pipeline ----------
 export async function moverDeal(fd: FormData) {
-  const supabase = await createClient()
+  const supabase = await requireMembro()
   const id = s(fd, "deal_id")
   const etapa = s(fd, "etapa")
   if (!id || !etapa) return
@@ -102,7 +102,7 @@ export async function moverDeal(fd: FormData) {
 }
 
 export async function criarDeal(fd: FormData) {
-  const supabase = await createClient()
+  const supabase = await requireMembro()
   const titulo = s(fd, "titulo")
   const cliente_id = s(fd, "cliente_id")
   if (!titulo || !cliente_id) return
@@ -113,7 +113,7 @@ export async function criarDeal(fd: FormData) {
 
 // ---------- Faturas ----------
 export async function marcarFatura(fd: FormData) {
-  const supabase = await createClient()
+  const supabase = await requireMembro()
   const id = s(fd, "fatura_id")
   const status = s(fd, "status")
   if (!id || !status) return
@@ -126,7 +126,7 @@ export async function marcarFatura(fd: FormData) {
 }
 
 export async function criarFatura(fd: FormData) {
-  const supabase = await createClient()
+  const supabase = await requireMembro()
   const descricao = s(fd, "descricao")
   const cliente_id = s(fd, "cliente_id")
   const vencimento = s(fd, "vencimento")
@@ -139,7 +139,7 @@ export async function criarFatura(fd: FormData) {
 
 // ---------- Contas a pagar / despesas ----------
 export async function pagarConta(fd: FormData) {
-  const supabase = await createClient()
+  const supabase = await requireMembro()
   const id = s(fd, "conta_id")
   if (!id) return
   await supabase.from("contas_a_pagar").update({ pago_em: hoje() }).eq("id", id)
@@ -147,7 +147,7 @@ export async function pagarConta(fd: FormData) {
 }
 
 export async function criarDespesa(fd: FormData) {
-  const supabase = await createClient()
+  const supabase = await requireMembro()
   const descricao = s(fd, "descricao")
   if (!descricao) return
   await supabase.from("despesas").insert({ descricao, categoria: s(fd, "categoria") ?? "outros", valor: num(fd, "valor") ?? 0, data: s(fd, "data") ?? hoje(), recorrente: s(fd, "recorrente") === "on" })
@@ -157,7 +157,7 @@ export async function criarDespesa(fd: FormData) {
 
 // ---------- Projeto: tarefas e marcos ----------
 export async function moverTarefa(fd: FormData) {
-  const supabase = await createClient()
+  const supabase = await requireMembro()
   const id = s(fd, "tarefa_id")
   const status = s(fd, "status")
   if (!id || !status) return
@@ -167,7 +167,7 @@ export async function moverTarefa(fd: FormData) {
 }
 
 export async function criarTarefa(fd: FormData) {
-  const supabase = await createClient()
+  const supabase = await requireMembro()
   const titulo = s(fd, "titulo")
   const projeto_id = s(fd, "projeto_id")
   if (!titulo || !projeto_id) return
@@ -176,7 +176,7 @@ export async function criarTarefa(fd: FormData) {
 }
 
 export async function toggleMarco(fd: FormData) {
-  const supabase = await createClient()
+  const supabase = await requireMembro()
   const id = s(fd, "marco_id")
   if (!id) return
   const concluido = s(fd, "concluido") === "true"
@@ -186,7 +186,7 @@ export async function toggleMarco(fd: FormData) {
 }
 
 export async function criarMarco(fd: FormData) {
-  const supabase = await createClient()
+  const supabase = await requireMembro()
   const titulo = s(fd, "titulo")
   const projeto_id = s(fd, "projeto_id")
   const data = s(fd, "data")
@@ -197,7 +197,7 @@ export async function criarMarco(fd: FormData) {
 
 // ---------- Edição ----------
 export async function editarCliente(fd: FormData) {
-  const supabase = await createClient()
+  const supabase = await requireMembro()
   const id = s(fd, "id")
   const nome = s(fd, "nome")
   if (!id || !nome) return
@@ -208,7 +208,7 @@ export async function editarCliente(fd: FormData) {
 }
 
 export async function editarProjeto(fd: FormData) {
-  const supabase = await createClient()
+  const supabase = await requireMembro()
   const id = s(fd, "id")
   const nome = s(fd, "nome")
   if (!id || !nome) return
@@ -236,7 +236,7 @@ function parseItens(raw: string | null): { descricao: string; valor: number }[] 
 }
 
 export async function criarProposta(fd: FormData) {
-  const supabase = await createClient()
+  const supabase = await requireMembro()
   const titulo = s(fd, "titulo")
   const cliente_id = s(fd, "cliente_id")
   if (!titulo || !cliente_id) return
@@ -250,7 +250,7 @@ export async function criarProposta(fd: FormData) {
 }
 
 export async function mudarStatusProposta(fd: FormData) {
-  const supabase = await createClient()
+  const supabase = await requireMembro()
   const id = s(fd, "proposta_id")
   const status = s(fd, "status")
   if (!id || !status) return
@@ -262,7 +262,7 @@ export async function mudarStatusProposta(fd: FormData) {
 }
 
 export async function gerarContrato(fd: FormData) {
-  const supabase = await createClient()
+  const supabase = await requireMembro()
   const id = s(fd, "proposta_id")
   if (!id) return
   const { data: prop } = await supabase.from("propostas").select("*").eq("id", id).maybeSingle()
@@ -280,7 +280,7 @@ export async function gerarContrato(fd: FormData) {
 
 // ---------- Contratos ----------
 export async function mudarStatusContrato(fd: FormData) {
-  const supabase = await createClient()
+  const supabase = await requireMembro()
   const id = s(fd, "contrato_id")
   const status = s(fd, "status")
   if (!id || !status) return
@@ -292,7 +292,7 @@ export async function mudarStatusContrato(fd: FormData) {
 
 // ---------- Configurações ----------
 export async function salvarEmpresa(fd: FormData) {
-  const supabase = await createClient()
+  const supabase = await requireMembro()
   await supabase.from("config_empresa").upsert({
     id: 1,
     razao_social: s(fd, "razao_social"),
@@ -301,21 +301,90 @@ export async function salvarEmpresa(fd: FormData) {
     regime: s(fd, "regime"),
     email: s(fd, "email"),
     endereco: s(fd, "endereco"),
+    saldo_caixa: num(fd, "saldo_caixa") ?? 0,
   })
   revalidatePath("/app/config")
+  revalidatePath("/app/financeiro")
 }
 
 export async function alterarSenha(fd: FormData) {
-  const supabase = await createClient()
-  const senha = s(fd, "senha")
-  if (!senha || senha.length < 8) return
-  await supabase.auth.updateUser({ password: senha })
+  const supabase = await requireMembro()
+  const atual = s(fd, "senha_atual")
+  const nova = s(fd, "senha")
+  if (!atual || !nova || nova.length < 8) return
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user?.email) return
+  // Reautentica com a senha atual antes de trocar (evita troca por sessão sequestrada).
+  const { error: reauth } = await supabase.auth.signInWithPassword({ email: user.email, password: atual })
+  if (reauth) throw new Error("Senha atual incorreta.")
+  await supabase.auth.updateUser({ password: nova })
   revalidatePath("/app/config")
+}
+
+// ---------- Reuniões ----------
+export async function atualizarReuniao(fd: FormData) {
+  const supabase = await requireMembro()
+  const id = s(fd, "id")
+  if (!id) return
+  const patch: Record<string, unknown> = {}
+  for (const k of ["status", "titulo", "tipo", "cliente_id", "notas", "follow_up", "data_hora"]) {
+    if (fd.has(k)) patch[k] = s(fd, k)
+  }
+  if (Object.keys(patch).length === 0) return
+  await supabase.from("reunioes").update(patch).eq("id", id)
+  revalidatePath("/app/reunioes")
+  const back = s(fd, "back")
+  if (back) redirect(back)
+}
+
+// ---------- Metas (planejamento) ----------
+export async function salvarMeta(fd: FormData) {
+  const supabase = await requireMembro()
+  const payload = {
+    receita_meta: num(fd, "receita_meta") ?? 0,
+    despesa_meta: num(fd, "despesa_meta") ?? 0,
+    mrr_meta: num(fd, "mrr_meta") ?? 0,
+  }
+  const { data: existing } = await supabase.from("metas").select("id").limit(1).maybeSingle()
+  if (existing) await supabase.from("metas").update(payload).eq("id", existing.id)
+  else await supabase.from("metas").insert(payload)
+  revalidatePath("/app/planejamento")
+}
+
+// ---------- Exclusão (whitelist de tabelas; RLS já restringe a membros) ----------
+const TABELAS_EXCLUIVEIS = new Set([
+  "clientes", "projetos", "deals", "propostas", "contratos", "reunioes",
+  "leads", "despesas", "membros", "tarefas", "marcos", "faturas",
+  "contas_a_pagar", "solicitacoes_despesa", "contatos",
+])
+export async function excluirRegistro(fd: FormData) {
+  const supabase = await requireMembro()
+  const tabela = s(fd, "tabela")
+  const id = s(fd, "id")
+  if (!tabela || !id || !TABELAS_EXCLUIVEIS.has(tabela)) return
+  const { error } = await supabase.from(tabela).delete().eq("id", id)
+  if (error) throw new Error(error.message)
+  const from = s(fd, "from")
+  if (from) {
+    revalidatePath(from)
+    redirect(from)
+  }
+}
+
+export async function mudarStatusLead(fd: FormData) {
+  const supabase = await requireMembro()
+  const id = s(fd, "lead_id")
+  const status = s(fd, "status")
+  if (!id || !status) return
+  await supabase.from("leads").update({ status }).eq("id", id)
+  revalidatePath("/app/leads")
 }
 
 // ---------- Equipe ----------
 export async function criarMembro(fd: FormData) {
-  const supabase = await createClient()
+  const supabase = await requireMembro()
   const nome = s(fd, "nome")
   if (!nome) return
   await supabase.from("membros").insert({

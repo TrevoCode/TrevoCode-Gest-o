@@ -16,7 +16,7 @@ import {
   UsersRound,
   Wallet,
   BarChart3,
-  Settings,
+  Radar,
   type LucideIcon,
 } from "lucide-react"
 import { TrevoMark } from "@/components/internal/TrevoMark"
@@ -51,12 +51,18 @@ const GRUPOS: Grupo[] = [
       { href: "/app/relatorios", label: "Relatórios", icon: BarChart3 },
     ],
   },
+  {
+    titulo: "Prospecção",
+    itens: [{ href: "/app/prospeccao", label: "Prospecção", icon: Radar }],
+  },
 ]
 
 const SUB_PARA_PAI: Record<string, string> = {
   "/app/contratos": "/app/propostas",
   "/app/cobranca": "/app/financeiro",
   "/app/planejamento": "/app/relatorios",
+  "/app/cadencia": "/app/prospeccao",
+  "/app/nichos": "/app/prospeccao",
 }
 
 function isActive(pathname: string, href: string) {

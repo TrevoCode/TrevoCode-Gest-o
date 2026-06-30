@@ -8,6 +8,7 @@ import { StatCard } from "@/components/internal/StatCard"
 import { HeroStat } from "@/components/internal/HeroStat"
 import { Panel } from "@/components/internal/Panel"
 import { MoverDealSelect } from "@/components/internal/MoverDealSelect"
+import { DeleteButton } from "@/components/internal/DeleteButton"
 
 export const metadata = { title: "Pipeline" }
 
@@ -42,8 +43,11 @@ function DealCard({ d }: { d: DealView }) {
           </span>
         )}
       </div>
-      <div className="mt-2 border-t border-border pt-2">
-        <MoverDealSelect dealId={d.id} etapa={d.etapa} />
+      <div className="mt-2 flex items-center gap-1.5 border-t border-border pt-2">
+        <div className="min-w-0 flex-1">
+          <MoverDealSelect dealId={d.id} etapa={d.etapa} />
+        </div>
+        <DeleteButton tabela="deals" id={d.id} from="/app/pipeline" iconOnly />
       </div>
     </div>
   )

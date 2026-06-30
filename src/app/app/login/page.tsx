@@ -11,7 +11,9 @@ import { Lock } from "lucide-react"
 function LoginForm() {
   const router = useRouter()
   const params = useSearchParams()
-  const next = params.get("next") || "/app"
+  // Só aceita destino interno (evita open-redirect via ?next=).
+  const rawNext = params.get("next")
+  const next = rawNext?.startsWith("/app") ? rawNext : "/app"
 
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -61,6 +63,7 @@ function LoginForm() {
           <input
             type="email"
             required
+            aria-label="E-mail"
             placeholder="E-mail"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -70,13 +73,14 @@ function LoginForm() {
           <input
             type="password"
             required
+            aria-label="Senha"
             placeholder="Senha"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             autoComplete="current-password"
             className="h-10 rounded-lg border border-border bg-background px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
           />
-          {error && <p className="text-sm text-destructive">{error}</p>}
+          {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
           <Button type="submit" size="lg" disabled={loading || !configured} className="mt-1 w-full">
             {loading ? "Entrando..." : "Entrar"}
           </Button>

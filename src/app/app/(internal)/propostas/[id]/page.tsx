@@ -1,5 +1,6 @@
 import Link from "next/link"
 import { notFound } from "next/navigation"
+import { DeleteButton } from "@/components/internal/DeleteButton"
 import { ArrowLeft, Send, Check, X, FileSignature, ListChecks } from "lucide-react"
 import { obterProposta } from "@/lib/data"
 import { mudarStatusProposta, gerarContrato } from "@/lib/actions"
@@ -114,6 +115,12 @@ export default async function PropostaDetalhePage({
           </form>
         )}
         <ImprimirButton className={acaoOutline} />
+        <DeleteButton
+          tabela="propostas"
+          id={p.id}
+          from="/app/propostas"
+          className="inline-flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm font-medium text-danger shadow-xs transition-colors hover:bg-danger-muted"
+        />
       </div>
     </div>
   )
