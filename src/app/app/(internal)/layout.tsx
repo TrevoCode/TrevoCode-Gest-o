@@ -3,14 +3,13 @@ import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import { isAllowed } from "@/lib/auth/allowlist"
 import { isDemoMode } from "@/lib/supabase/config"
-import { LogoutButton } from "@/components/internal/LogoutButton"
+import { UserMenu } from "@/components/internal/UserMenu"
 import { Sidebar } from "@/components/internal/Sidebar"
 import { MobileNav } from "@/components/internal/MobileNav"
 import { GlobalSearch } from "@/components/internal/GlobalSearch"
 import { Notifications } from "@/components/internal/Notifications"
 import { ThemeToggle } from "@/components/internal/ThemeToggle"
 import { obterIndiceBusca, obterNotificacoes } from "@/lib/data"
-import { Avatar } from "@/components/internal/Avatar"
 import { TrevoMark } from "@/components/internal/TrevoMark"
 
 // Shell da área interna. O proxy já gateia; aqui revalidamos no servidor
@@ -40,7 +39,7 @@ export default async function InternalLayout({
 
   return (
     <div className="flex min-h-svh bg-background">
-      <Sidebar user={{ name, email: emailLine }} demo={demo} />
+      <Sidebar />
       <div className="flex min-w-0 flex-1 flex-col">
         {demo && (
           <div className="border-b border-warning-muted bg-warning-muted px-6 py-1.5 text-center text-xs text-warning-muted-foreground">
@@ -59,10 +58,7 @@ export default async function InternalLayout({
           <div className="flex items-center gap-1.5">
             <Notifications items={notificacoes} />
             <ThemeToggle />
-            <div className="flex items-center gap-2 md:hidden">
-              <Avatar name={name} />
-              {!demo && <LogoutButton />}
-            </div>
+            <UserMenu name={name} email={emailLine} demo={demo} />
           </div>
         </header>
         <main className="flex-1 px-6 py-7 lg:px-8">{children}</main>

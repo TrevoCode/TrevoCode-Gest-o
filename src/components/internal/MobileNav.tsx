@@ -51,7 +51,6 @@ const GRUPOS: Grupo[] = [
       { href: "/app/relatorios", label: "Relatórios", icon: BarChart3 },
     ],
   },
-  { titulo: "Sistema", itens: [{ href: "/app/config", label: "Configurações", icon: Settings }] },
 ]
 
 const SUB_PARA_PAI: Record<string, string> = {

@@ -17,6 +17,11 @@ export const TABS_ANALISE = [
   { href: "/app/relatorios", label: "Relatórios" },
   { href: "/app/planejamento", label: "Planejamento" },
 ]
+export const TABS_PROSPECCAO = [
+  { href: "/app/prospeccao", label: "Radar" },
+  { href: "/app/cadencia", label: "Cadência" },
+  { href: "/app/nichos", label: "Nichos" },
+]
 
 export function SectionTabs({ tabs }: { tabs: { href: string; label: string }[] }) {
   const pathname = usePathname()

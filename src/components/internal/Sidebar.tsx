@@ -5,6 +5,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import {
   LayoutDashboard,
+  Radar,
   Inbox,
   Target,
   FileText,
@@ -14,19 +15,20 @@ import {
   UsersRound,
   Wallet,
   BarChart3,
-  Settings,
   PanelLeftClose,
   type LucideIcon,
 } from "lucide-react"
 import { TrevoMark } from "@/components/internal/TrevoMark"
-import { Avatar } from "@/components/internal/Avatar"
-import { LogoutButton } from "@/components/internal/LogoutButton"
 
 type NavItem = { href: string; label: string; icon: LucideIcon; badge?: string }
 type Grupo = { titulo: string | null; itens: NavItem[] }
 
 const GRUPOS: Grupo[] = [
   { titulo: null, itens: [{ href: "/app", label: "Dashboard", icon: LayoutDashboard }] },
+  {
+    titulo: "Prospecção",
+    itens: [{ href: "/app/prospeccao", label: "Prospecção", icon: Radar }],
+  },
   {
     titulo: "Comercial",
     itens: [
@@ -53,13 +55,13 @@ const GRUPOS: Grupo[] = [
   },
 ]
 
-const CONFIG: NavItem = { href: "/app/config", label: "Configurações", icon: Settings }
-
 // As sub-abas mapeiam para o item-pai (mantém o menu destacado na sub-tela).
 const SUB_PARA_PAI: Record<string, string> = {
   "/app/contratos": "/app/propostas",
   "/app/cobranca": "/app/financeiro",
   "/app/planejamento": "/app/relatorios",
+  "/app/cadencia": "/app/prospeccao",
+  "/app/nichos": "/app/prospeccao",
 }
 
 function isActive(pathname: string, href: string) {
@@ -107,13 +109,7 @@ function NavLink({
   )
 }
 
-export function Sidebar({
-  user,
-  demo,
-}: {
-  user: { name: string; email: string }
-  demo: boolean
-}) {
+export function Sidebar() {
   const pathname = usePathname()
   const [collapsed, setCollapsed] = useState(true)
 
@@ -187,31 +183,6 @@ export function Sidebar({
           </div>
         ))}
       </nav>
-
-      {/* Config + perfil */}
-      <div className="space-y-1 border-t border-sidebar-border p-3">
-        <NavLink item={CONFIG} pathname={pathname} collapsed={collapsed} />
-        {collapsed ? (
-          <div className="flex justify-center pt-1" title={user.name}>
-            <Avatar name={user.name} />
-          </div>
-        ) : (
-          <>
-            <div className="flex items-center gap-2.5 px-2 py-1">
-              <Avatar name={user.name} />
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium leading-tight">{user.name}</p>
-                <p className="truncate text-xs text-muted-foreground">{user.email}</p>
-              </div>
-            </div>
-            {!demo && (
-              <div className="px-1">
-                <LogoutButton />
-              </div>
-            )}
-          </>
-        )}
-      </div>
     </aside>
   )
 }
