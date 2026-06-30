@@ -25,7 +25,14 @@ export default async function ProspeccaoPage({
   searchParams: Promise<{ nicho?: string }>
 }) {
   const { nicho } = await searchParams
-  const [placar, leads] = await Promise.all([obterProspectPlacar(), listarProspectLeads(nicho)])
+  let placar: Awaited<ReturnType<typeof obterProspectPlacar>> = []
+  let leads: Awaited<ReturnType<typeof listarProspectLeads>> = []
+  let debugErro: string | null = null
+  try {
+    ;[placar, leads] = await Promise.all([obterProspectPlacar(), listarProspectLeads(nicho)])
+  } catch (e) {
+    debugErro = e instanceof Error ? `${e.name}: ${e.message}` : String(e)
+  }
   const totalFila = placar.reduce((s, p) => s + p.fila, 0)
 
   return (
@@ -35,6 +42,12 @@ export default async function ProspeccaoPage({
         title="Prospecção"
         description="Leads captados pela máquina, com a dor digital detectada e a abordagem pronta."
       />
+
+      {debugErro && (
+        <pre className="mb-6 overflow-x-auto whitespace-pre-wrap rounded-lg border border-danger/40 bg-danger/10 p-4 text-xs text-danger">
+          DEBUG (temporário): {debugErro}
+        </pre>
+      )}
 
       {/* Placar de nichos */}
       <div className="mb-6 overflow-x-auto rounded-xl border border-border bg-card">
