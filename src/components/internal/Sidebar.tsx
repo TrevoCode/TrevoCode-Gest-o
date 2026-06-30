@@ -5,6 +5,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import {
   LayoutDashboard,
+  Radar,
   Inbox,
   Target,
   FileText,
@@ -27,6 +28,10 @@ type Grupo = { titulo: string | null; itens: NavItem[] }
 
 const GRUPOS: Grupo[] = [
   { titulo: null, itens: [{ href: "/app", label: "Dashboard", icon: LayoutDashboard }] },
+  {
+    titulo: "Prospecção",
+    itens: [{ href: "/app/prospeccao", label: "Prospecção", icon: Radar }],
+  },
   {
     titulo: "Comercial",
     itens: [
