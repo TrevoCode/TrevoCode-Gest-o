@@ -1,6 +1,8 @@
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import { DeleteButton } from "@/components/internal/DeleteButton"
+import { SubmitButton } from "@/components/internal/SubmitButton"
+import { criarContato } from "@/lib/actions"
 import {
   ArrowLeft,
   Building2,
@@ -13,6 +15,7 @@ import {
   Activity,
   Users,
   Pencil,
+  Plus,
 } from "lucide-react"
 import { obterCliente, montarTimeline } from "@/lib/data"
 import { formatBRL, formatData, formatDataHora } from "@/lib/format"
@@ -96,7 +99,8 @@ export default async function ClienteDetalhePage({
                 <li className="px-5 py-4 text-sm text-muted-foreground">Nenhum contato.</li>
               )}
               {cliente.contatos.map((ct) => (
-                <li key={ct.id} className="px-5 py-3 transition-colors hover:bg-muted/40">
+                <li key={ct.id} className="flex items-start justify-between gap-2 px-5 py-3 transition-colors hover:bg-muted/40">
+                  <div className="min-w-0">
                   <p className="flex items-center gap-1.5 text-sm font-medium">
                     {ct.nome}
                     {ct.principal && <Star className="size-3.5 fill-warning text-warning" />}
@@ -114,9 +118,20 @@ export default async function ClienteDetalhePage({
                       </span>
                     )}
                   </div>
+                  </div>
+                  <DeleteButton tabela="contatos" id={ct.id} from={`/app/clientes/${cliente.id}`} iconOnly />
                 </li>
               ))}
             </ul>
+            <form action={criarContato} className="flex flex-wrap items-center gap-2 border-t border-border px-5 py-3">
+              <input type="hidden" name="cliente_id" value={cliente.id} />
+              <input name="nome" required placeholder="Nome *" className="h-9 min-w-0 flex-1 rounded-lg border border-border bg-background px-3 text-sm outline-none focus-visible:border-ring" />
+              <input name="email" type="email" placeholder="E-mail" className="h-9 w-36 rounded-lg border border-border bg-background px-3 text-sm outline-none focus-visible:border-ring" />
+              <input name="telefone" placeholder="Telefone" className="h-9 w-32 rounded-lg border border-border bg-background px-3 text-sm outline-none focus-visible:border-ring" />
+              <SubmitButton className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-60">
+                <Plus className="size-4" /> Adicionar
+              </SubmitButton>
+            </form>
           </Panel>
         </div>
 

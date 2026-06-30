@@ -1,3 +1,4 @@
+import Link from "next/link"
 import {
   MessageCircle,
   Phone,
@@ -6,6 +7,7 @@ import {
   Clock,
   Building2,
   Inbox,
+  Pencil,
   type LucideIcon,
 } from "lucide-react"
 import { listarLeads } from "@/lib/data"
@@ -16,6 +18,7 @@ import { PromoverLeadButton } from "@/components/internal/PromoverLeadButton"
 import { DeleteButton } from "@/components/internal/DeleteButton"
 import { SubmitButton } from "@/components/internal/SubmitButton"
 import { mudarStatusLead } from "@/lib/actions"
+import { FiltroBar } from "@/components/internal/FiltroBar"
 import { Avatar } from "@/components/internal/Avatar"
 
 export const metadata = { title: "Leads" }
@@ -32,8 +35,23 @@ const HORARIO: Record<string, string> = {
   final: "Final de tarde",
 }
 
-export default async function LeadsPage() {
-  const leads = await listarLeads()
+const FILTROS_LEAD = [
+  { label: "Todos", value: "" },
+  { label: "Novos", value: "novo" },
+  { label: "Em contato", value: "em_contato" },
+  { label: "Qualificados", value: "qualificado" },
+  { label: "Descartados", value: "descartado" },
+]
+
+export default async function LeadsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ status?: string; busca?: string }>
+}) {
+  const sp = await searchParams
+  const statusAtual = sp.status ?? ""
+  const busca = sp.busca ?? ""
+  const leads = await listarLeads({ status: statusAtual || undefined, busca: busca || undefined })
   const novos = leads.filter((l) => l.status === "novo").length
 
   return (
@@ -42,6 +60,14 @@ export default async function LeadsPage() {
         icon={Inbox}
         title="Leads"
         description="Contatos recebidos pelo formulário do site, prontos para virar clientes."
+      />
+
+      <FiltroBar
+        basePath="/app/leads"
+        filtros={FILTROS_LEAD}
+        statusAtual={statusAtual}
+        busca={busca}
+        placeholder="Buscar por nome ou empresa…"
       />
 
       <div className="mb-4 text-sm text-muted-foreground">
@@ -105,6 +131,13 @@ export default async function LeadsPage() {
                       </SubmitButton>
                     </form>
                   )}
+                  <Link
+                    href={`/app/leads/${l.id}/editar`}
+                    aria-label="Editar lead"
+                    className="grid size-8 place-items-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                  >
+                    <Pencil className="size-4" />
+                  </Link>
                   <DeleteButton tabela="leads" id={l.id} from="/app/leads" iconOnly />
                   <PromoverLeadButton leadId={l.id} />
                 </div>

@@ -8,6 +8,7 @@ import {
   LineChart,
   CalendarClock,
   PieChart,
+  Pencil,
 } from "lucide-react"
 import Link from "next/link"
 import { obterFinanceiro, obterFluxoProjetado, listarContasPagar } from "@/lib/data"
@@ -173,6 +174,13 @@ export default async function FinanceiroPage() {
                   <div className="flex shrink-0 items-center gap-2">
                     <span className="text-sm tabular-nums">{formatBRL(f.valor)}</span>
                     <StatusBadge status={f.status} />
+                    <Link
+                      href={`/app/financeiro/fatura/${f.id}/editar`}
+                      aria-label="Editar fatura"
+                      className="grid size-7 place-items-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                    >
+                      <Pencil className="size-3.5" />
+                    </Link>
                     {f.status === "rascunho" && (
                       <form action={marcarFatura}>
                         <input type="hidden" name="fatura_id" value={f.id} />

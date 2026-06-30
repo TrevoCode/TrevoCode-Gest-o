@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { UsersRound, Clock, Gauge, FolderKanban, ListChecks, Target, UserPlus } from "lucide-react"
+import { UsersRound, Clock, Gauge, FolderKanban, ListChecks, Target, UserPlus, Pencil } from "lucide-react"
 import { obterEquipe } from "@/lib/data"
 import { PageHeader } from "@/components/internal/PageHeader"
 import { StatCard } from "@/components/internal/StatCard"
@@ -59,6 +59,13 @@ export default async function EquipePage() {
                 <p className="truncate text-xs text-muted-foreground">{m.papel}</p>
               </div>
               <span className="text-sm font-semibold tabular-nums">{m.ocupacao}%</span>
+              <Link
+                href={`/app/equipe/${m.id}/editar`}
+                aria-label="Editar membro"
+                className="grid size-8 place-items-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              >
+                <Pencil className="size-4" />
+              </Link>
             </div>
 
             <div className="mt-3 h-2 overflow-hidden rounded-full bg-muted">

@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { Plus, TrendingUp, Scale, Trophy, AlertTriangle, Target, BarChart3 } from "lucide-react"
+import { Plus, TrendingUp, Scale, Trophy, AlertTriangle, Target, BarChart3, Pencil } from "lucide-react"
 import { obterPipeline, obterForecast } from "@/lib/data"
 import type { DealView } from "@/lib/data"
 import { formatBRL } from "@/lib/format"
@@ -47,6 +47,13 @@ function DealCard({ d }: { d: DealView }) {
         <div className="min-w-0 flex-1">
           <MoverDealSelect dealId={d.id} etapa={d.etapa} />
         </div>
+        <Link
+          href={`/app/pipeline/${d.id}/editar`}
+          aria-label="Editar negócio"
+          className="grid size-8 place-items-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+        >
+          <Pencil className="size-4" />
+        </Link>
         <DeleteButton tabela="deals" id={d.id} from="/app/pipeline" iconOnly />
       </div>
     </div>

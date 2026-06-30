@@ -42,6 +42,43 @@ export async function obterReuniao(id: string): Promise<Reuniao | null> {
   return (data ?? null) as Reuniao | null
 }
 
+export async function obterDeal(id: string): Promise<Deal | null> {
+  const supabase = await db()
+  const { data } = await supabase.from("deals").select("*").eq("id", id).maybeSingle()
+  return (data ?? null) as Deal | null
+}
+
+export async function obterFatura(id: string): Promise<Fatura | null> {
+  const supabase = await db()
+  const { data } = await supabase.from("faturas").select("*").eq("id", id).maybeSingle()
+  return (data ?? null) as Fatura | null
+}
+
+export async function obterDespesa(id: string): Promise<Despesa | null> {
+  const supabase = await db()
+  const { data } = await supabase.from("despesas").select("*").eq("id", id).maybeSingle()
+  return (data ?? null) as Despesa | null
+}
+
+export async function obterLead(id: string): Promise<Lead | null> {
+  const supabase = await db()
+  const { data } = await supabase.from("leads").select("*").eq("id", id).maybeSingle()
+  return (data ?? null) as Lead | null
+}
+
+export type MembroRow = {
+  id: string
+  nome: string
+  papel: string | null
+  capacidade_semanal: number
+  custo_hora: number
+}
+export async function obterMembro(id: string): Promise<MembroRow | null> {
+  const supabase = await db()
+  const { data } = await supabase.from("membros").select("*").eq("id", id).maybeSingle()
+  return (data ?? null) as MembroRow | null
+}
+
 // ───────────────────────── tipos de view ─────────────────────────
 export type ClienteResumo = Cliente & { projetosAtivos: number; receitaRecorrente: number }
 export type ClienteDetalhe = Cliente & { contatos: Contato[]; projetos: Projeto[]; reunioes: Reuniao[] }
@@ -84,15 +121,27 @@ export async function obterCliente(id: string): Promise<ClienteDetalhe | null> {
   return { ...(c as Cliente), contatos: (contatos ?? []) as Contato[], projetos: (projetos ?? []) as Projeto[], reunioes: (reunioes ?? []) as Reuniao[] }
 }
 
-export async function listarLeads(): Promise<Lead[]> {
+export async function listarLeads(opts?: { status?: string; busca?: string }): Promise<Lead[]> {
   const supabase = await db()
-  const { data } = await supabase.from("leads").select("*").order("created_at", { ascending: false })
+  let query = supabase.from("leads").select("*").order("created_at", { ascending: false })
+  if (opts?.status) query = query.eq("status", opts.status)
+  if (opts?.busca) {
+    const b = opts.busca.replace(/[,()*:%\\]/g, " ").trim()
+    if (b) query = query.or(`nome.ilike.%${b}%,empresa.ilike.%${b}%`)
+  }
+  const { data } = await query
   return (data ?? []) as Lead[]
 }
 
-export async function listarProjetos(): Promise<ProjetoComCliente[]> {
+export async function listarProjetos(opts?: { status?: string; busca?: string }): Promise<ProjetoComCliente[]> {
   const supabase = await db()
-  const [{ data }, mapa] = await Promise.all([supabase.from("projetos").select("*").order("created_at", { ascending: false }), mapaClientes()])
+  let query = supabase.from("projetos").select("*").order("created_at", { ascending: false })
+  if (opts?.status) query = query.eq("status", opts.status)
+  if (opts?.busca) {
+    const b = opts.busca.replace(/[,()*:%\\]/g, " ").trim()
+    if (b) query = query.ilike("nome", `%${b}%`)
+  }
+  const [{ data }, mapa] = await Promise.all([query, mapaClientes()])
   return (data ?? []).map((p) => ({ ...(p as Projeto), clienteNome: nome(mapa, p.cliente_id) ?? "—" }))
 }
 

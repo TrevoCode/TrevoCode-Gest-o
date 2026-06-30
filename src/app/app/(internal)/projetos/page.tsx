@@ -5,11 +5,27 @@ import { formatBRL, formatData } from "@/lib/format"
 import { StatusBadge } from "@/components/internal/StatusBadge"
 import { PageHeader } from "@/components/internal/PageHeader"
 import { StatCard } from "@/components/internal/StatCard"
+import { FiltroBar } from "@/components/internal/FiltroBar"
 
 export const metadata = { title: "Projetos" }
 
-export default async function ProjetosPage() {
-  const projetos = await listarProjetos()
+const FILTROS_PROJ = [
+  { label: "Todos", value: "" },
+  { label: "Ativos", value: "ativo" },
+  { label: "Proposta", value: "proposta" },
+  { label: "Pausados", value: "pausado" },
+  { label: "Concluídos", value: "concluido" },
+]
+
+export default async function ProjetosPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ status?: string; busca?: string }>
+}) {
+  const sp = await searchParams
+  const statusAtual = sp.status ?? ""
+  const busca = sp.busca ?? ""
+  const projetos = await listarProjetos({ status: statusAtual || undefined, busca: busca || undefined })
   const ativos = projetos.filter((p) => p.status === "ativo")
   const recorrenteMes = ativos
     .filter((p) => p.tipo === "recorrente")
@@ -45,6 +61,14 @@ export default async function ProjetosPage() {
           value={formatBRL(carteiraAvulsa)}
         />
       </div>
+
+      <FiltroBar
+        basePath="/app/projetos"
+        filtros={FILTROS_PROJ}
+        statusAtual={statusAtual}
+        busca={busca}
+        placeholder="Buscar projeto…"
+      />
 
       <div className="overflow-hidden rounded-xl border border-border bg-card shadow-xs">
         <div className="hidden grid-cols-[2fr_1.2fr_1fr_1fr_auto] gap-4 border-b border-border bg-muted/40 px-5 py-2.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground sm:grid">

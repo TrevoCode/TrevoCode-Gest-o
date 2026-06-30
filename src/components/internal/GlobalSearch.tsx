@@ -24,6 +24,7 @@ export function GlobalSearch({ index }: { index: ItemBusca[] }) {
         type="search"
         value={q}
         onChange={(e) => setQ(e.target.value)}
+        aria-label="Busca global"
         placeholder="Buscar clientes, projetos, propostas…"
         className="h-9 w-full rounded-lg border border-border bg-muted/40 pl-9 pr-3 text-sm outline-none focus-visible:border-ring focus-visible:bg-background"
       />

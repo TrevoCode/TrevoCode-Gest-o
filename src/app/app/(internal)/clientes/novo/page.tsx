@@ -50,9 +50,9 @@ export default function NovoClientePage() {
         <div className="border-t border-border pt-5">
           <p className="mb-3 text-sm font-medium">Contato principal</p>
           <div className="grid gap-4 sm:grid-cols-3">
-            <input name="contato_nome" placeholder="Nome" className={inputCls} />
-            <input name="contato_email" type="email" placeholder="E-mail" className={inputCls} />
-            <input name="contato_telefone" placeholder="Telefone" className={inputCls} />
+            <input name="contato_nome" aria-label="Nome do contato" placeholder="Nome" className={inputCls} />
+            <input name="contato_email" type="email" aria-label="E-mail do contato" placeholder="E-mail" className={inputCls} />
+            <input name="contato_telefone" aria-label="Telefone do contato" placeholder="Telefone" className={inputCls} />
           </div>
         </div>
 

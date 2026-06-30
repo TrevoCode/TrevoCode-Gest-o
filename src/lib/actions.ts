@@ -382,6 +382,108 @@ export async function mudarStatusLead(fd: FormData) {
   revalidatePath("/app/leads")
 }
 
+// ---------- Edições (Fase 2) ----------
+export async function editarDeal(fd: FormData) {
+  const supabase = await requireMembro()
+  const id = s(fd, "id")
+  if (!id) return
+  await supabase.from("deals").update({
+    titulo: s(fd, "titulo"),
+    valor: num(fd, "valor") ?? 0,
+    probabilidade: Number(s(fd, "probabilidade") ?? "0") || 0,
+    etapa: s(fd, "etapa") ?? "novo",
+    fechamento_esperado: s(fd, "fechamento_esperado"),
+    responsavel: s(fd, "responsavel"),
+  }).eq("id", id)
+  revalidatePath("/app/pipeline")
+  redirect("/app/pipeline")
+}
+
+export async function editarFatura(fd: FormData) {
+  const supabase = await requireMembro()
+  const id = s(fd, "id")
+  if (!id) return
+  await supabase.from("faturas").update({
+    descricao: s(fd, "descricao"),
+    cliente_id: s(fd, "cliente_id"),
+    valor: num(fd, "valor") ?? 0,
+    status: s(fd, "status") ?? "rascunho",
+    vencimento: s(fd, "vencimento"),
+  }).eq("id", id)
+  revalidatePath("/app/financeiro")
+  revalidatePath("/app/cobranca")
+  redirect("/app/financeiro")
+}
+
+export async function editarDespesa(fd: FormData) {
+  const supabase = await requireMembro()
+  const id = s(fd, "id")
+  if (!id) return
+  await supabase.from("despesas").update({
+    descricao: s(fd, "descricao"),
+    categoria: s(fd, "categoria") ?? "outros",
+    valor: num(fd, "valor") ?? 0,
+    data: s(fd, "data"),
+    recorrente: s(fd, "recorrente") === "on",
+  }).eq("id", id)
+  revalidatePath("/app/financeiro")
+  redirect("/app/financeiro")
+}
+
+export async function editarMembro(fd: FormData) {
+  const supabase = await requireMembro()
+  const id = s(fd, "id")
+  if (!id) return
+  await supabase.from("membros").update({
+    nome: s(fd, "nome"),
+    papel: s(fd, "papel"),
+    capacidade_semanal: Number(s(fd, "capacidade_semanal") ?? "40") || 40,
+    custo_hora: num(fd, "custo_hora") ?? 0,
+  }).eq("id", id)
+  revalidatePath("/app/equipe")
+  redirect("/app/equipe")
+}
+
+export async function editarLead(fd: FormData) {
+  const supabase = await requireMembro()
+  const id = s(fd, "id")
+  if (!id) return
+  await supabase.from("leads").update({
+    nome: s(fd, "nome"),
+    email: s(fd, "email"),
+    telefone: s(fd, "telefone"),
+    empresa: s(fd, "empresa"),
+    mensagem: s(fd, "mensagem"),
+    status: s(fd, "status") ?? "novo",
+    melhor_canal: s(fd, "melhor_canal"),
+    melhor_horario: s(fd, "melhor_horario"),
+  }).eq("id", id)
+  revalidatePath("/app/leads")
+  redirect("/app/leads")
+}
+
+// ---------- Contatos do cliente (Fase 2) ----------
+export async function criarContato(fd: FormData) {
+  const supabase = await requireMembro()
+  const cliente_id = s(fd, "cliente_id")
+  const nome = s(fd, "nome")
+  if (!cliente_id || !nome) return
+  await supabase.from("contatos").insert({
+    cliente_id, nome, email: s(fd, "email"), telefone: s(fd, "telefone"),
+    cargo: s(fd, "cargo"), principal: s(fd, "principal") === "on",
+  })
+  revalidatePath(`/app/clientes/${cliente_id}`)
+}
+
+export async function excluirContato(fd: FormData) {
+  const supabase = await requireMembro()
+  const id = s(fd, "id")
+  const cliente_id = s(fd, "cliente_id")
+  if (!id) return
+  await supabase.from("contatos").delete().eq("id", id)
+  if (cliente_id) revalidatePath(`/app/clientes/${cliente_id}`)
+}
+
 // ---------- Equipe ----------
 export async function criarMembro(fd: FormData) {
   const supabase = await requireMembro()
