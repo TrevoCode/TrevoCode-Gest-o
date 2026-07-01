@@ -19,6 +19,7 @@ export const TABS_ANALISE = [
 ]
 export const TABS_PROSPECCAO = [
   { href: "/app/prospeccao", label: "Radar" },
+  { href: "/app/conversas", label: "Conversas" },
   { href: "/app/cadencia", label: "Cadência" },
   { href: "/app/nichos", label: "Nichos" },
 ]

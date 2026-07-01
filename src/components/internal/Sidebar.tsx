@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation"
 import {
   LayoutDashboard,
   Radar,
+  MessagesSquare,
   Inbox,
   Target,
   FileText,
@@ -27,7 +28,10 @@ const GRUPOS: Grupo[] = [
   { titulo: null, itens: [{ href: "/app", label: "Dashboard", icon: LayoutDashboard }] },
   {
     titulo: "Prospecção",
-    itens: [{ href: "/app/prospeccao", label: "Prospecção", icon: Radar }],
+    itens: [
+      { href: "/app/prospeccao", label: "Radar", icon: Radar },
+      { href: "/app/conversas", label: "Conversas", icon: MessagesSquare },
+    ],
   },
   {
     titulo: "Comercial",
@@ -111,10 +115,11 @@ function NavLink({
 
 export function Sidebar() {
   const pathname = usePathname()
-  const [collapsed, setCollapsed] = useState(true)
+  // Padrão: EXPANDIDO (mostra o texto de cada botão ao lado do ícone).
+  const [collapsed, setCollapsed] = useState(false)
 
   useEffect(() => {
-    if (localStorage.getItem("trevo-sidebar-collapsed") === "false") setCollapsed(false)
+    if (localStorage.getItem("trevo-sidebar-collapsed") === "true") setCollapsed(true)
   }, [])
 
   function toggle() {

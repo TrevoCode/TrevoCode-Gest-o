@@ -76,6 +76,69 @@ export async function obterConversas(placeId: string): Promise<Conversa[]> {
   return (data as Conversa[]) ?? []
 }
 
+// Lista de threads (inbox estilo WhatsApp Web): um resumo por lead que TEM
+// conversa, com a última mensagem, ordenado do mais recente pro mais antigo.
+export type ThreadResumo = {
+  place_id: string
+  name: string | null
+  niche: string | null
+  lastText: string
+  lastRole: "lead" | "sdr"
+  lastAt: string
+  total: number
+  status: OutreachStatus | null
+  /** Última mensagem foi do lead → aguardando nossa resposta. */
+  aguardando: boolean
+}
+
+export async function listarConversas(): Promise<ThreadResumo[]> {
+  const db = await px()
+  const { data: convs } = await db
+    .from("conversations")
+    .select("place_id,role,text,at")
+    .order("at", { ascending: false })
+
+  // Agrupa por lead: a 1ª ocorrência (ordem desc) é a última mensagem.
+  const porLead = new Map<string, ThreadResumo>()
+  for (const c of (convs ?? []) as Conversa[]) {
+    const cur = porLead.get(c.place_id)
+    if (!cur) {
+      porLead.set(c.place_id, {
+        place_id: c.place_id,
+        name: null,
+        niche: null,
+        lastText: c.text,
+        lastRole: c.role,
+        lastAt: c.at,
+        total: 1,
+        status: null,
+        aguardando: c.role === "lead",
+      })
+    } else {
+      cur.total++
+    }
+  }
+  if (porLead.size === 0) return []
+
+  const ids = [...porLead.keys()]
+  // Junta nome/nicho dos leads + status do outreach (pras tags de filtro).
+  const [leadsRes, outsRes] = await Promise.all([
+    db.from("leads").select("place_id,name,niche").in("place_id", ids),
+    db.from("outreach").select("place_id,status").in("place_id", ids),
+  ])
+  const leads = (leadsRes.data ?? []) as { place_id: string; name: string | null; niche: string | null }[]
+  const outs = (outsRes.data ?? []) as { place_id: string; status: OutreachStatus | null }[]
+  const statusMap = new Map(outs.map((o) => [o.place_id, o.status]))
+  const info = new Map(leads.map((l) => [l.place_id, l]))
+  for (const t of porLead.values()) {
+    t.status = statusMap.get(t.place_id) ?? null
+    const l = info.get(t.place_id)
+    t.name = l?.name ?? null
+    t.niche = l?.niche ?? null
+  }
+  return [...porLead.values()] // já em ordem desc por lastAt (Map preserva inserção)
+}
+
 // Pipeline (cadência): leads agrupados pelo status do outreach.
 const ORDEM_STATUS: OutreachStatus[] = ["active", "replied", "booked", "exhausted", "optout"]
 const LABEL_STATUS: Record<OutreachStatus, string> = {

@@ -115,3 +115,20 @@ export async function marcarDesfecho(
 export async function optout(placeId: string): Promise<AcaoResultado> {
   return acao(`leads/${enc(placeId)}/optout`, undefined, [...detalhe(placeId), "/app/cadencia"])
 }
+
+// Define manualmente a situação do lead no pipeline (tags do CRM).
+export async function definirSituacao(placeId: string, status: string): Promise<AcaoResultado> {
+  return acao(`leads/${enc(placeId)}/status`, { status }, [
+    ...detalhe(placeId),
+    "/app/conversas",
+    "/app/cadencia",
+  ])
+}
+
+// Envia uma mensagem manual do operador (CRM). A máquina persiste e, se a
+// Cloud API estiver conectada, entrega no WhatsApp do lead. Retorna { delivered }.
+export async function enviarMensagem(placeId: string, text: string): Promise<AcaoResultado> {
+  const t = text.trim()
+  if (!t) return { ok: false, error: "Mensagem vazia." }
+  return acao(`leads/${enc(placeId)}/message`, { text: t }, [...detalhe(placeId), "/app/conversas"])
+}
