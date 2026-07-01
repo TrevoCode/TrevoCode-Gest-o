@@ -115,3 +115,19 @@ export async function marcarDesfecho(
 export async function optout(placeId: string): Promise<AcaoResultado> {
   return acao(`leads/${enc(placeId)}/optout`, undefined, [...detalhe(placeId), "/app/cadencia"])
 }
+
+// ── Canais email + Instagram ─────────────────────────────────────────────
+// Varre o site do lead atrás de email + @ do Instagram e grava.
+export async function descobrirContato(placeId: string): Promise<AcaoResultado> {
+  return acao(`leads/${enc(placeId)}/email-discover`, undefined, detalhe(placeId))
+}
+
+// Envia a isca de email personalizada via Resend.
+export async function enviarEmail(placeId: string): Promise<AcaoResultado> {
+  return acao(`leads/${enc(placeId)}/email`, undefined, [...detalhe(placeId), "/app/conversas"])
+}
+
+// Registra que o operador mandou a DM de Instagram no braço.
+export async function marcarIgEnviado(placeId: string): Promise<AcaoResultado> {
+  return acao(`leads/${enc(placeId)}/ig-sent`, undefined, detalhe(placeId))
+}
