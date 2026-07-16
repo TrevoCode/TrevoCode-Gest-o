@@ -1,5 +1,6 @@
 import Link from "next/link"
-import { FileSignature, CheckCircle2, Clock, Repeat, Send } from "lucide-react"
+import { FileSignature, CheckCircle2, Clock, Repeat, Send, Pencil } from "lucide-react"
+import { DeleteButton } from "@/components/internal/DeleteButton"
 import { listarContratos } from "@/lib/data"
 import { formatBRL, formatData } from "@/lib/format"
 import { StatusBadge } from "@/components/internal/StatusBadge"
@@ -81,6 +82,14 @@ export default async function ContratosPage() {
                     </SubmitButton>
                   </form>
                 )}
+                <Link
+                  href={`/app/contratos/${k.id}/editar`}
+                  aria-label={`Editar ${k.titulo}`}
+                  className="rounded-lg border border-border p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
+                >
+                  <Pencil className="size-3.5" />
+                </Link>
+                <DeleteButton tabela="contratos" id={k.id} from="/app/contratos" iconOnly />
               </div>
             </li>
           ))}

@@ -1,6 +1,7 @@
 "use server"
 
 import { requireMembro } from "@/lib/auth/guard"
+import { hojeISO } from "@/lib/datas"
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 
@@ -88,7 +89,7 @@ export async function decidirSolicitacao(fd: FormData) {
   revalidatePath("/app/planejamento")
 }
 
-const hoje = () => new Date().toISOString().slice(0, 10)
+const hoje = hojeISO // fuso da empresa (America/Sao_Paulo) — ver src/lib/datas.ts
 const agora = () => new Date().toISOString()
 
 // ---------- Pipeline ----------
@@ -336,7 +337,8 @@ export async function atualizarReuniao(fd: FormData) {
   await supabase.from("reunioes").update(patch).eq("id", id)
   revalidatePath("/app/reunioes")
   const back = s(fd, "back")
-  if (back) redirect(back)
+  // destino vem do form — só aceita caminho interno (anti open-redirect)
+  if (back && back.startsWith("/app")) redirect(back)
 }
 
 // ---------- Metas (planejamento) ----------
@@ -367,7 +369,8 @@ export async function excluirRegistro(fd: FormData) {
   const { error } = await supabase.from(tabela).delete().eq("id", id)
   if (error) throw new Error(error.message)
   const from = s(fd, "from")
-  if (from) {
+  // destino vem do form — só aceita caminho interno (anti open-redirect)
+  if (from && from.startsWith("/app")) {
     revalidatePath(from)
     redirect(from)
   }
@@ -497,4 +500,52 @@ export async function criarMembro(fd: FormData) {
   })
   revalidatePath("/app/equipe")
   redirect("/app/equipe")
+}
+
+// ---------- Solicitações de despesa (o time pede; sócios aprovam no Planejamento) ----------
+export async function criarSolicitacao(fd: FormData) {
+  const supabase = await requireMembro()
+  const descricao = s(fd, "descricao")
+  if (!descricao) return
+  await supabase.from("solicitacoes_despesa").insert({
+    descricao,
+    categoria: s(fd, "categoria") ?? "outros",
+    valor: num(fd, "valor") ?? 0,
+    solicitante: s(fd, "solicitante"),
+    data: s(fd, "data") ?? hoje(),
+  })
+  revalidatePath("/app/planejamento")
+  redirect("/app/planejamento")
+}
+
+// ---------- Contas a pagar (antes só dava pra marcar como paga — faltava cadastrar) ----------
+export async function criarContaPagar(fd: FormData) {
+  const supabase = await requireMembro()
+  const descricao = s(fd, "descricao")
+  if (!descricao) return
+  await supabase.from("contas_a_pagar").insert({
+    descricao,
+    categoria: s(fd, "categoria") ?? "outros",
+    valor: num(fd, "valor") ?? 0,
+    vencimento: s(fd, "vencimento") ?? hoje(),
+    recorrente: s(fd, "recorrente") === "on",
+  })
+  revalidatePath("/app/financeiro")
+  redirect("/app/financeiro")
+}
+
+// ---------- Contratos (faltava edição) ----------
+export async function editarContrato(fd: FormData) {
+  const supabase = await requireMembro()
+  const id = s(fd, "id")
+  if (!id) return
+  await supabase.from("contratos").update({
+    titulo: s(fd, "titulo"),
+    valor: num(fd, "valor") ?? 0,
+    tipo: s(fd, "tipo") ?? "projeto",
+    vigencia_inicio: s(fd, "vigencia_inicio") || null,
+    vigencia_fim: s(fd, "vigencia_fim") || null,
+  }).eq("id", id)
+  revalidatePath("/app/contratos")
+  redirect("/app/contratos")
 }

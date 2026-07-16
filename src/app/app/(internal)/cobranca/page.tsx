@@ -131,11 +131,7 @@ export default async function CobrancaPage() {
                   <span className="hidden items-center gap-1.5 rounded-full bg-success-muted px-2.5 py-0.5 text-xs font-medium text-success-muted-foreground sm:inline-flex">
                     <Check className="size-3.5" /> {t.match}
                   </span>
-                ) : (
-                  <button className="rounded-lg border border-border px-3 py-1 text-xs font-medium hover:bg-muted">
-                    Conciliar
-                  </button>
-                )}
+                ) : null}
               </div>
             </li>
           ))}

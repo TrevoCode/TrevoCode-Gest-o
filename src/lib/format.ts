@@ -1,9 +1,10 @@
 // Formatadores pt-BR usados nas telas.
 
+// Centavos SEMPRE visíveis: com maximumFractionDigits 0, R$ 1.234,56 virava "R$ 1.235"
+// em fatura/DRE/proposta — valor mostrado divergia do cobrado (auditoria 16/07/2026).
 const brl = new Intl.NumberFormat("pt-BR", {
   style: "currency",
   currency: "BRL",
-  maximumFractionDigits: 0,
 })
 
 export function formatBRL(valor: number | null | undefined): string {

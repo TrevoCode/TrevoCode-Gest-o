@@ -8,8 +8,9 @@ import type {
   ContaPagar, Proposta, Atividade, Tarefa, Membro, Marco, SolicitacaoDespesa, Contrato,
 } from "@/lib/db/types"
 
+import { hojeISO } from "@/lib/datas"
+
 const DIA = 86_400_000
-const hojeISO = () => new Date().toISOString().slice(0, 10)
 const agoraISO = () => new Date().toISOString()
 const db = () => createClient()
 
@@ -510,4 +511,10 @@ export async function obterNotificacoes(): Promise<Notificacao[]> {
   const novos = (leads ?? []).filter((l) => l.status === "novo").length
   if (novos > 0) ns.push({ id: "leads", texto: `${novos} leads novos do site`, sub: "aguardando primeiro contato", href: "/app/leads", tom: "info" })
   return ns
+}
+
+export async function obterContrato(id: string): Promise<Contrato | null> {
+  const supabase = await db()
+  const { data } = await supabase.from("contratos").select("*").eq("id", id).maybeSingle()
+  return (data as Contrato | null) ?? null
 }
