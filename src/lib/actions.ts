@@ -39,7 +39,7 @@ export async function criarProjeto(fd: FormData) {
   if (!nome || !cliente_id) return
   const { data, error } = await supabase
     .from("projetos")
-    .insert({ nome, cliente_id, tipo: s(fd, "tipo") ?? "one_off", valor: num(fd, "valor"), custo: num(fd, "custo"), status: s(fd, "status") ?? "proposta", data_inicio: s(fd, "data_inicio"), descricao: s(fd, "descricao") })
+    .insert({ nome, cliente_id, tipo: s(fd, "tipo") ?? "one_off", valor: num(fd, "valor"), valor_setup: num(fd, "valor_setup"), custo: num(fd, "custo"), status: s(fd, "status") ?? "proposta", data_inicio: s(fd, "data_inicio"), descricao: s(fd, "descricao") })
     .select("id")
     .single()
   if (error) throw new Error(error.message)
@@ -213,7 +213,7 @@ export async function editarProjeto(fd: FormData) {
   const id = s(fd, "id")
   const nome = s(fd, "nome")
   if (!id || !nome) return
-  await supabase.from("projetos").update({ nome, tipo: s(fd, "tipo") ?? "one_off", valor: num(fd, "valor"), custo: num(fd, "custo"), status: s(fd, "status") ?? "proposta", data_inicio: s(fd, "data_inicio"), descricao: s(fd, "descricao") }).eq("id", id)
+  await supabase.from("projetos").update({ nome, tipo: s(fd, "tipo") ?? "one_off", valor: num(fd, "valor"), valor_setup: num(fd, "valor_setup"), custo: num(fd, "custo"), status: s(fd, "status") ?? "proposta", data_inicio: s(fd, "data_inicio"), descricao: s(fd, "descricao") }).eq("id", id)
   revalidatePath("/app/projetos")
   revalidatePath(`/app/projetos/${id}`)
   redirect(`/app/projetos/${id}`)

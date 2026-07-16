@@ -36,7 +36,8 @@ export type Projeto = {
   cliente_id: string
   nome: string
   tipo: ProjetoTipo
-  valor: number | null
+  valor: number | null // recorrente = mensalidade (vira MRR); avulso = total
+  valor_setup: number | null // taxa única de implementação (só em recorrente)
   custo: number | null // custo estimado (margem = valor − custo)
   status: ProjetoStatus
   data_inicio: string | null
