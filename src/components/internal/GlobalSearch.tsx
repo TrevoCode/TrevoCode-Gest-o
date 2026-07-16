@@ -5,8 +5,8 @@ import Link from "next/link"
 import { Search } from "lucide-react"
 import type { ItemBusca } from "@/lib/data"
 
-// Busca global na topbar — filtra um índice (clientes/projetos/propostas/leads)
-// no cliente. Mock por ora; a fonte é src/lib/data.
+// Busca global na topbar — filtra no cliente um índice REAL (clientes/projetos/
+// propostas/leads) montado por obterIndiceBusca() em src/lib/data.
 export function GlobalSearch({ index }: { index: ItemBusca[] }) {
   const [q, setQ] = useState("")
   const query = q.trim().toLowerCase()

@@ -1,6 +1,7 @@
 "use server"
 
 import { requireMembro } from "@/lib/auth/guard"
+import { hojeISO } from "@/lib/datas"
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 
@@ -88,7 +89,7 @@ export async function decidirSolicitacao(fd: FormData) {
   revalidatePath("/app/planejamento")
 }
 
-const hoje = () => new Date().toISOString().slice(0, 10)
+const hoje = hojeISO // fuso da empresa (America/Sao_Paulo) — ver src/lib/datas.ts
 const agora = () => new Date().toISOString()
 
 // ---------- Pipeline ----------
@@ -336,7 +337,8 @@ export async function atualizarReuniao(fd: FormData) {
   await supabase.from("reunioes").update(patch).eq("id", id)
   revalidatePath("/app/reunioes")
   const back = s(fd, "back")
-  if (back) redirect(back)
+  // destino vem do form — só aceita caminho interno (anti open-redirect)
+  if (back && back.startsWith("/app")) redirect(back)
 }
 
 // ---------- Metas (planejamento) ----------
@@ -367,7 +369,8 @@ export async function excluirRegistro(fd: FormData) {
   const { error } = await supabase.from(tabela).delete().eq("id", id)
   if (error) throw new Error(error.message)
   const from = s(fd, "from")
-  if (from) {
+  // destino vem do form — só aceita caminho interno (anti open-redirect)
+  if (from && from.startsWith("/app")) {
     revalidatePath(from)
     redirect(from)
   }

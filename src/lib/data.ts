@@ -8,8 +8,9 @@ import type {
   ContaPagar, Proposta, Atividade, Tarefa, Membro, Marco, SolicitacaoDespesa, Contrato,
 } from "@/lib/db/types"
 
+import { hojeISO } from "@/lib/datas"
+
 const DIA = 86_400_000
-const hojeISO = () => new Date().toISOString().slice(0, 10)
 const agoraISO = () => new Date().toISOString()
 const db = () => createClient()
 

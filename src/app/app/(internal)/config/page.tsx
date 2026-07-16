@@ -12,6 +12,7 @@ import {
 } from "lucide-react"
 import { ALLOWED_EMAILS } from "@/lib/auth/allowlist"
 import { isSupabaseConfigured } from "@/lib/supabase/config"
+import { createClient } from "@/lib/supabase/server"
 import { obterEmpresa } from "@/lib/data"
 import { salvarEmpresa, alterarSenha } from "@/lib/actions"
 import { PageHeader } from "@/components/internal/PageHeader"
@@ -39,7 +40,10 @@ function Pill({ ok, label }: { ok: boolean | "soon"; label: string }) {
 
 export default async function ConfigPage() {
   const membros = ALLOWED_EMAILS.length ? ALLOWED_EMAILS : ["fabricio@trevocode.com", "yuri@trevocode.com"]
-  const eu = membros[0]
+  // "Meu perfil" é de quem está LOGADO — antes mostrava sempre o 1º da allowlist
+  const supa = await createClient()
+  const { data: { user } } = await supa.auth.getUser()
+  const eu = user?.email ?? membros[0]
   const supaOk = isSupabaseConfigured()
   const empresa = await obterEmpresa()
 

@@ -119,6 +119,11 @@ export default async function PlanejamentoPage() {
           ) : undefined
         }
       >
+        {solicitacoes.length === 0 && (
+          <p className="px-5 py-6 text-sm text-muted-foreground">
+            Nenhuma solicitação pendente. Quando alguém do time pedir uma despesa, ela aparece aqui pra aprovação.
+          </p>
+        )}
         <ul className="divide-y divide-border">
           {solicitacoes.map((s) => (
             <li key={s.id} className="flex items-center justify-between gap-3 px-5 py-3">
