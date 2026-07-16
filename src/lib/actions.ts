@@ -549,3 +549,22 @@ export async function editarContrato(fd: FormData) {
   revalidatePath("/app/contratos")
   redirect("/app/contratos")
 }
+
+// ---------- Lead manual (indicação, evento, contato direto — não só o formulário do site) ----------
+export async function criarLead(fd: FormData) {
+  const supabase = await requireMembro()
+  const nome = s(fd, "nome")
+  if (!nome) return
+  await supabase.from("leads").insert({
+    nome,
+    email: s(fd, "email"),
+    telefone: s(fd, "telefone"),
+    empresa: s(fd, "empresa"),
+    mensagem: s(fd, "mensagem"),
+    melhor_canal: s(fd, "melhor_canal"),
+    melhor_horario: s(fd, "melhor_horario"),
+    status: s(fd, "status") ?? "novo",
+  })
+  revalidatePath("/app/leads")
+  redirect("/app/leads")
+}

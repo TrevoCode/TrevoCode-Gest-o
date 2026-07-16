@@ -59,7 +59,12 @@ export default async function LeadsPage({
       <PageHeader
         icon={Inbox}
         title="Leads"
-        description="Contatos recebidos pelo formulário do site, prontos para virar clientes."
+        description="Contatos do formulário do site, da prospecção ou adicionados à mão — prontos para virar clientes."
+        action={
+          <Link href="/app/leads/novo" className="rounded-lg bg-primary px-3.5 py-2 text-sm font-medium text-primary-foreground shadow-xs transition-opacity hover:opacity-90">
+            + Novo lead
+          </Link>
+        }
       />
 
       <FiltroBar
@@ -77,7 +82,7 @@ export default async function LeadsPage({
       <ul className="space-y-3">
         {leads.length === 0 && (
           <li className="rounded-xl border border-dashed border-border bg-card px-5 py-12 text-center text-sm text-muted-foreground">
-            Nenhum lead ainda. Os contatos enviados pelo formulário do site aparecem aqui.
+            Nenhum lead ainda. Contatos do site e da prospecção caem aqui — ou clique em “+ Novo lead” para adicionar um.
           </li>
         )}
         {leads.map((l) => {
