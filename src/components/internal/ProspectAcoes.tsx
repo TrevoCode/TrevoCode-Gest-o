@@ -20,6 +20,7 @@ import {
   optout,
   type AcaoResultado,
 } from "@/lib/prospect-actions"
+import { ProspectCanais, type CanaisLead } from "./ProspectCanais"
 
 type Estado = {
   temIsca: boolean
@@ -30,7 +31,15 @@ type Estado = {
 
 // Botões de ação do lead (chamam a API da máquina via Server Action). Mostram
 // "rodando…" e o resultado. A UI de dados atualiza via revalidate/Realtime.
-export function ProspectAcoes({ placeId, estado }: { placeId: string; estado: Estado }) {
+export function ProspectAcoes({
+  placeId,
+  estado,
+  canais,
+}: {
+  placeId: string
+  estado: Estado
+  canais?: CanaisLead
+}) {
   const [pending, start] = useTransition()
   const [msg, setMsg] = useState<{ ok: boolean; texto: string } | null>(null)
   const [fechando, setFechando] = useState(false)
@@ -47,6 +56,7 @@ export function ProspectAcoes({ placeId, estado }: { placeId: string; estado: Es
 
   return (
     <div className="space-y-3">
+      <ProspectCanais placeId={placeId} lead={canais} />
       <div className="flex flex-wrap gap-2">
         <Acao
           icon={Sparkles}
