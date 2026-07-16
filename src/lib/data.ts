@@ -512,3 +512,9 @@ export async function obterNotificacoes(): Promise<Notificacao[]> {
   if (novos > 0) ns.push({ id: "leads", texto: `${novos} leads novos do site`, sub: "aguardando primeiro contato", href: "/app/leads", tom: "info" })
   return ns
 }
+
+export async function obterContrato(id: string): Promise<Contrato | null> {
+  const supabase = await db()
+  const { data } = await supabase.from("contratos").select("*").eq("id", id).maybeSingle()
+  return (data as Contrato | null) ?? null
+}

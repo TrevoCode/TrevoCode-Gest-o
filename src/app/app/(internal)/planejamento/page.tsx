@@ -1,3 +1,4 @@
+import Link from "next/link"
 import {
   Goal,
   TrendingUp,
@@ -112,11 +113,16 @@ export default async function PlanejamentoPage() {
         title="Aprovação de despesas"
         description="Reembolsos e gastos solicitados pelo time."
         action={
-          pendentes > 0 ? (
-            <span className="rounded-full bg-warning-muted px-2.5 py-1 text-xs font-medium text-warning-muted-foreground">
-              {pendentes} aguardando
-            </span>
-          ) : undefined
+          <div className="flex items-center gap-2">
+            {pendentes > 0 && (
+              <span className="rounded-full bg-warning-muted px-2.5 py-1 text-xs font-medium text-warning-muted-foreground">
+                {pendentes} aguardando
+              </span>
+            )}
+            <Link href="/app/planejamento/solicitar" className="rounded-lg border border-border px-2.5 py-1 text-xs font-medium hover:bg-muted">
+              + Solicitar
+            </Link>
+          </div>
         }
       >
         {solicitacoes.length === 0 && (

@@ -208,6 +208,11 @@ export default async function FinanceiroPage() {
           iconTone="danger"
           title="Contas a pagar"
           description="Despesas com vencimento próximo."
+          action={
+            <Link href="/app/financeiro/nova-conta" className="rounded-lg border border-border px-2.5 py-1 text-xs font-medium hover:bg-muted">
+              + Nova conta
+            </Link>
+          }
         >
           <ul className="divide-y divide-border">
             {contas.length === 0 && (
@@ -251,6 +256,11 @@ export default async function FinanceiroPage() {
         title="Despesas do mês por categoria"
         description="Para onde o dinheiro foi neste mês."
         bodyClassName="p-5"
+        action={
+          <Link href="/app/financeiro/despesas" className="rounded-lg border border-border px-2.5 py-1 text-xs font-medium hover:bg-muted">
+            Ver todas →
+          </Link>
+        }
       >
         <ul className="grid gap-3 sm:grid-cols-2">
           {porCategoria.length === 0 && (
