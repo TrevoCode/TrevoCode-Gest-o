@@ -89,8 +89,9 @@ export default async function ProjetoDetalhePage({
         <StatCard
           icon={TrendingUp}
           tone="success"
-          label={p.tipo === "recorrente" ? "Receita / mês" : "Receita do contrato"}
+          label={p.tipo === "recorrente" ? "Mensalidade (MRR)" : "Receita do contrato"}
           value={formatBRL(p.valor)}
+          hint={p.tipo === "recorrente" && p.valor_setup ? `+ ${formatBRL(p.valor_setup)} de implementação` : undefined}
         />
         <StatCard icon={TrendingDown} tone="danger" label="Custo estimado" value={formatBRL(p.custo)} />
         <StatCard

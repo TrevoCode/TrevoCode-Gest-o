@@ -4,6 +4,7 @@ import { ArrowLeft } from "lucide-react"
 import { obterProjeto } from "@/lib/data"
 import { editarProjeto } from "@/lib/actions"
 import { SubmitButton } from "@/components/internal/SubmitButton"
+import { ProjetoValores } from "@/components/internal/ProjetoValores"
 
 export const metadata = { title: "Editar projeto" }
 
@@ -30,13 +31,7 @@ export default async function EditarProjetoPage({ params }: { params: Promise<{ 
           <input name="nome" required defaultValue={p.nome} className={inputCls} />
         </label>
         <div className="grid gap-4 sm:grid-cols-2">
-          <label className="space-y-1.5">
-            <span className={labelCls}>Tipo</span>
-            <select name="tipo" defaultValue={p.tipo} className={inputCls}>
-              <option value="one_off">Projeto avulso</option>
-              <option value="recorrente">Recorrente (mensal)</option>
-            </select>
-          </label>
+          <ProjetoValores tipoInicial={p.tipo} valorInicial={p.valor} setupInicial={p.valor_setup} custoInicial={p.custo} />
           <label className="space-y-1.5">
             <span className={labelCls}>Status</span>
             <select name="status" defaultValue={p.status} className={inputCls}>
@@ -46,14 +41,6 @@ export default async function EditarProjetoPage({ params }: { params: Promise<{ 
               <option value="concluido">Concluído</option>
               <option value="cancelado">Cancelado</option>
             </select>
-          </label>
-          <label className="space-y-1.5">
-            <span className={labelCls}>Valor (R$)</span>
-            <input name="valor" type="number" min="0" step="100" defaultValue={p.valor ?? ""} className={inputCls} />
-          </label>
-          <label className="space-y-1.5">
-            <span className={labelCls}>Custo estimado (R$)</span>
-            <input name="custo" type="number" min="0" step="100" defaultValue={p.custo ?? ""} className={inputCls} />
           </label>
           <label className="space-y-1.5">
             <span className={labelCls}>Início</span>

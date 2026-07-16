@@ -3,6 +3,7 @@ import { ArrowLeft } from "lucide-react"
 import { criarProjeto } from "@/lib/actions"
 import { listarClientes } from "@/lib/data"
 import { SubmitButton } from "@/components/internal/SubmitButton"
+import { ProjetoValores } from "@/components/internal/ProjetoValores"
 
 export const metadata = { title: "Novo projeto" }
 
@@ -35,21 +36,7 @@ export default async function NovoProjetoPage() {
               ))}
             </select>
           </label>
-          <label className="space-y-1.5">
-            <span className={labelCls}>Tipo</span>
-            <select name="tipo" defaultValue="one_off" className={inputCls}>
-              <option value="one_off">Projeto avulso</option>
-              <option value="recorrente">Recorrente (mensal)</option>
-            </select>
-          </label>
-          <label className="space-y-1.5">
-            <span className={labelCls}>Valor (R$)</span>
-            <input name="valor" type="number" min="0" step="100" placeholder="0,00" className={inputCls} />
-          </label>
-          <label className="space-y-1.5">
-            <span className={labelCls}>Custo estimado (R$)</span>
-            <input name="custo" type="number" min="0" step="100" placeholder="0,00" className={inputCls} />
-          </label>
+          <ProjetoValores />
           <label className="space-y-1.5">
             <span className={labelCls}>Status</span>
             <select name="status" defaultValue="proposta" className={inputCls}>
