@@ -37,6 +37,24 @@ export type ProspectLead = {
   // isca Nível 2
   isca2_mockup_url: string | null
   isca2_demo_url: string | null
+  // canais (migration 0010)
+  email: string | null
+  email_status: string | null // discovered|proxy|cnpj_jovem|sent|delivered|opened|bounced|...
+  email_sent_at: string | null
+  email_event_at: string | null
+  instagram: string | null
+  ig_status: string | null
+  ig_sent_at: string | null
+}
+
+// `prospect.email_events` — log do webhook do Resend + envios (migration 0010).
+export type EmailEvento = {
+  id: number
+  place_id: string | null
+  email: string | null
+  type: string // sent|delivered|opened|clicked|bounced|complained|unsubscribed
+  at: string // ISO-8601
+  meta: Record<string, unknown> | null
 }
 
 // `prospect.outreach` — estágio no pipeline (1 linha por lead em campanha).
