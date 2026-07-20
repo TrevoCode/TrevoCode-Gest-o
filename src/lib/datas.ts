@@ -5,3 +5,6 @@
 const fmtDiaSP = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Sao_Paulo" }) // en-CA = YYYY-MM-DD
 
 export const hojeISO = () => fmtDiaSP.format(new Date())
+
+// Dia (YYYY-MM-DD) de um timestamp ISO, no fuso da empresa.
+export const diaSP = (iso: string) => fmtDiaSP.format(new Date(iso))

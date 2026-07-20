@@ -21,6 +21,7 @@ export const TABS_PROSPECCAO = [
   { href: "/app/prospeccao", label: "Radar" },
   { href: "/app/cadencia", label: "Cadência" },
   { href: "/app/nichos", label: "Nichos" },
+  { href: "/app/disparos", label: "Disparos" },
 ]
 
 export function SectionTabs({ tabs }: { tabs: { href: string; label: string }[] }) {
