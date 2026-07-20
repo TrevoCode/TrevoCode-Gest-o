@@ -208,12 +208,32 @@ const diaVazio = (dia: string): DiaPlacar => ({
 
 export async function obterDisparosEmail(): Promise<DisparosEmail> {
   const db = await px()
-  const [{ data: eventos }, { data: leads }] = await Promise.all([
-    // Supabase corta em 1000 por padrão; o limite explícito segura a página leve.
-    db.from("email_events").select("id,place_id,email,type,at").order("id", { ascending: false }).limit(5000),
-    db.from("leads").select("place_id,name,niche,city,email,email_status,isca_email_subj"),
-  ])
-  const porLead = new Map((leads ?? []).map((l) => [l.place_id as string, l]))
+  // ⚠️ PostgREST corta QUALQUER select em 1000 linhas em silêncio. prospect.leads
+  // já passa de 4 mil — nunca buscar a tabela inteira aqui. Eventos: os 1000 mais
+  // recentes cobrem semanas de disparo; leads: só os referenciados nos eventos
+  // (busca em lotes) + o estoque já filtrado no servidor (centenas de linhas).
+  const { data: eventos } = await db
+    .from("email_events")
+    .select("id,place_id,email,type,at")
+    .order("id", { ascending: false })
+    .limit(1000)
+
+  const ids = [...new Set((eventos ?? []).map((e) => e.place_id as string | null).filter(Boolean))] as string[]
+  const porLead = new Map<string, Record<string, unknown>>()
+  for (let i = 0; i < ids.length; i += 200) {
+    const { data } = await db
+      .from("leads")
+      .select("place_id,name,niche,city,isca_email_subj")
+      .in("place_id", ids.slice(i, i + 200))
+    for (const l of data ?? []) porLead.set(l.place_id as string, l)
+  }
+
+  const { data: prontos } = await db
+    .from("leads")
+    .select("place_id,niche,city,email")
+    .eq("email_status", "discovered")
+    .not("isca_email_subj", "is", null)
+    .limit(1000)
 
   // Placar por dia: leads únicos por tipo de evento.
   const dias = new Map<string, Record<EstadoEnvio, Set<string>>>()
@@ -266,10 +286,10 @@ export async function obterDisparosEmail(): Promise<DisparosEmail> {
     .sort((a, b) => b.dia.localeCompare(a.dia))
 
   // Estoque pronto: mesma régua do disparador (discovered + isca + provedor genérico).
+  // Status e isca já filtrados no servidor; o provedor genérico fica no código.
   const estoqueAcc = new Map<string, EstoqueLinha>()
   let estoqueTotal = 0
-  for (const l of leads ?? []) {
-    if (l.email_status !== "discovered" || !l.isca_email_subj) continue
+  for (const l of prontos ?? []) {
     const dominio = ((l.email as string) ?? "").split("@")[1]?.toLowerCase()
     if (!dominio || !PROVEDORES_GENERICOS.has(dominio)) continue
     const uf = ufDe(l.city as string)
