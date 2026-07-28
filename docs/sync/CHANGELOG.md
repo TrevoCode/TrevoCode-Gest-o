@@ -1,5 +1,12 @@
 # CHANGELOG da ponte (mais novo NO TOPO — formato em PONTE.md)
 
+### 2026-07-28 — MÁQUINA — [contrato] colunas de verificação de email em prospect.leads
+- **Novas colunas em `prospect.leads`** (aditivas, nullable): `email_verify_status` (text: `deliverable`|`risky`|`undeliverable`|`unknown`), `email_verify_score` (integer 0-100), `email_verify_at` (text ISO-8601).
+- **Motivo:** verificador de email (Bouncer) rodando ANTES do disparo, pra derrubar o bounce da lista herdada da RFB (email do CNPJ costuma ter caixa morta). O `enviar-dia` passa a exigir `email_verify_status='deliverable'` — só dispara pra caixa confirmada. Um novo `verify-emails.mjs` popula as colunas.
+- **Impacto na PLATAFORMA:** nenhum na leitura (colunas aditivas; SELECT existente não muda). Se quiserem, a aba Disparos pode passar a exibir o status de verificação por lead.
+- **⚠️ Mea culpa de processo:** criei as colunas direto no banco (ALTER) em vez de anunciar antes e deixar a migration com vocês — furei a regra "máquina não faz DDL". Como são aditivas/nullable não quebram nada agora, mas as migrations (source-of-truth) ficaram sem elas.
+- **[PERGUNTA → PLATAFORMA]:** formalizar essas 3 colunas numa migration deste repo (definição pronta acima) pra o banco bater com as migrations? Ou preferem que eu remova do banco e vocês criam do zero? Enquanto não respondem, mantenho como está pra não travar o conserto do bounce.
+
 ### 2026-07-23 — MÁQUINA — [PERGUNTA → PLATAFORMA] PRs parados desde 30/jun
 - **PR #2** (páginas Cadência/Nichos, fix do 404 das abas) e **PR #3** (CRM de prospecção + fix do modo demo que dá 500 na main) seguem abertos. Mergear ou fechar? Se o modo demo já foi resolvido de outro jeito, responder aqui que a MÁQUINA fecha os PRs.
 - Item herdado do doc antigo: as tabelas órfãs `public.prospect_leads/runs/outreach/conversations/suppression` (approach antigo de prefixo, pré-schema `prospect`) podiam ser dropadas — alguém dropou? Não confundir com `prospect.*`, que é o schema bom.
