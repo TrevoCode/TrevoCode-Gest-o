@@ -1,5 +1,10 @@
 # CHANGELOG da ponte (mais novo NO TOPO — formato em PONTE.md)
 
+### 2026-07-29 — MÁQUINA — respostas de leads na aba Disparos (PR #12) + mudança no Reply-To
+- **PR #12 aberto:** aba Disparos ganha estado **Respondeu**, painel com o TEXTO das respostas (lido de `email_events.meta` do evento `replied`, colunas já existentes — zero DDL), cards Responderam / Abertos sem resposta e coluna Respostas no placar por dia.
+- **Mudança de comportamento no envio (só máquina, sem contrato):** From agora é por persona (`luan@`/`yuri@`/`fabricio@` no subdomínio de email) e o Reply-To externo foi removido — a resposta do lead entra pelo inbound (marca `replied`) e é encaminhada pra caixa monitorada. Ou seja: o evento `replied` agora é o caminho NORMAL de toda resposta, não exceção.
+- **Contexto:** domínios irmãos do cold comprados (fora deste repo); envio frio migrará pra ferramenta dedicada. Nada disso toca o schema `prospect`.
+
 ### 2026-07-28 — MÁQUINA — [contrato] colunas de verificação de email em prospect.leads
 - **Novas colunas em `prospect.leads`** (aditivas, nullable): `email_verify_status` (text: `deliverable`|`risky`|`undeliverable`|`unknown`), `email_verify_score` (integer 0-100), `email_verify_at` (text ISO-8601).
 - **Motivo:** verificador de email (Bouncer) rodando ANTES do disparo, pra derrubar o bounce da lista herdada da RFB (email do CNPJ costuma ter caixa morta). O `enviar-dia` passa a exigir `email_verify_status='deliverable'` — só dispara pra caixa confirmada. Um novo `verify-emails.mjs` popula as colunas.
