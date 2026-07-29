@@ -166,8 +166,9 @@ const PROVEDORES_GENERICOS = new Set([
 
 const ufDe = (city: string | null) => (city?.trim().endsWith("SP") ? "SP" : "BH")
 
-// Estado final de um envio, do pior pro melhor (o pior evento manda no badge).
-const PRECEDENCIA = ["complained", "bounced", "clicked", "opened", "delivered", "sent"] as const
+// Estado final de um envio: resposta ganha de tudo (é o que importa); no resto,
+// o pior evento manda no badge (bounce ganha de aberto).
+const PRECEDENCIA = ["replied", "complained", "bounced", "clicked", "opened", "delivered", "sent"] as const
 export type EstadoEnvio = (typeof PRECEDENCIA)[number]
 
 export type EnvioView = {
@@ -190,6 +191,17 @@ export type DiaPlacar = {
   cliques: number
   bounces: number
   reclamacoes: number
+  respostas: number
+}
+
+// Uma resposta de lead (evento 'replied' do inbound; o corpo vem no meta).
+export type RespostaView = {
+  evento_id: number
+  place_id: string
+  name: string
+  respondido_em: string
+  assunto: string | null
+  texto: string | null
 }
 
 export type EstoqueLinha = { uf: "BH" | "SP"; niche: string; prontos: number }
@@ -198,12 +210,14 @@ export type DisparosEmail = {
   hoje: DiaPlacar
   porDia: DiaPlacar[] // dias com atividade, mais recente primeiro
   envios: EnvioView[] // últimos envios, mais recente primeiro
+  respostas: RespostaView[] // respostas de leads, mais recente primeiro
+  abertosSemResposta: number // leads cujo melhor sinal é abriu/clicou (sem responder)
   estoque: EstoqueLinha[]
   estoqueTotal: number
 }
 
 const diaVazio = (dia: string): DiaPlacar => ({
-  dia, enviados: 0, entregues: 0, abertos: 0, cliques: 0, bounces: 0, reclamacoes: 0,
+  dia, enviados: 0, entregues: 0, abertos: 0, cliques: 0, bounces: 0, reclamacoes: 0, respostas: 0,
 })
 
 export async function obterDisparosEmail(): Promise<DisparosEmail> {
@@ -214,7 +228,7 @@ export async function obterDisparosEmail(): Promise<DisparosEmail> {
   // (busca em lotes) + o estoque já filtrado no servidor (centenas de linhas).
   const { data: eventos } = await db
     .from("email_events")
-    .select("id,place_id,email,type,at")
+    .select("id,place_id,email,type,at,meta")
     .order("id", { ascending: false })
     .limit(1000)
 
@@ -240,17 +254,29 @@ export async function obterDisparosEmail(): Promise<DisparosEmail> {
   const setDe = (dia: string, tipo: EstadoEnvio) => {
     let d = dias.get(dia)
     if (!d) {
-      d = { sent: new Set(), delivered: new Set(), opened: new Set(), clicked: new Set(), bounced: new Set(), complained: new Set() }
+      d = { replied: new Set(), sent: new Set(), delivered: new Set(), opened: new Set(), clicked: new Set(), bounced: new Set(), complained: new Set() }
       dias.set(dia, d)
     }
     return d[tipo]
   }
 
-  // Envios: 1 linha por lead, ancorada no evento `sent`; o pior evento vira o estado.
+  // Envios: 1 linha por lead, ancorada no evento `sent`; a precedência vira o estado.
   const envioPorLead = new Map<string, EnvioView>()
-  for (const e of (eventos ?? []) as Pick<EmailEvento, "id" | "place_id" | "email" | "type" | "at">[]) {
+  const respostas: RespostaView[] = []
+  for (const e of (eventos ?? []) as Pick<EmailEvento, "id" | "place_id" | "email" | "type" | "at" | "meta">[]) {
     if (!e.place_id || !PRECEDENCIA.includes(e.type as EstadoEnvio)) continue
     setDe(diaSP(e.at), e.type as EstadoEnvio).add(e.place_id)
+    if (e.type === "replied") {
+      const meta = (e.meta ?? {}) as { subject?: unknown; text?: unknown }
+      respostas.push({
+        evento_id: e.id,
+        place_id: e.place_id,
+        name: (porLead.get(e.place_id)?.name as string) ?? e.email ?? e.place_id,
+        respondido_em: e.at,
+        assunto: typeof meta.subject === "string" ? meta.subject : null,
+        texto: typeof meta.text === "string" ? meta.text : null,
+      })
+    }
     let envio = envioPorLead.get(e.place_id)
     if (!envio) {
       const l = porLead.get(e.place_id)
@@ -282,6 +308,7 @@ export async function obterDisparosEmail(): Promise<DisparosEmail> {
       cliques: d.clicked.size,
       bounces: d.bounced.size,
       reclamacoes: d.complained.size,
+      respostas: d.replied.size,
     }))
     .sort((a, b) => b.dia.localeCompare(a.dia))
 
@@ -301,10 +328,13 @@ export async function obterDisparosEmail(): Promise<DisparosEmail> {
     estoqueTotal += 1
   }
 
+  const envios = [...envioPorLead.values()].sort((a, b) => b.enviado_em.localeCompare(a.enviado_em))
   return {
     hoje: porDia.find((d) => d.dia === hojeISO()) ?? diaVazio(hojeISO()),
     porDia,
-    envios: [...envioPorLead.values()].sort((a, b) => b.enviado_em.localeCompare(a.enviado_em)),
+    envios,
+    respostas: respostas.sort((a, b) => b.respondido_em.localeCompare(a.respondido_em)),
+    abertosSemResposta: envios.filter((e) => e.estado === "opened" || e.estado === "clicked").length,
     estoque: [...estoqueAcc.values()].sort((a, b) => a.uf.localeCompare(b.uf) || a.niche.localeCompare(b.niche, "pt-BR")),
     estoqueTotal,
   }
