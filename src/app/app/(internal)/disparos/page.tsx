@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { Send, MailCheck, MailOpen, MailX, Inbox, CalendarDays, Package } from "lucide-react"
+import { Send, MailCheck, MailOpen, MailX, MailQuestion, MessageSquareReply, Inbox, CalendarDays, Package } from "lucide-react"
 import { obterDisparosEmail, type EstadoEnvio } from "@/lib/prospeccao"
 import { formatData, formatDataHora } from "@/lib/format"
 import { PageHeader } from "@/components/internal/PageHeader"
@@ -11,6 +11,7 @@ export const metadata = { title: "Disparos" }
 
 // Badge do estado do envio (mesma paleta semântica do StatusBadge).
 const ESTADO: Record<EstadoEnvio, { label: string; classes: string; dot: string }> = {
+  replied: { label: "Respondeu", classes: "bg-success text-white", dot: "bg-white" },
   sent: { label: "Enviado", classes: "bg-muted text-muted-foreground", dot: "bg-muted-foreground/60" },
   delivered: { label: "Entregue", classes: "bg-info-muted text-info-muted-foreground", dot: "bg-info" },
   opened: { label: "Aberto", classes: "bg-success-muted text-success-muted-foreground", dot: "bg-success" },
@@ -30,18 +31,19 @@ function EstadoBadge({ estado }: { estado: EstadoEnvio }) {
 }
 
 export default async function DisparosPage() {
-  const { hoje, porDia, envios, estoque, estoqueTotal } = await obterDisparosEmail()
+  const { hoje, porDia, envios, respostas, abertosSemResposta, estoque, estoqueTotal } = await obterDisparosEmail()
+  const responderam = envios.filter((e) => e.estado === "replied").length
 
   return (
     <div className="mx-auto max-w-5xl">
       <PageHeader
         icon={Send}
         title="Disparos de email"
-        description="Placar do disparo automático diário (timer da máquina, seg a sex de manhã). Respostas dos leads chegam no Gmail monitorado, não aqui."
+        description="Placar do disparo automático diário (timer da máquina, seg a sex de manhã). A resposta do lead entra pela máquina, aparece aqui e chega encaminhada no Gmail monitorado."
       />
       <SectionTabs tabs={TABS_PROSPECCAO} />
 
-      <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <StatCard icon={Send} label="Enviados hoje" value={String(hoje.enviados)} />
         <StatCard icon={MailCheck} label="Entregues hoje" value={String(hoje.entregues)} tone="info" />
         <StatCard icon={MailOpen} label="Abertos hoje" value={String(hoje.abertos)} tone="success" />
@@ -52,7 +54,60 @@ export default async function DisparosPage() {
           tone={hoje.bounces > 0 ? "danger" : "primary"}
           hint={hoje.reclamacoes > 0 ? `${hoje.reclamacoes} marcaram spam` : undefined}
         />
+        <StatCard
+          icon={MessageSquareReply}
+          label="Responderam"
+          value={String(responderam)}
+          tone="success"
+          hint={hoje.respostas > 0 ? `${hoje.respostas} hoje` : "acumulado"}
+        />
+        <StatCard
+          icon={MailQuestion}
+          label="Abertos sem resposta"
+          value={String(abertosSemResposta)}
+          tone="info"
+          hint="abriram e não responderam — alvo de follow-up"
+        />
       </div>
+
+      <Panel
+        icon={MessageSquareReply}
+        iconTone="success"
+        className="mb-6"
+        title="Respostas dos leads"
+        description="O que cada lead escreveu (evento do inbound da máquina). Responder: pelo Gmail monitorado, no email encaminhado."
+        bodyClassName="p-0"
+      >
+        {respostas.length === 0 ? (
+          <p className="p-10 text-center text-sm text-muted-foreground">
+            Nenhuma resposta ainda. Quando um lead responder qualquer email da máquina, o texto aparece aqui.
+          </p>
+        ) : (
+          <ul>
+            {respostas.slice(0, 30).map((r) => (
+              <li key={r.evento_id} className="border-b border-border px-4 py-3 last:border-0">
+                <div className="mb-1 flex flex-wrap items-baseline gap-x-3 gap-y-0.5">
+                  <Link href={`/app/prospeccao/${encodeURIComponent(r.place_id)}`} className="text-sm font-medium hover:underline">
+                    {r.name}
+                  </Link>
+                  <span className="text-xs tabular-nums text-muted-foreground">{formatDataHora(r.respondido_em)}</span>
+                  {r.assunto ? <span className="truncate text-xs text-muted-foreground">{r.assunto}</span> : null}
+                </div>
+                {r.texto ? (
+                  <details>
+                    <summary className="cursor-pointer text-sm text-muted-foreground [&::marker]:text-muted-foreground/60">
+                      <span className="ml-1">{r.texto.replace(/\s+/g, " ").trim().slice(0, 140)}{r.texto.trim().length > 140 ? "…" : ""}</span>
+                    </summary>
+                    <p className="mt-2 whitespace-pre-wrap rounded-md bg-muted/40 p-3 text-sm">{r.texto.trim()}</p>
+                  </details>
+                ) : (
+                  <p className="text-sm italic text-muted-foreground">(sem corpo em texto — ver no Gmail monitorado)</p>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
+      </Panel>
 
       <Panel
         icon={Inbox}
@@ -123,6 +178,7 @@ export default async function DisparosPage() {
                     <th className="px-4 py-2.5 text-right font-medium">Enviados</th>
                     <th className="px-4 py-2.5 text-right font-medium">Entregues</th>
                     <th className="px-4 py-2.5 text-right font-medium">Abertos</th>
+                    <th className="px-4 py-2.5 text-right font-medium">Respostas</th>
                     <th className="px-4 py-2.5 text-right font-medium">Bounces</th>
                   </tr>
                 </thead>
@@ -133,6 +189,9 @@ export default async function DisparosPage() {
                       <td className="px-4 py-2.5 text-right tabular-nums text-muted-foreground">{d.enviados}</td>
                       <td className="px-4 py-2.5 text-right tabular-nums text-muted-foreground">{d.entregues}</td>
                       <td className="px-4 py-2.5 text-right tabular-nums text-muted-foreground">{d.abertos}</td>
+                      <td className={`px-4 py-2.5 text-right tabular-nums ${d.respostas ? "font-medium text-success" : "text-muted-foreground"}`}>
+                        {d.respostas || "—"}
+                      </td>
                       <td className={`px-4 py-2.5 text-right tabular-nums ${d.bounces ? "font-medium text-danger" : "text-muted-foreground"}`}>
                         {d.bounces || "—"}
                       </td>
