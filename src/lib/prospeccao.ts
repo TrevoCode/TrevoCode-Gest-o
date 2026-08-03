@@ -339,3 +339,83 @@ export async function obterDisparosEmail(): Promise<DisparosEmail> {
     estoqueTotal,
   }
 }
+
+// ─── Fila de follow-up de WHATSAPP (leads tocados por email, sem resposta) ─
+
+// Mesma régua da lista /zap da máquina: email enviado, sem resposta/bounce/
+// opt-out, com telefone. Quem ABRIU o email vem primeiro (segmento mais
+// quente). Praça decide o chip: BH e região → chip 31 (Fabrício); SP e
+// demais cidades → chip 11 (Nobre).
+export type ChipZap = "31" | "11"
+
+export type FilaWhatsappItem = {
+  place_id: string
+  name: string | null
+  niche: string | null
+  city: string | null
+  phone: string
+  reasons: string | null
+  email_status: string
+  email_sent_at: string
+  toques: number
+  abriu: boolean
+  chip: ChipZap
+}
+
+const EH_BH = /Belo Horizonte|Contagem|Betim|Nova Lima|Santa Luzia|Sabará|Ribeirão das Neves|Ibirité/i
+
+export async function obterFilaWhatsapp(): Promise<FilaWhatsappItem[]> {
+  const db = await px()
+  // Fila real hoje = dezenas de leads; o filtro no servidor mantém isso longe
+  // do corte silencioso de 1000 linhas do PostgREST.
+  const [{ data: leads }, { data: supr }] = await Promise.all([
+    db
+      .from("leads")
+      .select("place_id,name,niche,city,phone,email,reasons,email_status,email_sent_at")
+      .not("email_sent_at", "is", null)
+      .in("email_status", ["sent", "delivered", "opened", "clicked"])
+      .not("phone", "is", null)
+      .order("email_sent_at")
+      .limit(1000),
+    db.from("suppression").select("key").limit(1000),
+  ])
+  const suprimidos = new Set((supr ?? []).map((s) => String(s.key).toLowerCase()))
+  const base = (leads ?? []).filter(
+    (l) => !suprimidos.has(String(l.email ?? "").toLowerCase())
+  )
+
+  // Toques (sent) e abertura por lead, em lotes (PostgREST corta em 1000).
+  const ids = base.map((l) => l.place_id as string)
+  const toques = new Map<string, number>()
+  const abriu = new Set<string>()
+  for (let i = 0; i < ids.length; i += 200) {
+    const { data } = await db
+      .from("email_events")
+      .select("place_id,type")
+      .in("place_id", ids.slice(i, i + 200))
+      .in("type", ["sent", "opened", "clicked"])
+      .limit(1000)
+    for (const e of data ?? []) {
+      const id = e.place_id as string
+      if (e.type === "sent") toques.set(id, (toques.get(id) ?? 0) + 1)
+      else abriu.add(id)
+    }
+  }
+
+  const fila: FilaWhatsappItem[] = base.map((l) => ({
+    place_id: l.place_id as string,
+    name: (l.name as string) ?? null,
+    niche: (l.niche as string) ?? null,
+    city: (l.city as string) ?? null,
+    phone: l.phone as string,
+    reasons: (l.reasons as string) ?? null,
+    email_status: l.email_status as string,
+    email_sent_at: l.email_sent_at as string,
+    toques: toques.get(l.place_id as string) ?? 1,
+    abriu: abriu.has(l.place_id as string),
+    chip: EH_BH.test(String(l.city ?? "").split(",")[0]) ? "31" : "11",
+  }))
+  return fila.sort(
+    (a, b) => Number(b.abriu) - Number(a.abriu) || a.email_sent_at.localeCompare(b.email_sent_at)
+  )
+}

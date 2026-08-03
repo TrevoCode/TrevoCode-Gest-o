@@ -22,6 +22,7 @@ export const TABS_PROSPECCAO = [
   { href: "/app/cadencia", label: "Cadência" },
   { href: "/app/nichos", label: "Nichos" },
   { href: "/app/disparos", label: "Disparos" },
+  { href: "/app/whatsapp", label: "WhatsApp" },
 ]
 
 export function SectionTabs({ tabs }: { tabs: { href: string; label: string }[] }) {
