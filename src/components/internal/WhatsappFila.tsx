@@ -95,9 +95,23 @@ function Card({
   )
 }
 
+const LS_OPERADOR = "zap-operador"
+
 export function WhatsappFila({ itens }: { itens: FilaWhatsappItem[] }) {
   const [enviados, setEnviados] = useState<Set<string>>(new Set())
-  useEffect(() => setEnviados(lerEnviados()), [])
+  const [chip, setChip] = useState<ChipZap>("11")
+  useEffect(() => {
+    setEnviados(lerEnviados())
+    // ?op=nobre|fb no link ganha; senão vale a última escolha deste aparelho.
+    const op = new URLSearchParams(window.location.search).get("op")?.toLowerCase()
+    if (op === "nobre") setChip("11")
+    else if (op === "fb" || op === "fabricio") setChip("31")
+    else if (localStorage.getItem(LS_OPERADOR) === "31") setChip("31")
+  }, [])
+  const trocarChip = (c: ChipZap) => {
+    setChip(c)
+    localStorage.setItem(LS_OPERADOR, c)
+  }
   const toggle = (id: string) => {
     setEnviados((atual) => {
       const prox = new Set(atual)
@@ -144,10 +158,35 @@ export function WhatsappFila({ itens }: { itens: FilaWhatsappItem[] }) {
     )
   }
 
+  const aba = (c: ChipZap, rotulo: string) => {
+    const lista = itens.filter((i) => i.chip === c)
+    const feitos = lista.filter((i) => enviados.has(i.place_id)).length
+    return (
+      <button
+        type="button"
+        onClick={() => trocarChip(c)}
+        className={cn(
+          "flex-1 rounded-lg px-4 py-2 text-sm font-medium transition-colors",
+          chip === c ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"
+        )}
+      >
+        {rotulo}
+        <span className={cn("ml-2 text-xs", chip === c ? "text-primary-foreground/80" : "")}>
+          {feitos}/{lista.length}
+        </span>
+      </button>
+    )
+  }
+
   return (
     <div className="space-y-6">
-      {secao("11", "Chip 11 · Nobre · SP e demais cidades", "Quem abriu o email vem primeiro. Enviar SÓ pelo app no celular do chip, 5 a 8 por dia, espaçados.")}
-      {secao("31", "Chip 31 · Fabrício · BH e região", "Mesma regra: abertos primeiro, envio pelo app do celular, 5 a 8 por dia.")}
+      <div className="flex gap-1 rounded-xl border border-border bg-card p-1">
+        {aba("11", "Nobre")}
+        {aba("31", "FB")}
+      </div>
+      {chip === "11"
+        ? secao("11", "Chip 11 · Nobre · SP e demais cidades", "Quem abriu o email vem primeiro. Enviar SÓ pelo app no celular do chip, 5 a 8 por dia, espaçados.")
+        : secao("31", "Chip 31 · Fabrício · BH e região", "Mesma regra: abertos primeiro, envio pelo app do celular, 5 a 8 por dia.")}
     </div>
   )
 }
