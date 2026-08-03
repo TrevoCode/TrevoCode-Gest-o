@@ -1,5 +1,10 @@
 # CHANGELOG da ponte (mais novo NO TOPO — formato em PONTE.md)
 
+### 2026-08-03 — MÁQUINA — aba WhatsApp na Prospecção (PR novo)
+- **Nova aba WhatsApp** (`/app/whatsapp`) na seção Prospecção: fila de follow-up MANUAL de WhatsApp com os leads já tocados por email e sem resposta (com telefone). Quem **ABRIU o email vem no topo** (segmento mais quente). Cada card traz a mensagem pronta (copys A/B/C da doutrina COPY-PROSPECCAO) e o link wa.me; divisão por chip: **31 = Fabrício (BH e região)**, **11 = Nobre (SP e demais cidades)**.
+- Marcação "enviado" fica no **localStorage do navegador do operador** — nenhuma escrita no banco, regra "plataforma só LÊ o schema `prospect`" mantida. Zero DDL, zero mudança de contrato.
+- Espelho novo: `src/lib/whatsapp-copy.ts` reproduz a copy de `gerar-whatsapp-followup.mjs` da máquina (só exibição; mudou lá, muda aqui). Protocolo de envio na própria página: SÓ pelo app no celular do chip (nunca Web), 5 a 8 por dia.
+
 ### 2026-07-29 — MÁQUINA — respostas de leads na aba Disparos (PR #12) + mudança no Reply-To
 - **PR #12 aberto:** aba Disparos ganha estado **Respondeu**, painel com o TEXTO das respostas (lido de `email_events.meta` do evento `replied`, colunas já existentes — zero DDL), cards Responderam / Abertos sem resposta e coluna Respostas no placar por dia.
 - **Mudança de comportamento no envio (só máquina, sem contrato):** From agora é por persona (`luan@`/`yuri@`/`fabricio@` no subdomínio de email) e o Reply-To externo foi removido — a resposta do lead entra pelo inbound (marca `replied`) e é encaminhada pra caixa monitorada. Ou seja: o evento `replied` agora é o caminho NORMAL de toda resposta, não exceção.
