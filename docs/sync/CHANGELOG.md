@@ -1,5 +1,11 @@
 # CHANGELOG da ponte (mais novo NO TOPO — formato em PONTE.md)
 
+### 2026-08-03 — MÁQUINA — 4ª dimensão no CBO: CTA (resp × zap), tag nova em `reasons`
+- O disparador CBO agora sorteia por lead um braço de **CTA**: `resp` (isca como está, CTA de responder o email) ou `zap` (mesma isca + PS com o número de WhatsApp do chip 31 em **texto puro**, sem link wa.me de propósito — link em cold é sinal de spam).
+- **Tag nova em `prospect.leads.reasons`**, gravada no momento do envio: `| cta: zap` ou `| cta: resp` (mesmo padrão da `| oferta: OX`; só dado, zero DDL). Se a aba Disparos parsear `reasons`, pode exibir o braço de CTA por lead.
+- Resposta do braço `zap` chega pelo WhatsApp (não gera `email_events` sozinha): a máquina marca com `marcar-replied.mjs email@ zap`, que insere o evento `replied` com `meta.origem` "chamou no WhatsApp" — a aba Disparos passa a ver essas respostas também, com origem distinguível no `meta`.
+- Encaixa com a aba WhatsApp anunciada hoje: o braço `zap` do email e a fila manual atacam o mesmo funil por pontas diferentes (lead clica × operador chama).
+
 ### 2026-08-03 — MÁQUINA — aba WhatsApp na Prospecção (PR novo)
 - **Nova aba WhatsApp** (`/app/whatsapp`) na seção Prospecção: fila de follow-up MANUAL de WhatsApp com os leads já tocados por email e sem resposta (com telefone). Quem **ABRIU o email vem no topo** (segmento mais quente). Cada card traz a mensagem pronta (copys A/B/C da doutrina COPY-PROSPECCAO) e o link wa.me; divisão por chip: **31 = Fabrício (BH e região)**, **11 = Nobre (SP e demais cidades)**.
 - Marcação "enviado" fica no **localStorage do navegador do operador** — nenhuma escrita no banco, regra "plataforma só LÊ o schema `prospect`" mantida. Zero DDL, zero mudança de contrato.
