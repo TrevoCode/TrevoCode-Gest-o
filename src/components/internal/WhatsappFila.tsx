@@ -78,6 +78,12 @@ function Card({
         >
           <MessageCircle className="size-3.5" /> Abrir no WhatsApp
         </a>
+        <a
+          href={`tel:+${fone.wa}`}
+          className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-medium"
+        >
+          <Phone className="size-3.5" /> Ligar
+        </a>
         <button
           type="button"
           onClick={async () => {
