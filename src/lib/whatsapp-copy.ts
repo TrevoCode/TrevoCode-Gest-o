@@ -28,7 +28,7 @@ export function nichoLabel(n: string | null): string {
 
 export const cidadeCurta = (c: string | null) => String(c ?? "").split(",")[0].trim()
 
-function verdito(reasons: string | null): "so_social" | "sem_site" {
+export function verdito(reasons: string | null): "so_social" | "sem_site" {
   const r = String(reasons ?? "").toLowerCase()
   if (/s[óo] rede social|linktree/.test(r)) return "so_social"
   return "sem_site"
