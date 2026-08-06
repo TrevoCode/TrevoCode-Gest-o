@@ -368,6 +368,8 @@ export type FilaWhatsappItem = {
   reviews_count: number | null
   isca_email_subj: string | null
   email_event_at: string | null
+  // fila premium: lead nunca tocado por email (ligação a frio em alvo grande)
+  premium?: boolean
 }
 
 const EH_BH = /Belo Horizonte|Contagem|Betim|Nova Lima|Santa Luzia|Sabará|Ribeirão das Neves|Ibirité/i
@@ -435,4 +437,48 @@ export async function obterFilaWhatsapp(): Promise<FilaWhatsappItem[]> {
   return fila.sort(
     (a, b) => Number(b.abriu) - Number(a.abriu) || a.email_sent_at.localeCompare(b.email_sent_at)
   )
+}
+
+// ─── Fila PREMIUM de ligação a frio (leads grandes, nunca tocados) ────────
+
+// A fila do email nasceu do filtro "sem site" do captador, que seleciona
+// negócio pequeno de bairro (diagnóstico do Fabricio, 06/ago). Aqui é o
+// contrário: porte real na RFB (EPP ou maior = faturamento R$360k+/ano) e
+// operação viva no Google (50+ avaliações, nota 4,3+). Ligação direta, sem
+// depender de email — ordenada do maior movimento pro menor.
+export async function obterFilaPremium(): Promise<FilaWhatsappItem[]> {
+  const db = await px()
+  const { data } = await db
+    .from("leads")
+    .select(
+      "place_id,name,niche,city,phone,reasons,website,address,owner_name,rating,reviews_count"
+    )
+    .is("email_sent_at", null)
+    .not("phone", "is", null)
+    .gte("reviews_count", 50)
+    .gte("rating", 4.3)
+    .or("reasons.like.%porte 03%,reasons.like.%porte 05%")
+    .order("reviews_count", { ascending: false })
+    .limit(300)
+  return (data ?? []).map((l) => ({
+    place_id: l.place_id as string,
+    name: (l.name as string) ?? null,
+    niche: (l.niche as string) ?? null,
+    city: (l.city as string) ?? null,
+    phone: l.phone as string,
+    reasons: (l.reasons as string) ?? null,
+    email_status: "",
+    email_sent_at: "",
+    toques: 0,
+    abriu: false,
+    chip: EH_BH.test(String(l.city ?? "").split(",")[0]) ? "31" : "11",
+    website: (l.website as string) ?? null,
+    address: (l.address as string) ?? null,
+    owner_name: (l.owner_name as string) ?? null,
+    rating: (l.rating as number) ?? null,
+    reviews_count: (l.reviews_count as number) ?? null,
+    isca_email_subj: null,
+    email_event_at: null,
+    premium: true,
+  }))
 }

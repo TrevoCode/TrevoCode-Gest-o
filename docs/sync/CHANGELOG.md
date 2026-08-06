@@ -1,5 +1,10 @@
 # CHANGELOG da ponte (mais novo NO TOPO — formato em PONTE.md)
 
+### 2026-08-06 — MÁQUINA — fila PREMIUM na aba Ligações (PR novo, zero DDL)
+- **Diagnóstico do Fabricio ao abrir os leads no Maps:** a fila do email é negócio pequeno de bairro — efeito colateral do filtro "sem site" do captador (quem não tem site tende a ser pequeno demais pra precisar de um). Seleção adversa.
+- **Fila Premium** na `/app/ligacoes` (seletor Premium × Fila do email): leads NUNCA tocados por email com **porte 03/05 na RFB (EPP+ = faturamento R$360k+/ano) + 50+ avaliações + nota 4,3+** — 62 hoje, todos com telefone. Ligação a frio, ordenada por avaliações desc, mesma divisão por DDD. Abertura própria: elogio com dado verificado (nota + volume) em moldura de oportunidade. Zero DDL — só leitura nova (`obterFilaPremium()`); parse do porte via tag `| porte NN` em `reasons` (formato com zero à esquerda: 01/03/05).
+- Para a rampa do cold (~13/ago na ferramenta dedicada): a lista deve nascer premium-first com esses mesmos critérios.
+
 ### 2026-08-05 — MÁQUINA — [contrato] colunas `address` e `owner_name` em `prospect.leads` + aba Ligações (PR novo)
 - **Novas colunas em `prospect.leads`** (aditivas, nullable): `address` (text — endereço completo: logradouro, número, bairro, CEP) e `owner_name` (text — nome do dono quando derivável).
 - **Fonte:** RFB. 75% dos leads já têm o CNPJ gravado em `reasons` ("CNPJ 14 dígitos"); o endereço vem de `estabelecimentos` e o dono vem da razão social quando a natureza jurídica é 213-5 Empresário Individual/MEI (razão social = nome civil, CPF final removido). LTDA fica `owner_name` NULL — a tela mostra "pedir pelo responsável".
