@@ -45,6 +45,12 @@ export type ProspectLead = {
   instagram: string | null
   ig_status: string | null
   ig_sent_at: string | null
+  // verificação de email (Bouncer) + dossiê de ligação (migration 0011)
+  email_verify_status: string | null
+  email_verify_score: number | null
+  email_verify_at: string | null
+  address: string | null
+  owner_name: string | null
 }
 
 // `prospect.email_events` — log do webhook do Resend + envios (migration 0010).

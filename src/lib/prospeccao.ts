@@ -360,6 +360,14 @@ export type FilaWhatsappItem = {
   toques: number
   abriu: boolean
   chip: ChipZap
+  // dossiê de ligação (migration 0011 + colunas já existentes)
+  website: string | null
+  address: string | null
+  owner_name: string | null
+  rating: number | null
+  reviews_count: number | null
+  isca_email_subj: string | null
+  email_event_at: string | null
 }
 
 const EH_BH = /Belo Horizonte|Contagem|Betim|Nova Lima|Santa Luzia|Sabará|Ribeirão das Neves|Ibirité/i
@@ -371,7 +379,9 @@ export async function obterFilaWhatsapp(): Promise<FilaWhatsappItem[]> {
   const [{ data: leads }, { data: supr }] = await Promise.all([
     db
       .from("leads")
-      .select("place_id,name,niche,city,phone,email,reasons,email_status,email_sent_at")
+      .select(
+        "place_id,name,niche,city,phone,email,reasons,email_status,email_sent_at,website,address,owner_name,rating,reviews_count,isca_email_subj,email_event_at"
+      )
       .not("email_sent_at", "is", null)
       .in("email_status", ["sent", "delivered", "opened", "clicked"])
       .not("phone", "is", null)
@@ -414,6 +424,13 @@ export async function obterFilaWhatsapp(): Promise<FilaWhatsappItem[]> {
     toques: toques.get(l.place_id as string) ?? 1,
     abriu: abriu.has(l.place_id as string),
     chip: EH_BH.test(String(l.city ?? "").split(",")[0]) ? "31" : "11",
+    website: (l.website as string) ?? null,
+    address: (l.address as string) ?? null,
+    owner_name: (l.owner_name as string) ?? null,
+    rating: (l.rating as number) ?? null,
+    reviews_count: (l.reviews_count as number) ?? null,
+    isca_email_subj: (l.isca_email_subj as string) ?? null,
+    email_event_at: (l.email_event_at as string) ?? null,
   }))
   return fila.sort(
     (a, b) => Number(b.abriu) - Number(a.abriu) || a.email_sent_at.localeCompare(b.email_sent_at)
