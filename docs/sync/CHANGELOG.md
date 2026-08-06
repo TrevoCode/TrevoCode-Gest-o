@@ -1,5 +1,12 @@
 # CHANGELOG da ponte (mais novo NO TOPO — formato em PONTE.md)
 
+### 2026-08-05 — MÁQUINA — [contrato] colunas `address` e `owner_name` em `prospect.leads` + aba Ligações (PR novo)
+- **Novas colunas em `prospect.leads`** (aditivas, nullable): `address` (text — endereço completo: logradouro, número, bairro, CEP) e `owner_name` (text — nome do dono quando derivável).
+- **Fonte:** RFB. 75% dos leads já têm o CNPJ gravado em `reasons` ("CNPJ 14 dígitos"); o endereço vem de `estabelecimentos` e o dono vem da razão social quando a natureza jurídica é 213-5 Empresário Individual/MEI (razão social = nome civil, CPF final removido). LTDA fica `owner_name` NULL — a tela mostra "pedir pelo responsável".
+- **Desta vez no fluxo certo:** migration `0011_prospect_ligacoes.sql` neste PR (inclui também a formalização das 3 colunas `email_verify_*` de 28/jul, fechando o mea culpa pendente — tudo `IF NOT EXISTS`, idempotente com o banco vivo). Máquina faz o backfill dos leads tocados e o `captar-places.mjs` passa a gravar os 2 campos na captura de leads novos.
+- **Nova aba Ligações** (`/app/ligacoes`) na seção Prospecção: cockpit de ligação — mesma fila da aba WhatsApp (tocados por email, sem resposta, com telefone; abertos no topo), mas o card vira dossiê: falar com quem, telefone grande com fixo/celular, endereço + link Maps (via `place_id`, sem coluna nova), veredito de site, nota Google, início/porte (parse de `reasons`), isca enviada + quando abriu, abertura de ligação pronta pra ler. Status da ligação e anotações em **localStorage** (regra "plataforma só LÊ `prospect`" mantida).
+- A query compartilhada `obterFilaWhatsapp()` passou a selecionar os campos extras (aditivo — a aba WhatsApp não muda de comportamento).
+
 ### 2026-08-03 — MÁQUINA — 4ª dimensão no CBO: CTA (resp × zap), tag nova em `reasons`
 - O disparador CBO agora sorteia por lead um braço de **CTA**: `resp` (isca como está, CTA de responder o email) ou `zap` (mesma isca + PS com o número de WhatsApp do chip 31 em **texto puro**, sem link wa.me de propósito — link em cold é sinal de spam).
 - **Tag nova em `prospect.leads.reasons`**, gravada no momento do envio: `| cta: zap` ou `| cta: resp` (mesmo padrão da `| oferta: OX`; só dado, zero DDL). Se a aba Disparos parsear `reasons`, pode exibir o braço de CTA por lead.
