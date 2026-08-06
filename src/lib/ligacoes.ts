@@ -57,6 +57,18 @@ export function aberturaLigacao(item: FilaWhatsappItem, sender: string): string 
   const cidade = cidadeCurta(item.city)
   const dono = primeiroNome(item.owner_name)
   const alo = dono ? `Oi, falo com ${dono}? ` : "Oi, tudo bem? Consigo falar com quem cuida da parte comercial? "
+  // Premium: elogio com dado verificado (nota + volume de avaliações) e a dor
+  // em moldura de oportunidade — negócio grande merece aparecer na busca.
+  if (item.premium && item.rating != null) {
+    const nota = String(item.rating).replace(".", ",")
+    const aval = item.reviews_count ?? 0
+    const caso = verdito(item.reasons) === "so_social"
+      ? `o link que aparece de vocês leva só pro Instagram`
+      : `quem pesquisa ${nicho} no Google cai no site de concorrente com nota bem menor`
+    return (
+      `${alo}Sou o ${sender}, da Trevo Code. Vou ser direto: pesquisando ${nicho} em ${cidade}, a ${nome} me chamou atenção, ${nota} com ${aval} avaliações é coisa rara. Só que ${caso}. Consegue falar 1 minuto?`
+    )
+  }
   const caso = verdito(item.reasons) === "so_social"
     ? `quem procura acha os concorrentes, e o link de vocês leva só pro Instagram`
     : `quem aparece é concorrente, a ${nome} não aparece`

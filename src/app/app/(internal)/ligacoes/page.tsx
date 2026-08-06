@@ -1,5 +1,5 @@
-import { MailOpen, Phone, PhoneCall, Users } from "lucide-react"
-import { obterFilaWhatsapp } from "@/lib/prospeccao"
+import { Gem, MailOpen, PhoneCall, Users } from "lucide-react"
+import { obterFilaPremium, obterFilaWhatsapp } from "@/lib/prospeccao"
 import { foneWa } from "@/lib/whatsapp-copy"
 import { PageHeader } from "@/components/internal/PageHeader"
 import { StatCard } from "@/components/internal/StatCard"
@@ -13,9 +13,10 @@ export const metadata = { title: "Ligações" }
 export const dynamic = "force-dynamic"
 
 export default async function LigacoesPage() {
-  const fila = (await obterFilaWhatsapp()).filter((i) => foneWa(i.phone))
+  const [filaBruta, premiumBruta] = await Promise.all([obterFilaWhatsapp(), obterFilaPremium()])
+  const fila = filaBruta.filter((i) => foneWa(i.phone))
+  const premium = premiumBruta.filter((i) => foneWa(i.phone))
   const abertos = fila.filter((i) => i.abriu).length
-  const fixos = fila.filter((i) => foneWa(i.phone)?.fixo).length
 
   return (
     <div className="mx-auto max-w-5xl">
@@ -26,11 +27,17 @@ export default async function LigacoesPage() {
       />
       <SectionTabs tabs={TABS_PROSPECCAO} />
       <div className="mb-6 grid gap-4 sm:grid-cols-3">
-        <StatCard icon={Users} label="Na fila" value={String(fila.length)} hint="tocados por email, sem resposta" />
-        <StatCard icon={MailOpen} label="Abriram o email" value={String(abertos)} hint="mais quentes, topo da fila" tone="success" />
-        <StatCard icon={Phone} label="Telefone fixo" value={String(fixos)} hint="sem WhatsApp: ligação é o único canal" />
+        <StatCard
+          icon={Gem}
+          label="Premium (a frio)"
+          value={String(premium.length)}
+          hint="EPP ou maior, 50+ avaliações, nota 4,3+"
+          tone="success"
+        />
+        <StatCard icon={Users} label="Fila do email" value={String(fila.length)} hint="tocados por email, sem resposta" />
+        <StatCard icon={MailOpen} label="Abriram o email" value={String(abertos)} hint="mais quentes da fila do email" />
       </div>
-      <LigacoesCockpit itens={fila} />
+      <LigacoesCockpit itens={fila} premium={premium} />
       <div className="mt-6">
         <Panel
           icon={PhoneCall}

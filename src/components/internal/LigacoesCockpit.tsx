@@ -3,9 +3,9 @@
 import { useEffect, useMemo, useState } from "react"
 import {
   Building2,
-  CalendarDays,
   Check,
   Copy,
+  Gem,
   Globe,
   MailOpen,
   MapPin,
@@ -111,6 +111,11 @@ function Card({
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
             <strong className="text-base">{nomeDisplay(item.name) || item.place_id}</strong>
+            {item.premium && (
+              <Badge tone="success">
+                <Gem className="size-3" /> Porte EPP ou maior
+              </Badge>
+            )}
             {item.abriu && (
               <Badge tone="success">
                 <MailOpen className="size-3" /> Abriu o email
@@ -190,7 +195,7 @@ function Card({
         <p className="flex items-start gap-1.5 sm:col-span-2">
           <MailOpen className="mt-0.5 size-3.5 shrink-0 text-muted-foreground" />
           <span className="text-muted-foreground">
-            {item.toques} email(s) enviado(s)
+            {item.premium ? "Nunca tocado por email: ligação a frio, sem referência de contato anterior" : `${item.toques} email(s) enviado(s)`}
             {item.isca_email_subj ? (
               <>
                 , último assunto: <em className="text-foreground">{item.isca_email_subj}</em>
@@ -256,16 +261,24 @@ function Card({
   )
 }
 
-export function LigacoesCockpit({ itens }: { itens: FilaWhatsappItem[] }) {
+const LS_FONTE = "lig-fonte"
+
+export function LigacoesCockpit({ itens, premium }: { itens: FilaWhatsappItem[]; premium: FilaWhatsappItem[] }) {
   const [registros, setRegistros] = useState<Record<string, Registro>>({})
   const [operador, setOperador] = useState<"fb" | "nobre">("nobre")
+  const [fonte, setFonte] = useState<"premium" | "email">("premium")
   useEffect(() => {
     setRegistros(lerRegistros())
     const op = new URLSearchParams(window.location.search).get("op")?.toLowerCase()
     if (op === "nobre") setOperador("nobre")
     else if (op === "fb" || op === "fabricio") setOperador("fb")
     else if (localStorage.getItem(LS_OPERADOR) === "fb") setOperador("fb")
+    if (localStorage.getItem(LS_FONTE) === "email") setFonte("email")
   }, [])
+  const trocarFonte = (f: "premium" | "email") => {
+    setFonte(f)
+    localStorage.setItem(LS_FONTE, f)
+  }
   const trocar = (o: "fb" | "nobre") => {
     setOperador(o)
     localStorage.setItem(LS_OPERADOR, o)
@@ -280,14 +293,20 @@ export function LigacoesCockpit({ itens }: { itens: FilaWhatsappItem[] }) {
   }
 
   // Divisão pelo DDD do telefone: 31 = FB; demais = Nobre, agrupado por DDD.
+  // Ordem: fila do email = abertos primeiro, fixos na frente; premium = maior
+  // movimento no Google primeiro (reviews desc).
   const { deFb, gruposNobre } = useMemo(() => {
-    const ordena = (a: FilaWhatsappItem, b: FilaWhatsappItem) => {
-      const fixo = (i: FilaWhatsappItem) => Number(foneWa(i.phone)?.fixo ?? false)
-      return Number(b.abriu) - Number(a.abriu) || fixo(b) - fixo(a) || a.email_sent_at.localeCompare(b.email_sent_at)
-    }
-    const deFb = itens.filter((i) => dddDe(i.phone) === "31").sort(ordena)
+    const ativos = fonte === "premium" ? premium : itens
+    const ordena =
+      fonte === "premium"
+        ? (a: FilaWhatsappItem, b: FilaWhatsappItem) => (b.reviews_count ?? 0) - (a.reviews_count ?? 0)
+        : (a: FilaWhatsappItem, b: FilaWhatsappItem) => {
+            const fixo = (i: FilaWhatsappItem) => Number(foneWa(i.phone)?.fixo ?? false)
+            return Number(b.abriu) - Number(a.abriu) || fixo(b) - fixo(a) || a.email_sent_at.localeCompare(b.email_sent_at)
+          }
+    const deFb = ativos.filter((i) => dddDe(i.phone) === "31").sort(ordena)
     const porDdd = new Map<string, FilaWhatsappItem[]>()
-    for (const i of itens.filter((i) => dddDe(i.phone) !== "31")) {
+    for (const i of ativos.filter((i) => dddDe(i.phone) !== "31")) {
       const d = dddDe(i.phone)
       porDdd.set(d, [...(porDdd.get(d) ?? []), i])
     }
@@ -295,7 +314,7 @@ export function LigacoesCockpit({ itens }: { itens: FilaWhatsappItem[] }) {
       .map(([ddd, lista]) => ({ ddd, lista: lista.sort(ordena), cidades: [...new Set(lista.map((i) => cidadeCurta(i.city)))] }))
       .sort((a, b) => b.lista.length - a.lista.length || a.ddd.localeCompare(b.ddd))
     return { deFb, gruposNobre }
-  }, [itens])
+  }, [itens, premium, fonte])
 
   const feitos = (lista: FilaWhatsappItem[]) => lista.filter((i) => (registros[i.place_id]?.r ?? "") !== "").length
   const doNobre = gruposNobre.flatMap((g) => g.lista)
@@ -316,13 +335,37 @@ export function LigacoesCockpit({ itens }: { itens: FilaWhatsappItem[] }) {
     </button>
   )
 
+  const descOrdem =
+    fonte === "premium"
+      ? "Empresas EPP ou maiores, 50+ avaliações e nota 4,3+ no Google. Maior movimento primeiro."
+      : "Quem abriu o email vem primeiro; fixo (só voz) na frente do celular."
+
   const cards = (lista: FilaWhatsappItem[]) =>
     lista.map((i) => (
       <Card key={i.place_id} item={i} sender={SENDER[operador]} registro={registros[i.place_id]} onRegistro={registrar(i.place_id)} />
     ))
 
+  const abaFonte = (f: "premium" | "email", rotulo: string, n: number) => (
+    <button
+      type="button"
+      onClick={() => trocarFonte(f)}
+      className={cn(
+        "inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium transition-colors",
+        fonte === f ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"
+      )}
+    >
+      {f === "premium" && <Gem className="size-3.5" />}
+      {rotulo}
+      <span className={cn("text-xs", fonte === f ? "text-primary-foreground/80" : "")}>{n}</span>
+    </button>
+  )
+
   return (
     <div className="space-y-6">
+      <div className="flex gap-1 rounded-xl border border-border bg-card p-1">
+        {abaFonte("premium", "Premium (a frio)", premium.length)}
+        {abaFonte("email", "Fila do email", itens.length)}
+      </div>
       <div className="flex gap-1 rounded-xl border border-border bg-card p-1">
         {aba("nobre", "Nobre · fora do 31", doNobre)}
         {aba("fb", "FB · DDD 31", deFb)}
@@ -331,7 +374,7 @@ export function LigacoesCockpit({ itens }: { itens: FilaWhatsappItem[] }) {
         <Panel
           icon={Phone}
           title={`DDD 31 · BH e região (${feitos(deFb)}/${deFb.length})`}
-          description="Quem abriu o email vem primeiro; fixo (só voz) na frente do celular."
+          description={descOrdem}
           bodyClassName="space-y-3"
         >
           {deFb.length === 0 ? <p className="text-sm text-muted-foreground">Ninguém na fila do DDD 31.</p> : cards(deFb)}
@@ -346,7 +389,7 @@ export function LigacoesCockpit({ itens }: { itens: FilaWhatsappItem[] }) {
             key={g.ddd}
             icon={Phone}
             title={`DDD ${g.ddd} · ${g.cidades.join(", ")} (${feitos(g.lista)}/${g.lista.length})`}
-            description="Quem abriu o email vem primeiro; fixo (só voz) na frente do celular."
+            description={descOrdem}
             bodyClassName="space-y-3"
           >
             {cards(g.lista)}
